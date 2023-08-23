@@ -86,7 +86,7 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	// get the active validator's validation result
 	vr := &valid8orv1alpha1.ValidationResult{}
 	nn := types.NamespacedName{
-		Name:      fmt.Sprintf("aws-validator-%s", validator.Name),
+		Name:      fmt.Sprintf("valid8or-plugin-aws-%s", validator.Name),
 		Namespace: req.Namespace,
 	}
 	if err := r.Get(ctx, nn, vr); err == nil {

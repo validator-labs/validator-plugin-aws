@@ -1,11 +1,11 @@
-name: aws-validator
+name: valid8or-plugin-aws
 version: v2beta1
 
 vars:
-  IMAGE: quay.io/spectrocloud-labs/aws-valid8or
+  IMAGE: quay.io/spectrocloud-labs/valid8or-plugin-aws
 
 images:
-  aws-validator:
+  valid8or-plugin-aws:
     image: ${IMAGE}
     tags:
     - dev
@@ -15,15 +15,15 @@ images:
     docker: {}
 
 deployments:
-  aws-validator:
-    namespace: aws-validator-system
+  valid8or-plugin-aws:
+    namespace: valid8or-plugin-aws-system
     kubectl:
       kustomize: true
       manifests:
       - config/devspace
 
 dev:
-  aws-validator:
+  valid8or-plugin-aws:
     imageSelector: ${IMAGE}
     terminal:
       enabled: true

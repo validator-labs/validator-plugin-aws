@@ -5,8 +5,8 @@ metadata:
     app.kubernetes.io/name: clusterrolebinding
     app.kubernetes.io/instance: manager-rolebinding
     app.kubernetes.io/component: rbac
-    app.kubernetes.io/created-by: aws-validator
-    app.kubernetes.io/part-of: aws-validator
+    app.kubernetes.io/created-by: valid8or-plugin-aws
+    app.kubernetes.io/part-of: valid8or-plugin-aws
     app.kubernetes.io/managed-by: kustomize
   name: manager-rolebinding
 roleRef:

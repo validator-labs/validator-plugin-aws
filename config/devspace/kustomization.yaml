@@ -18,7 +18,7 @@ patches:
       labels:
         control-plane: controller-manager
       name: controller-manager
-      namespace: aws-validator-system
+      namespace: valid8or-plugin-aws-system
     spec:
       template:
         spec:
