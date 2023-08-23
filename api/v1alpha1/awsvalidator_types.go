@@ -24,7 +24,6 @@ import (
 // AwsValidatorSpec defines the desired state of AwsValidator
 type AwsValidatorSpec struct {
 	Auth     AwsAuth   `json:"auth"`
-	Region   string    `json:"region"`
 	IamRules []IamRule `json:"iamRules,omitempty"`
 	TagRules []TagRule `json:"tagRules,omitempty"`
 }
