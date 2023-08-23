@@ -1,0 +1,23 @@
+apiVersion: validation.spectrocloud.labs/v1alpha1
+kind: AwsValidator
+metadata:
+  labels:
+    app.kubernetes.io/name: awsvalidator
+    app.kubernetes.io/instance: awsvalidator-sample
+    app.kubernetes.io/part-of: aws-validator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: aws-validator
+  name: awsvalidator-sample
+spec:
+  auth:
+    secretName: aws-creds
+  region: us-west-2
+  iamRules:
+  - iamPolicies:
+    - statements:
+      - actions:
+        - "s3:ListBucket"
+        effect: Allow
+        resource: "*"
+      version: "2012-10-17"
+    iamRole: SpectroCloudRole

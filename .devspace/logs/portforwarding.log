@@ -1,0 +1,117 @@
+Forwarding from 127.0.0.1:2343 -> 2343
+Forwarding from [::1]:2343 -> 2343
+Forwarding from 127.0.0.1:2343 -> 2343
+Forwarding from [::1]:2343 -> 2343
+Forwarding from 127.0.0.1:2343 -> 2343
+Forwarding from [::1]:2343 -> 2343
+Forwarding from 127.0.0.1:2343 -> 2343
+Forwarding from [::1]:2343 -> 2343
+Forwarding from 127.0.0.1:2343 -> 2343
+Forwarding from [::1]:2343 -> 2343
+Handling connection for 2343
+Handling connection for 2343
+Forwarding from 127.0.0.1:2343 -> 2343
+Forwarding from [::1]:2343 -> 2343
+Handling connection for 2343
+Forwarding from 127.0.0.1:2343 -> 2343
+Forwarding from [::1]:2343 -> 2343
+Handling connection for 2343
+Handling connection for 2343
+{"level":"error","msg":"an error occurred forwarding 2343 -\u003e 2343: error forwarding port 2343 to pod cfb15a95a04c4882e366a62b2099021e53dd86995bf5e899c6826faf53f59a94, uid : failed to execute portforward in network namespace \"/var/run/netns/cni-70b44961-e76d-703d-289c-80c632b23a08\": failed to connect to localhost:2343 inside namespace \"cfb15a95a04c4882e366a62b2099021e53dd86995bf5e899c6826faf53f59a94\", IPv4: dial tcp4 127.0.0.1:2343: connect: connection refused IPv6 dial tcp6 [::1]:2343: connect: connection refused","time":"2023-08-22T17:26:54-06:00"}
+Handling connection for 2343
+Handling connection for 2343
+Forwarding from 127.0.0.1:2343 -> 2343
+Forwarding from [::1]:2343 -> 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Forwarding from 127.0.0.1:2343 -> 2343
+Forwarding from [::1]:2343 -> 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Forwarding from 127.0.0.1:2343 -> 2343
+Forwarding from [::1]:2343 -> 2343
+Forwarding from 127.0.0.1:2343 -> 2343
+Forwarding from [::1]:2343 -> 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+{"level":"error","msg":"an error occurred forwarding 2343 -\u003e 2343: error forwarding port 2343 to pod cfb15a95a04c4882e366a62b2099021e53dd86995bf5e899c6826faf53f59a94, uid : failed to execute portforward in network namespace \"/var/run/netns/cni-70b44961-e76d-703d-289c-80c632b23a08\": failed to connect to localhost:2343 inside namespace \"cfb15a95a04c4882e366a62b2099021e53dd86995bf5e899c6826faf53f59a94\", IPv4: dial tcp4 127.0.0.1:2343: connect: connection refused IPv6 dial tcp6 [::1]:2343: connect: connection refused","time":"2023-08-22T18:56:51-06:00"}
+Handling connection for 2343
+Handling connection for 2343
+{"level":"error","msg":"error copying from remote stream to local connection: readfrom tcp4 127.0.0.1:2343-\u003e127.0.0.1:61024: write tcp4 127.0.0.1:2343-\u003e127.0.0.1:61024: write: broken pipe","time":"2023-08-22T19:14:26-06:00"}
+Handling connection for 2343
+Handling connection for 2343
+Forwarding from 127.0.0.1:2343 -> 2343
+Forwarding from [::1]:2343 -> 2343
+Handling connection for 2343
+{"level":"error","msg":"error copying from remote stream to local connection: readfrom tcp4 127.0.0.1:2343-\u003e127.0.0.1:61800: write tcp4 127.0.0.1:2343-\u003e127.0.0.1:61800: write: broken pipe","time":"2023-08-22T19:15:25-06:00"}
+Handling connection for 2343
+{"level":"error","msg":"error copying from remote stream to local connection: readfrom tcp4 127.0.0.1:2343-\u003e127.0.0.1:61827: write tcp4 127.0.0.1:2343-\u003e127.0.0.1:61827: write: broken pipe","time":"2023-08-22T19:15:59-06:00"}
+Handling connection for 2343
+{"level":"error","msg":"error copying from remote stream to local connection: readfrom tcp4 127.0.0.1:2343-\u003e127.0.0.1:61847: write tcp4 127.0.0.1:2343-\u003e127.0.0.1:61847: write: broken pipe","time":"2023-08-22T19:17:25-06:00"}
+Handling connection for 2343
+Handling connection for 2343
+Forwarding from 127.0.0.1:2343 -> 2343
+Forwarding from [::1]:2343 -> 2343
+Handling connection for 2343
+{"level":"error","msg":"an error occurred forwarding 2343 -\u003e 2343: error forwarding port 2343 to pod cfb15a95a04c4882e366a62b2099021e53dd86995bf5e899c6826faf53f59a94, uid : failed to execute portforward in network namespace \"/var/run/netns/cni-70b44961-e76d-703d-289c-80c632b23a08\": failed to connect to localhost:2343 inside namespace \"cfb15a95a04c4882e366a62b2099021e53dd86995bf5e899c6826faf53f59a94\", IPv4: dial tcp4 127.0.0.1:2343: connect: connection refused IPv6 dial tcp6 [::1]:2343: connect: connection refused","time":"2023-08-22T19:20:02-06:00"}
+Handling connection for 2343
+{"level":"error","msg":"an error occurred forwarding 2343 -\u003e 2343: error forwarding port 2343 to pod cfb15a95a04c4882e366a62b2099021e53dd86995bf5e899c6826faf53f59a94, uid : failed to execute portforward in network namespace \"/var/run/netns/cni-70b44961-e76d-703d-289c-80c632b23a08\": failed to connect to localhost:2343 inside namespace \"cfb15a95a04c4882e366a62b2099021e53dd86995bf5e899c6826faf53f59a94\", IPv4: dial tcp4 127.0.0.1:2343: connect: connection refused IPv6 dial tcp6 [::1]:2343: connect: connection refused","time":"2023-08-22T19:20:12-06:00"}
+Handling connection for 2343
+{"level":"error","msg":"an error occurred forwarding 2343 -\u003e 2343: error forwarding port 2343 to pod cfb15a95a04c4882e366a62b2099021e53dd86995bf5e899c6826faf53f59a94, uid : failed to execute portforward in network namespace \"/var/run/netns/cni-70b44961-e76d-703d-289c-80c632b23a08\": failed to connect to localhost:2343 inside namespace \"cfb15a95a04c4882e366a62b2099021e53dd86995bf5e899c6826faf53f59a94\", IPv4: dial tcp4 127.0.0.1:2343: connect: connection refused IPv6 dial tcp6 [::1]:2343: connect: connection refused","time":"2023-08-22T19:20:17-06:00"}
+Handling connection for 2343
+Forwarding from 127.0.0.1:2343 -> 2343
+Forwarding from [::1]:2343 -> 2343
+Forwarding from 127.0.0.1:2343 -> 2343
+Forwarding from [::1]:2343 -> 2343
+Handling connection for 2343
+Handling connection for 2343
+{"level":"error","msg":"error copying from remote stream to local connection: readfrom tcp4 127.0.0.1:2343-\u003e127.0.0.1:62093: write tcp4 127.0.0.1:2343-\u003e127.0.0.1:62093: write: broken pipe","time":"2023-08-22T19:26:35-06:00"}
+Handling connection for 2343
+{"level":"error","msg":"error copying from remote stream to local connection: readfrom tcp4 127.0.0.1:2343-\u003e127.0.0.1:62487: write tcp4 127.0.0.1:2343-\u003e127.0.0.1:62487: write: broken pipe","time":"2023-08-22T19:36:42-06:00"}
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Forwarding from 127.0.0.1:2343 -> 2343
+Forwarding from [::1]:2343 -> 2343
+Handling connection for 2343
+{"level":"error","msg":"error copying from remote stream to local connection: readfrom tcp4 127.0.0.1:2343-\u003e127.0.0.1:62632: write tcp4 127.0.0.1:2343-\u003e127.0.0.1:62632: write: broken pipe","time":"2023-08-22T19:39:39-06:00"}
+Handling connection for 2343
+Handling connection for 2343
+{"level":"error","msg":"error copying from remote stream to local connection: readfrom tcp4 127.0.0.1:2343-\u003e127.0.0.1:63161: write tcp4 127.0.0.1:2343-\u003e127.0.0.1:63161: write: broken pipe","time":"2023-08-22T19:50:26-06:00"}
+Handling connection for 2343
+Forwarding from 127.0.0.1:2343 -> 2343
+Forwarding from [::1]:2343 -> 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
+Handling connection for 2343
