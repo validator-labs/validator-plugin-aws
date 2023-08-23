@@ -1,11 +1,16 @@
-# aws-validator
-// TODO(user): Add simple overview of use/purpose
+# valid8or-plugin-aws
+The AWS valid8or plugin ensures that your AWS environment matches a user-configurable expected state.
 
 ## Description
-// TODO(user): An in-depth paragraph about your project and overview of use
+The AWS valid8or plugin reconciles `AwsValidator` custom resources to perform the following validations against your AWS environment:
+
+1. Compare the IAM permissions associated with an IAM role against an expected permission set
+2. Compare the tags associated with a subnet against an expected tag set
+
+Each `AwsValidator` CR is (re)-processed every two minutes to continuously ensure that your AWS environment matches the expected state.
 
 ## Getting Started
-You’ll need a Kubernetes cluster to run against. You can use [KIND](https://sigs.k8s.io/kind) to get a local cluster for testing, or run against a remote cluster.
+You’ll need a Kubernetes cluster to run against. You can use [kind](https://sigs.k8s.io/kind) to get a local cluster for testing, or run against a remote cluster.
 **Note:** Your controller will automatically use the current context in your kubeconfig file (i.e. whatever cluster `kubectl cluster-info` shows).
 
 ### Running on the cluster
@@ -18,13 +23,13 @@ kubectl apply -f config/samples/
 2. Build and push your image to the location specified by `IMG`:
 
 ```sh
-make docker-build docker-push IMG=<some-registry>/aws-validator:tag
+make docker-build docker-push IMG=<some-registry>/valid8or-plugin-aws:tag
 ```
 
 3. Deploy the controller to the cluster with the image specified by `IMG`:
 
 ```sh
-make deploy IMG=<some-registry>/aws-validator:tag
+make deploy IMG=<some-registry>/valid8or-plugin-aws:tag
 ```
 
 ### Uninstall CRDs
@@ -42,7 +47,7 @@ make undeploy
 ```
 
 ## Contributing
-// TODO(user): Add detailed information on how you would like others to contribute to this project
+All contributions are welcome! Feel free to reach out on the [Spectro Cloud community Slack](https://spectrocloudcommunity.slack.com/join/shared_invite/zt-g8gfzrhf-cKavsGD_myOh30K24pImLA#/shared-invite/email).
 
 ### How it works
 This project aims to follow the Kubernetes [Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/).
