@@ -1,9 +1,0 @@
-images:
-    aws-validator:
-        imageConfigHash: ef069814b3e07622bea3966861a9698cb0db3bbc4d92bd32ef6b227b94d99c5e
-        dockerfileHash: 2610d2376d4e1c82adc5af0d20ab1eb125f4ad22f2014a168c5d96cd7eb06422
-        imageName: quay.io/spectrocloud-labs/aws-valid8or
-        tag: dev
-lastContext:
-    namespace: aws-validator-system
-    context: kind-kind
