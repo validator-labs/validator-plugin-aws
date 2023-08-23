@@ -336,7 +336,8 @@ func (r *AwsValidatorReconciler) reconcileIAMRule(nn types.NamespacedName, rule 
 	}
 	failures := make([]string, 0)
 	for resource, actions := range missing {
-		failures = append(failures, fmt.Sprintf("resource '%s' missing action(s): %s", resource, actions))
+		failure := fmt.Sprintf("IAM role '%s' missing action(s): %s for resource '%s'", rule.IamRole, resource, actions)
+		failures = append(failures, failure)
 	}
 
 	// Build the latest condition for this IAM rule
