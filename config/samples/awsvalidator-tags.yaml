@@ -12,5 +12,5 @@ spec:
     region: us-east-2
     resourceType: subnet
     arns:
-    - "arn:aws:ec2:us-east-2:745150053801:subnet/subnet-04956e5e419b7b58f"
-    - "arn:aws:ec2:us-east-2:745150053801:subnet/subnet-0428c566c238b76f1"
+    - "<arn_1>"
+    - "<arn_2>"

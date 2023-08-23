@@ -9,6 +9,8 @@ The AWS valid8or plugin reconciles `AwsValidator` custom resources to perform th
 
 Each `AwsValidator` CR is (re)-processed every two minutes to continuously ensure that your AWS environment matches the expected state.
 
+See the [samples](https://github.com/spectrocloud-labs/valid8or-plugin-aws/tree/main/config/samples) directory for example `AwsValidator` configurations.
+
 ## Getting Started
 You’ll need a Kubernetes cluster to run against. You can use [kind](https://sigs.k8s.io/kind) to get a local cluster for testing, or run against a remote cluster.
 **Note:** Your controller will automatically use the current context in your kubeconfig file (i.e. whatever cluster `kubectl cluster-info` shows).
