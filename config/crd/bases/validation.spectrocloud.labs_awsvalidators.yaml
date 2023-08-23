@@ -83,24 +83,24 @@ spec:
               tagRules:
                 items:
                   properties:
-                    subnetTagRules:
+                    arns:
                       items:
-                        properties:
-                          key:
-                            type: string
-                          name:
-                            type: string
-                          region:
-                            type: string
-                          value:
-                            type: string
-                        required:
-                        - key
-                        - name
-                        - region
-                        - value
-                        type: object
+                        type: string
                       type: array
+                    expectedValue:
+                      type: string
+                    key:
+                      type: string
+                    region:
+                      type: string
+                    resourceType:
+                      type: string
+                  required:
+                  - arns
+                  - expectedValue
+                  - key
+                  - region
+                  - resourceType
                   type: object
                 type: array
             required:

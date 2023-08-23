@@ -1,0 +1,16 @@
+apiVersion: validation.spectrocloud.labs/v1alpha1
+kind: AwsValidator
+metadata:
+  name: awsvalidator-sample-tags
+spec:
+  auth:
+    secretName: aws-creds
+  region: us-west-2
+  tagRules:
+  - key: "kubernetes.io/role/elb"
+    expectedValue: "1"
+    region: us-east-2
+    resourceType: subnet
+    arns:
+    - "arn:aws:ec2:us-east-2:745150053801:subnet/subnet-04956e5e419b7b58f"
+    - "arn:aws:ec2:us-east-2:745150053801:subnet/subnet-0428c566c238b76f1"

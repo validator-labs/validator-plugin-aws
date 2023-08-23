@@ -1,7 +1,7 @@
 apiVersion: validation.spectrocloud.labs/v1alpha1
 kind: AwsValidator
 metadata:
-  name: awsvalidator-sample
+  name: awsvalidator-sample-iam-fail
 spec:
   auth:
     secretName: aws-creds
@@ -10,7 +10,7 @@ spec:
   - iamPolicies:
     - statements:
       - actions:
-        - "s3:ListBucket"
+        - "cognito-sync:ListDatasets"
         effect: Allow
         resource: "*"
       version: "2012-10-17"

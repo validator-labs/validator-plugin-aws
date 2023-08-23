@@ -54,14 +54,11 @@ type StatementEntry struct {
 }
 
 type TagRule struct {
-	SubnetTagRules []SubnetTagRule `json:"subnetTagRules,omitempty"`
-}
-
-type SubnetTagRule struct {
-	Name   string `json:"name"`
-	Region string `json:"region"`
-	Key    string `json:"key"`
-	Value  string `json:"value"`
+	Key           string   `json:"key"`
+	ExpectedValue string   `json:"expectedValue"`
+	Region        string   `json:"region"`
+	ResourceType  string   `json:"resourceType"`
+	ARNs          []string `json:"arns"`
 }
 
 // AwsValidatorStatus defines the observed state of AwsValidator

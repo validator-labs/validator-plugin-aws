@@ -105,15 +105,22 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	}
 
 	// execute validation
-	ec2Svc, iamSvc := r.getAwsServices(awsCreds, validator)
+	session, err := session.NewSession(&aws.Config{
+		Credentials: awsCreds,
+		MaxRetries:  aws.Int(3),
+	})
+	if err != nil {
+		// allow flow to proceed - better errors will surface subsequently
+		r.Log.V(0).Error(err, "failed to establish AWS session")
+	}
 
 	for _, rule := range validator.Spec.IamRules {
-		if err := r.reconcileIAMRule(nn, rule, iamSvc); err != nil {
+		if err := r.reconcileIAMRule(nn, rule, session); err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile IAM rule")
 		}
 	}
 	for _, rule := range validator.Spec.TagRules {
-		if err := r.reconcileTagRule(rule, ec2Svc); err != nil {
+		if err := r.reconcileTagRule(nn, rule, session); err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile Tag rule")
 		}
 	}
@@ -161,22 +168,14 @@ func (r *AwsValidatorReconciler) secretKeyAuth(req ctrl.Request, validator *v1al
 	return credentials.NewStaticCredentials(string(id), string(secretKey), ""), nil
 }
 
-// getAwsServices creates AWS service objects for EC2 and IAM
-func (r *AwsValidatorReconciler) getAwsServices(awsCreds *credentials.Credentials, validator *v1alpha1.AwsValidator) (*ec2.EC2, *iam.IAM) {
-	sess, err := session.NewSession(&aws.Config{
-		Credentials: awsCreds,
-		MaxRetries:  aws.Int(3),
-	})
-	if err != nil {
-		// allow flow to proceed - better errors will surface subsequently
-		r.Log.V(0).Error(err, "failed to establish AWS session")
+// getAwsServices creates AWS service objects for a specific session and region
+func (r *AwsValidatorReconciler) getAwsServices(session *session.Session, region string) (*ec2.EC2, *iam.IAM) {
+	config := &aws.Config{}
+	if region != "" {
+		config.Region = aws.String(region)
 	}
-	ec2Svc := ec2.New(sess, &aws.Config{
-		Region: aws.String(validator.Spec.Region),
-	})
-	iamSvc := iam.New(sess, &aws.Config{
-		Region: aws.String(validator.Spec.Region),
-	})
+	ec2Svc := ec2.New(session, config)
+	iamSvc := iam.New(session, config)
 	return ec2Svc, iamSvc
 }
 
@@ -185,9 +184,8 @@ func (r *AwsValidatorReconciler) handleExistingValidationResult(nn types.Namespa
 	switch vr.Status.State {
 
 	case valid8orv1alpha1.ValidationInProgress:
-		// we shouldn't get here, since the code isn't async
-		r.Log.V(0).Info("Validation running. Requeueing in 30s.", "name", nn.Name, "namespace", nn.Namespace)
-		return &ctrl.Result{RequeueAfter: time.Second * 30}, nil
+		// validations are only left in progress if an unexpected error occurred
+		r.Log.V(0).Info("Previous validation failed with unexpected error", "name", nn.Name, "namespace", nn.Namespace)
 
 	case valid8orv1alpha1.ValidationFailed:
 		// log validation failure, but continue and retry
@@ -248,7 +246,8 @@ func (r *AwsValidatorReconciler) handleNewValidationResult(nn types.NamespacedNa
 }
 
 // reconcileIAMRule reconciles an IAM validation rule from the AWSValidator config
-func (r *AwsValidatorReconciler) reconcileIAMRule(nn types.NamespacedName, rule v1alpha1.IamRule, iamSvc *iam.IAM) error {
+func (r *AwsValidatorReconciler) reconcileIAMRule(nn types.NamespacedName, rule v1alpha1.IamRule, s *session.Session) error {
+	_, iamSvc := r.getAwsServices(s, "")
 
 	// Build map of required permissions
 	permissions := make(map[string]map[string]bool)
@@ -341,52 +340,104 @@ func (r *AwsValidatorReconciler) reconcileIAMRule(nn types.NamespacedName, rule 
 	}
 
 	// Build the latest condition for this IAM rule
-	message := "All required IAM permissions were found"
-	reason := fmt.Sprintf("%s-%s", validReasonPrefix, rule.IamRole)
 	state := valid8orv1alpha1.ValidationSucceeded
-	status := corev1.ConditionTrue
-	lastTransitionTime := metav1.Time{Time: time.Now()}
+	latestCondition := defaultValidationCondition()
+	latestCondition.Message = "All required IAM permissions were found"
+	latestCondition.Reason = fmt.Sprintf("%s-%s", validReasonPrefix, rule.IamRole)
 
 	if len(missing) > 0 {
-		message = "One or more required IAM permissions was not found"
 		state = valid8orv1alpha1.ValidationFailed
-		status = corev1.ConditionFalse
+		latestCondition.Failures = failures
+		latestCondition.Message = "One or more required IAM permissions was not found"
+		latestCondition.Status = corev1.ConditionFalse
 	}
 
-	latestCondition := valid8orv1alpha1.ValidationCondition{
-		Failures:           failures,
-		Message:            message,
-		Reason:             reason,
-		Status:             status,
-		LastTransitionTime: lastTransitionTime,
+	return r.updateValidationResult(nn, latestCondition, state)
+}
+
+// reconcileTagRule reconciles an EC2 tagging validation rule from the AWSValidator config
+func (r *AwsValidatorReconciler) reconcileTagRule(nn types.NamespacedName, rule v1alpha1.TagRule, s *session.Session) error {
+	ec2Svc, _ := r.getAwsServices(s, rule.Region)
+
+	// Build the default latest condition for this tag rule
+	state := valid8orv1alpha1.ValidationSucceeded
+	latestCondition := defaultValidationCondition()
+	latestCondition.Message = "All required subnet tags were found"
+	latestCondition.Reason = fmt.Sprintf("%s-%s-%s", validReasonPrefix, rule.ResourceType, rule.Key)
+
+	switch rule.ResourceType {
+	case "subnet":
+		// match the tag rule's list of ARNs against the subnets with tag 'rule.Key=rule.ExpectedValue'
+		failures := make([]string, 0)
+		foundArns := make(map[string]bool)
+		subnets, err := ec2Svc.DescribeSubnets(&ec2.DescribeSubnetsInput{
+			Filters: []*ec2.Filter{
+				{
+					Name:   aws.String(fmt.Sprintf("tag:%s", rule.Key)),
+					Values: []*string{aws.String(rule.ExpectedValue)},
+				},
+			},
+		})
+		if err != nil {
+			r.Log.V(0).Error(err, "failed to describe subnets", "region", rule.Region)
+			return err
+		}
+		for _, s := range subnets.Subnets {
+			if s.SubnetArn != nil {
+				foundArns[*s.SubnetArn] = true
+			}
+		}
+		for _, arn := range rule.ARNs {
+			_, ok := foundArns[arn]
+			if !ok {
+				failures = append(failures, fmt.Sprintf("Subnet with ARN '%s' missing tag '%s=%s'", arn, rule.Key, rule.ExpectedValue))
+			}
+		}
+		if len(failures) > 0 {
+			state = valid8orv1alpha1.ValidationFailed
+			latestCondition.Failures = failures
+			latestCondition.Message = "One or more required subnet tags was not found"
+			latestCondition.Status = corev1.ConditionFalse
+		}
+	default:
+		return fmt.Errorf("unsupported resourceType '%s' for TagRule", rule.ResourceType)
 	}
 
-	// Update ValidationResult for the active IAM role
+	return r.updateValidationResult(nn, latestCondition, state)
+}
+
+// updateValidationResult updates the ValidationResult for the active validation rule
+func (r *AwsValidatorReconciler) updateValidationResult(
+	nn types.NamespacedName, c valid8orv1alpha1.ValidationCondition, state valid8orv1alpha1.ValidationState,
+) error {
 	vr := &valid8orv1alpha1.ValidationResult{}
 	if err := r.Get(context.Background(), nn, vr); err != nil {
 		return fmt.Errorf("failed to get ValidationResult '%s' in namespace '%s': %v", nn.Name, nn.Namespace, err)
 	}
 	vr.Status.State = state
 
-	idx := getConditionIndexByReason(vr.Status.Conditions, reason)
+	idx := getConditionIndexByReason(vr.Status.Conditions, c.Reason)
 	if idx == -1 {
-		vr.Status.Conditions = append(vr.Status.Conditions, latestCondition)
+		vr.Status.Conditions = append(vr.Status.Conditions, c)
 	} else {
-		vr.Status.Conditions[idx] = latestCondition
+		vr.Status.Conditions[idx] = c
 	}
 
 	if err := r.Status().Update(context.Background(), vr); err != nil {
 		r.Log.V(0).Error(err, "failed to update ValidationResult")
 		return err
 	}
-	r.Log.V(0).Info("Updated ValidationResult", "state", state, "reason", reason, "message", message, "time", lastTransitionTime)
+	r.Log.V(0).Info("Updated ValidationResult", "state", state, "reason", c.Reason, "message", c.Message, "time", c.LastTransitionTime)
 
 	return nil
 }
 
-// reconcileTagRule reconciles an EC2 tagging validation rule from the AWSValidator config
-func (r *AwsValidatorReconciler) reconcileTagRule(rule v1alpha1.TagRule, ec2Svc *ec2.EC2) error {
-	return nil
+// defaultCondition returns a default validation condition
+func defaultValidationCondition() valid8orv1alpha1.ValidationCondition {
+	return valid8orv1alpha1.ValidationCondition{
+		Status:             corev1.ConditionTrue,
+		LastTransitionTime: metav1.Time{Time: time.Now()},
+	}
 }
 
 // getInvalidConditions filters a ValidationCondition array and returns all conditions corresponding to a failed validation
