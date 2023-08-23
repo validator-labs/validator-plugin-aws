@@ -1,5 +1,5 @@
 # valid8or-plugin-aws
-The AWS valid8or plugin ensures that your AWS environment matches a user-configurable expected state.
+The AWS [valid8or](https://github.com/spectrocloud-labs/valid8or) plugin ensures that your AWS environment matches a user-configurable expected state.
 
 ## Description
 The AWS valid8or plugin reconciles `AwsValidator` custom resources to perform the following validations against your AWS environment:
