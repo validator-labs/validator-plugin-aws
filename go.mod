@@ -1,4 +1,4 @@
-module github.com/spectrocloud-labs/aws-validator
+module github.com/spectrocloud-labs/valid8or-plugin-aws
 
 go 1.20
 
