@@ -36,6 +36,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/utils/strings/slices"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
@@ -245,22 +246,43 @@ func (r *AwsValidatorReconciler) handleNewValidationResult(nn types.NamespacedNa
 	return nil, nil
 }
 
+type permission struct {
+	Actions    map[string]bool
+	Condition  *v1alpha1.Condition
+	Errors     []string
+	PolicyName string
+}
+
+type missing struct {
+	Actions    []string
+	PolicyName string
+}
+
 // reconcileIAMRule reconciles an IAM validation rule from the AWSValidator config
 func (r *AwsValidatorReconciler) reconcileIAMRule(nn types.NamespacedName, rule v1alpha1.IamRule, s *session.Session) error {
 	_, iamSvc := r.getAwsServices(s, "")
 
 	// Build map of required permissions
-	permissions := make(map[string]map[string]bool)
+	permissions := make(map[string]*permission)
 	for _, p := range rule.Policies {
 		for _, s := range p.Statements {
 			if s.Effect != "Allow" {
 				continue
 			}
-			if permissions[s.Resource] == nil {
-				permissions[s.Resource] = make(map[string]bool)
-			}
-			for _, action := range s.Actions {
-				permissions[s.Resource][action] = false
+			for _, r := range s.Resources {
+				if permissions[r] == nil {
+					permissions[r] = &permission{
+						Actions: make(map[string]bool),
+						Errors:  make([]string, 0),
+					}
+				}
+				permissions[r].PolicyName = p.Name
+				if s.Condition != nil {
+					permissions[r].Condition = s.Condition
+				}
+				for _, action := range s.Actions {
+					permissions[r].Actions[action] = false
+				}
 			}
 		}
 	}
@@ -313,9 +335,27 @@ func (r *AwsValidatorReconciler) reconcileIAMRule(nn types.NamespacedName, rule 
 				continue
 			}
 			for _, resource := range s.Resource {
-				for _, action := range s.Action {
-					if _, ok := permissions[resource][action]; ok {
-						permissions[resource][action] = true
+				permission, ok := permissions[resource]
+				if ok {
+					if permission.Condition != nil {
+						errMsg := fmt.Sprintf("Resource '%s' missing condition '%s'", resource, permission.Condition)
+						condition, ok := s.Condition[permission.Condition.Type]
+						if !ok {
+							permission.Errors = append(permission.Errors, errMsg)
+							continue
+						}
+						v, ok := condition[permission.Condition.Key]
+						if !ok {
+							permission.Errors = append(permission.Errors, errMsg)
+							continue
+						}
+						if !slices.Equal(v, permission.Condition.Values) {
+							permission.Errors = append(permission.Errors, errMsg)
+							continue
+						}
+					}
+					for _, action := range s.Action {
+						permission.Actions[action] = true
 					}
 				}
 			}
@@ -323,20 +363,31 @@ func (r *AwsValidatorReconciler) reconcileIAMRule(nn types.NamespacedName, rule 
 	}
 
 	// Build failure messages, if applicable
-	missing := make(map[string][]string)
-	for resource, actions := range permissions {
-		for action, allowed := range actions {
+	failures := make([]string, 0)
+	missingActions := make(map[string]*missing)
+
+	for resource, permission := range permissions {
+		if len(permission.Errors) > 0 {
+			failures = append(failures, dedupeStrSlice(permission.Errors)...)
+			continue
+		}
+		for action, allowed := range permission.Actions {
 			if !allowed {
-				if missing[resource] == nil {
-					missing[resource] = make([]string, 0)
+				if missingActions[resource] == nil {
+					missingActions[resource] = &missing{
+						Actions: make([]string, 0),
+					}
 				}
-				missing[resource] = append(missing[resource], action)
+				missingActions[resource].Actions = append(missingActions[resource].Actions, action)
+				missingActions[resource].PolicyName = permission.PolicyName
 			}
 		}
 	}
-	failures := make([]string, 0)
-	for resource, actions := range missing {
-		failure := fmt.Sprintf("IAM role '%s' missing action(s): %s for resource '%s'", rule.IamRole, resource, actions)
+	for resource, missing := range missingActions {
+		failure := fmt.Sprintf(
+			"IAM role '%s' missing action(s): %s for resource '%s' from policy '%s",
+			rule.IamRole, missing.Actions, resource, missing.PolicyName,
+		)
 		failures = append(failures, failure)
 	}
 
@@ -346,10 +397,10 @@ func (r *AwsValidatorReconciler) reconcileIAMRule(nn types.NamespacedName, rule 
 	latestCondition.Message = "All required IAM permissions were found"
 	latestCondition.Reason = fmt.Sprintf("%s-%s", validReasonPrefix, rule.IamRole)
 
-	if len(missing) > 0 {
+	if len(failures) > 0 {
 		state = valid8orv1alpha1.ValidationFailed
 		latestCondition.Failures = failures
-		latestCondition.Message = "One or more required IAM permissions was not found"
+		latestCondition.Message = "One or more required IAM permissions was not found, or a condition was not met"
 		latestCondition.Status = corev1.ConditionFalse
 	}
 
@@ -428,7 +479,10 @@ func (r *AwsValidatorReconciler) updateValidationResult(
 		r.Log.V(0).Error(err, "failed to update ValidationResult")
 		return err
 	}
-	r.Log.V(0).Info("Updated ValidationResult", "state", state, "reason", c.Reason, "message", c.Message, "time", c.LastTransitionTime)
+	r.Log.V(0).Info(
+		"Updated ValidationResult", "state", state, "reason", c.Reason,
+		"message", c.Message, "failures", c.Failures, "time", c.LastTransitionTime,
+	)
 
 	return nil
 }
@@ -460,4 +514,17 @@ func getConditionIndexByReason(conditions []valid8orv1alpha1.ValidationCondition
 		}
 	}
 	return -1
+}
+
+// dedupeStrSlice deduplicates a slices of strings
+func dedupeStrSlice(ss []string) []string {
+	found := make(map[string]bool)
+	l := []string{}
+	for _, s := range ss {
+		if _, ok := found[s]; !ok {
+			found[s] = true
+			l = append(l, s)
+		}
+	}
+	return l
 }

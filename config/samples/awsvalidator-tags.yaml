@@ -5,7 +5,6 @@ metadata:
 spec:
   auth:
     secretName: aws-creds
-  region: us-west-2
   tagRules:
   - key: "kubernetes.io/role/elb"
     expectedValue: "1"

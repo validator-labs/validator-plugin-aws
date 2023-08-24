@@ -17,6 +17,8 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"fmt"
+
 	valid8orv1alpha1 "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -36,20 +38,31 @@ type AwsAuth struct {
 }
 
 type IamRule struct {
-	IamRole string `json:"iamRole,omitempty"`
-	// Policies []awspolicy.AwsPolicy `json:"iamPolicies,omitempty"`
-	Policies []PolicyDocument `json:"iamPolicies,omitempty"`
+	IamRole  string           `json:"iamRole"`
+	Policies []PolicyDocument `json:"iamPolicies"`
 }
 
 type PolicyDocument struct {
+	Name       string           `json:"name"`
 	Version    string           `json:"version"`
 	Statements []StatementEntry `json:"statements"`
 }
 
 type StatementEntry struct {
-	Effect   string   `json:"effect"`
-	Actions  []string `json:"actions"`
-	Resource string   `json:"resource"`
+	Condition *Condition `json:"condition,omitempty"`
+	Effect    string     `json:"effect"`
+	Actions   []string   `json:"actions"`
+	Resources []string   `json:"resources"`
+}
+
+type Condition struct {
+	Type   string   `json:"type"`
+	Key    string   `json:"key"`
+	Values []string `json:"values"`
+}
+
+func (c *Condition) String() string {
+	return fmt.Sprintf("%s: %s=%s", c.Type, c.Key, c.Values)
 }
 
 type TagRule struct {

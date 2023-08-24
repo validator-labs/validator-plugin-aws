@@ -47,9 +47,10 @@ spec:
                 items:
                   properties:
                     iamPolicies:
-                      description: Policies []awspolicy.AwsPolicy `json:"iamPolicies,omitempty"`
                       items:
                         properties:
+                          name:
+                            type: string
                           statements:
                             items:
                               properties:
@@ -57,25 +58,46 @@ spec:
                                   items:
                                     type: string
                                   type: array
+                                condition:
+                                  properties:
+                                    key:
+                                      type: string
+                                    type:
+                                      type: string
+                                    values:
+                                      items:
+                                        type: string
+                                      type: array
+                                  required:
+                                  - key
+                                  - type
+                                  - values
+                                  type: object
                                 effect:
                                   type: string
-                                resource:
-                                  type: string
+                                resources:
+                                  items:
+                                    type: string
+                                  type: array
                               required:
                               - actions
                               - effect
-                              - resource
+                              - resources
                               type: object
                             type: array
                           version:
                             type: string
                         required:
+                        - name
                         - statements
                         - version
                         type: object
                       type: array
                     iamRole:
                       type: string
+                  required:
+                  - iamPolicies
+                  - iamRole
                   type: object
                 type: array
               tagRules:

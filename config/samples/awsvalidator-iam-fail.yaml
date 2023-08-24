@@ -5,13 +5,24 @@ metadata:
 spec:
   auth:
     secretName: aws-creds
-  region: us-west-2
   iamRules:
   - iamPolicies:
-    - statements:
+    - name: Failing Policy
+      statements:
       - actions:
         - "cognito-sync:ListDatasets"
         effect: Allow
-        resource: "*"
+        resources:
+        - "*"
+      - actions:
+        - "iam:PassRole"
+        condition:
+          type: StringEquals
+          key: "iam:PassedToService"
+          values:
+          - fake.amazonaws.com
+        effect: Allow
+        resources:
+        - "*"
       version: "2012-10-17"
     iamRole: SpectroCloudRole
