@@ -5,11 +5,27 @@ The AWS [valid8or](https://github.com/spectrocloud-labs/valid8or) plugin ensures
 The AWS valid8or plugin reconciles `AwsValidator` custom resources to perform the following validations against your AWS environment:
 
 1. Compare the IAM permissions associated with an IAM role against an expected permission set
-2. Compare the tags associated with a subnet against an expected tag set
+2. Compare the usage for a particular service quota against the active quota
+3. Compare the tags associated with a subnet against an expected tag set
 
 Each `AwsValidator` CR is (re)-processed every two minutes to continuously ensure that your AWS environment matches the expected state.
 
 See the [samples](https://github.com/spectrocloud-labs/valid8or-plugin-aws/tree/main/config/samples) directory for example `AwsValidator` configurations.
+
+## Supported Service Quotas by AWS Service
+EC2:
+- EC2-VPC Elastic IPs
+
+ELB:
+- Application Load Balancers per Region
+- Classic Load Balancers per Region
+
+VPC:
+- VPCs per Region
+- Subnets per VPC
+- NAT gateways per Availability Zone
+- Network interfaces per Region
+- Internet gateways per Region
 
 ## Getting Started
 You’ll need a Kubernetes cluster to run against. You can use [kind](https://sigs.k8s.io/kind) to get a local cluster for testing, or run against a remote cluster.

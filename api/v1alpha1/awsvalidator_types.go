@@ -25,9 +25,10 @@ import (
 
 // AwsValidatorSpec defines the desired state of AwsValidator
 type AwsValidatorSpec struct {
-	Auth     AwsAuth   `json:"auth"`
-	IamRules []IamRule `json:"iamRules,omitempty"`
-	TagRules []TagRule `json:"tagRules,omitempty"`
+	Auth              AwsAuth            `json:"auth"`
+	IamRules          []IamRule          `json:"iamRules,omitempty"`
+	ServiceQuotaRules []ServiceQuotaRule `json:"serviceQuotaRules,omitempty"`
+	TagRules          []TagRule          `json:"tagRules,omitempty"`
 }
 
 type AwsAuth struct {
@@ -63,6 +64,17 @@ type Condition struct {
 
 func (c *Condition) String() string {
 	return fmt.Sprintf("%s: %s=%s", c.Type, c.Key, c.Values)
+}
+
+type ServiceQuotaRule struct {
+	Region        string         `json:"region"`
+	ServiceCode   string         `json:"serviceCode"`
+	ServiceQuotas []ServiceQuota `json:"serviceQuotas"`
+}
+
+type ServiceQuota struct {
+	Name   string `json:"name"`
+	Buffer int    `json:"buffer"`
 }
 
 type TagRule struct {
