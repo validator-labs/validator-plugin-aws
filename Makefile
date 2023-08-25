@@ -191,10 +191,10 @@ helm-build: helm helmify manifests kustomize
 
 .PHONY: helm-package
 helm-package: generate manifests
-	$(HELM) package --version $(CHART_VERSION) chart/operator/
+	$(HELM) package --version $(CHART_VERSION) chart/valid8or-plugin-aws/
 	mkdir -p charts && mv valid8or-*.tgz charts
-	$(HELM) repo index --url https://charts.spectrocloud-labs.io/charts charts
-	mv charts/operator/index.yaml index.yaml
+	$(HELM) repo index --url https://github.com/spectrocloud-labs/valid8or-plugin-aws charts
+	mv charts/valid8or-plugin-aws/index.yaml index.yaml
 
 .PHONY: frigate
 frigate:
