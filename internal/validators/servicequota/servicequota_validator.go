@@ -17,6 +17,7 @@ import (
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/constants"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/types"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/utils/aws"
+	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/utils/ptr"
 	valid8orv1alpha1 "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
 )
 
@@ -49,7 +50,7 @@ func ReconcileServiceQuotaRule(nn k8stypes.NamespacedName, rule v1alpha1.Service
 	latestCondition.Message = "Usage for all service quotas is below specified buffer"
 	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", constants.ValidationRulePrefix, rule.ServiceCode)
 	latestCondition.ValidationType = constants.ValidationTypeServiceQuota
-	validationResult := &types.ValidationResult{Condition: &latestCondition, State: state}
+	validationResult := &types.ValidationResult{Condition: &latestCondition, State: &state}
 
 	// Fetch the quota by service code & name & compare against usage
 	failures := make([]string, 0)
@@ -128,7 +129,7 @@ func elasticIPsPerRegion(rule v1alpha1.ServiceQuotaRule, s *session.Session, log
 func publicAMIsPerRegion(rule v1alpha1.ServiceQuotaRule, s *session.Session, log logr.Logger) (*types.UsageResult, error) {
 	ec2Svc := aws.EC2Service(s, rule.Region)
 	output, err := ec2Svc.DescribeImages(&ec2.DescribeImagesInput{
-		ExecutableUsers: []*string{aws.String("self")},
+		ExecutableUsers: []*string{ptr.Ptr("self")},
 	})
 	if err != nil {
 		log.V(0).Error(err, "failed to get public AMIs", "region", rule.Region)

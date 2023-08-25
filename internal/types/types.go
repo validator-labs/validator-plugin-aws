@@ -27,5 +27,5 @@ func (u UsageMap) Max() *UsageResult {
 // ValidationResult is the result of the execution of a validation rule by a validator
 type ValidationResult struct {
 	Condition *valid8orv1alpha1.ValidationCondition
-	State     valid8orv1alpha1.ValidationState
+	State     *valid8orv1alpha1.ValidationState
 }

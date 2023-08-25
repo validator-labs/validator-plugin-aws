@@ -42,7 +42,7 @@ func ReconcileIAMRule(nn k8stypes.NamespacedName, rule v1alpha1.IamRule, s *sess
 	latestCondition.Message = "All required IAM permissions were found"
 	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", constants.ValidationRulePrefix, rule.IamRole)
 	latestCondition.ValidationType = constants.ValidationTypeIAMRolePolicy
-	validationResult := &types.ValidationResult{Condition: &latestCondition, State: state}
+	validationResult := &types.ValidationResult{Condition: &latestCondition, State: &state}
 
 	// Build map of required permissions
 	permissions := make(map[string]*permission)

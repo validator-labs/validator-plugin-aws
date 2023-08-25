@@ -9,6 +9,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/elbv2"
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/aws/aws-sdk-go/service/servicequotas"
+
+	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/utils/ptr"
 )
 
 // IAMService creates an AWS IAM service object for a specific session
@@ -20,7 +22,7 @@ func IAMService(session *session.Session) *iam.IAM {
 func EC2Service(session *session.Session, region string) *ec2.EC2 {
 	config := &aws.Config{}
 	if region != "" {
-		config.Region = aws.String(region)
+		config.Region = ptr.Ptr(region)
 	}
 	return ec2.New(session, config)
 }
@@ -29,7 +31,7 @@ func EC2Service(session *session.Session, region string) *ec2.EC2 {
 func EFSService(session *session.Session, region string) *efs.EFS {
 	config := &aws.Config{}
 	if region != "" {
-		config.Region = aws.String(region)
+		config.Region = ptr.Ptr(region)
 	}
 	return efs.New(session, config)
 }
@@ -38,7 +40,7 @@ func EFSService(session *session.Session, region string) *efs.EFS {
 func ELBService(session *session.Session, region string) *elb.ELB {
 	config := &aws.Config{}
 	if region != "" {
-		config.Region = aws.String(region)
+		config.Region = ptr.Ptr(region)
 	}
 	return elb.New(session, config)
 }
@@ -47,7 +49,7 @@ func ELBService(session *session.Session, region string) *elb.ELB {
 func ELBv2Service(session *session.Session, region string) *elbv2.ELBV2 {
 	config := &aws.Config{}
 	if region != "" {
-		config.Region = aws.String(region)
+		config.Region = ptr.Ptr(region)
 	}
 	return elbv2.New(session, config)
 }
@@ -56,12 +58,7 @@ func ELBv2Service(session *session.Session, region string) *elbv2.ELBV2 {
 func ServiceQuotasService(session *session.Session, region string) *servicequotas.ServiceQuotas {
 	config := &aws.Config{}
 	if region != "" {
-		config.Region = aws.String(region)
+		config.Region = ptr.Ptr(region)
 	}
 	return servicequotas.New(session, config)
-}
-
-// String wraps aws.String
-func String(s string) *string {
-	return aws.String(s)
 }

@@ -13,6 +13,7 @@ import (
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/constants"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/types"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/utils/aws"
+	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/utils/ptr"
 	valid8orv1alpha1 "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
 )
 
@@ -26,7 +27,7 @@ func ReconcileTagRule(nn k8stypes.NamespacedName, rule v1alpha1.TagRule, s *sess
 	latestCondition.Message = "All required subnet tags were found"
 	latestCondition.ValidationRule = fmt.Sprintf("%s-%s-%s", constants.ValidationRulePrefix, rule.ResourceType, rule.Key)
 	latestCondition.ValidationType = constants.ValidationTypeTag
-	validationResult := &types.ValidationResult{Condition: &latestCondition, State: state}
+	validationResult := &types.ValidationResult{Condition: &latestCondition, State: &state}
 
 	switch rule.ResourceType {
 	case "subnet":
@@ -36,8 +37,8 @@ func ReconcileTagRule(nn k8stypes.NamespacedName, rule v1alpha1.TagRule, s *sess
 		subnets, err := ec2Svc.DescribeSubnets(&ec2.DescribeSubnetsInput{
 			Filters: []*ec2.Filter{
 				{
-					Name:   aws.String(fmt.Sprintf("tag:%s", rule.Key)),
-					Values: []*string{aws.String(rule.ExpectedValue)},
+					Name:   ptr.Ptr(fmt.Sprintf("tag:%s", rule.Key)),
+					Values: []*string{ptr.Ptr(rule.ExpectedValue)},
 				},
 			},
 		})

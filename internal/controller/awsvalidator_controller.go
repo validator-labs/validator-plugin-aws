@@ -38,6 +38,7 @@ import (
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/api/v1alpha1"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/constants"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/types"
+	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/utils/ptr"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/validators/iam"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/validators/servicequota"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/validators/tag"
@@ -252,16 +253,16 @@ func (r *AwsValidatorReconciler) handleNewValidationResult(nn k8stypes.Namespace
 // safeUpdateValidationResult updates the overall validation result, ensuring that the overall validation status remains failed if a single rule fails
 func (r *AwsValidatorReconciler) safeUpdateValidationResult(nn k8stypes.NamespacedName, validationResult *types.ValidationResult, failed *monotonicBool, err error) {
 	if err != nil {
-		validationResult.State = valid8orv1alpha1.ValidationFailed
+		validationResult.State = ptr.Ptr(valid8orv1alpha1.ValidationFailed)
 		validationResult.Condition.Status = corev1.ConditionFalse
 		validationResult.Condition.Message = "Validation failed with an unexpected error"
 		validationResult.Condition.Failures = append(validationResult.Condition.Failures, err.Error())
 	}
 
-	didFail := validationResult.State == valid8orv1alpha1.ValidationFailed
+	didFail := *validationResult.State == valid8orv1alpha1.ValidationFailed
 	failed.Update(didFail)
 	if failed.ok && !didFail {
-		validationResult.State = valid8orv1alpha1.ValidationFailed
+		validationResult.State = ptr.Ptr(valid8orv1alpha1.ValidationFailed)
 	}
 
 	if err := r.updateValidationResult(nn, *validationResult); err != nil {
@@ -275,7 +276,7 @@ func (r *AwsValidatorReconciler) updateValidationResult(nn k8stypes.NamespacedNa
 	if err := r.Get(context.Background(), nn, vr); err != nil {
 		return fmt.Errorf("failed to get ValidationResult %s in namespace %s: %v", nn.Name, nn.Namespace, err)
 	}
-	vr.Status.State = res.State
+	vr.Status.State = *res.State
 
 	idx := getConditionIndexByValidationRule(vr.Status.Conditions, res.Condition.ValidationRule)
 	if idx == -1 {
