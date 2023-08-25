@@ -17,17 +17,20 @@ EC2:
 - EC2-VPC Elastic IPs
 - Public AMIs
 
+EFS:
+- File systems per account
+
 ELB:
 - Application Load Balancers per Region
 - Classic Load Balancers per Region
 - Network Load Balancers per Region
 
 VPC:
-- VPCs per Region
-- Subnets per VPC
-- NAT gateways per Availability Zone
-- Network interfaces per Region
 - Internet gateways per Region
+- Network interfaces per Region
+- VPCs per Region
+- NAT gateways per Availability Zone
+- Subnets per VPC
 
 ## Getting Started
 You’ll need a Kubernetes cluster to run against. You can use [kind](https://sigs.k8s.io/kind) to get a local cluster for testing, or run against a remote cluster.
