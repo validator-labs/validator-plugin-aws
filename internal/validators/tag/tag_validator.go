@@ -17,9 +17,21 @@ import (
 	valid8orv1alpha1 "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
 )
 
+type TagRuleService struct {
+	log     logr.Logger
+	session *session.Session
+}
+
+func NewTagRuleService(log logr.Logger, s *session.Session) *TagRuleService {
+	return &TagRuleService{
+		log:     log,
+		session: s,
+	}
+}
+
 // ReconcileTagRule reconciles an EC2 tagging validation rule from the AWSValidator config
-func ReconcileTagRule(nn k8stypes.NamespacedName, rule v1alpha1.TagRule, s *session.Session, log logr.Logger) (*types.ValidationResult, error) {
-	ec2Svc := aws.EC2Service(s, rule.Region)
+func (s *TagRuleService) ReconcileTagRule(nn k8stypes.NamespacedName, rule v1alpha1.TagRule) (*types.ValidationResult, error) {
+	ec2Svc := aws.EC2Service(s.session, rule.Region)
 
 	// Build the default latest condition for this tag rule
 	state := valid8orv1alpha1.ValidationSucceeded
@@ -43,7 +55,7 @@ func ReconcileTagRule(nn k8stypes.NamespacedName, rule v1alpha1.TagRule, s *sess
 			},
 		})
 		if err != nil {
-			log.V(0).Error(err, "failed to describe subnets", "region", rule.Region)
+			s.log.V(0).Error(err, "failed to describe subnets", "region", rule.Region)
 			return validationResult, err
 		}
 		for _, s := range subnets.Subnets {

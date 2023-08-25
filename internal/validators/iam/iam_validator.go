@@ -22,13 +22,6 @@ import (
 	valid8orv1alpha1 "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
 )
 
-type permission struct {
-	Actions    map[iamAction]bool
-	Condition  *v1alpha1.Condition
-	Errors     []string
-	PolicyName string
-}
-
 type iamAction struct {
 	Service string
 	Verb    string
@@ -47,25 +40,32 @@ type missing struct {
 	PolicyName string
 }
 
-type IamRuleObj interface {
+type permission struct {
+	Actions    map[iamAction]bool
+	Condition  *v1alpha1.Condition
+	Errors     []string
+	PolicyName string
+}
+
+type iamRule interface {
 	Name() string
 	IAMPolicies() []v1alpha1.PolicyDocument
 }
 
 type IAMRuleService struct {
-	iamSvc *iam.IAM
 	log    logr.Logger
+	iamSvc *iam.IAM
 }
 
 func NewIAMRuleService(log logr.Logger, s *session.Session) *IAMRuleService {
 	return &IAMRuleService{
-		iamSvc: aws.IAMService(s),
 		log:    log,
+		iamSvc: aws.IAMService(s),
 	}
 }
 
 // ReconcileIAMRoleRule reconciles an IAM role validation rule from an AWSValidator config
-func (s *IAMRuleService) ReconcileIAMRoleRule(nn k8stypes.NamespacedName, rule IamRuleObj) (*types.ValidationResult, error) {
+func (s *IAMRuleService) ReconcileIAMRoleRule(nn k8stypes.NamespacedName, rule iamRule) (*types.ValidationResult, error) {
 
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMRolePolicy)
@@ -95,7 +95,7 @@ func (s *IAMRuleService) ReconcileIAMRoleRule(nn k8stypes.NamespacedName, rule I
 }
 
 // ReconcileIAMUserRule reconciles an IAM user validation rule from an AWSValidator config
-func (s *IAMRuleService) ReconcileIAMUserRule(nn k8stypes.NamespacedName, rule IamRuleObj) (*types.ValidationResult, error) {
+func (s *IAMRuleService) ReconcileIAMUserRule(nn k8stypes.NamespacedName, rule iamRule) (*types.ValidationResult, error) {
 
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMUserPolicy)
@@ -125,7 +125,7 @@ func (s *IAMRuleService) ReconcileIAMUserRule(nn k8stypes.NamespacedName, rule I
 }
 
 // ReconcileIAMGroupRule reconciles an IAM group validation rule from an AWSValidator config
-func (s *IAMRuleService) ReconcileIAMGroupRule(nn k8stypes.NamespacedName, rule IamRuleObj) (*types.ValidationResult, error) {
+func (s *IAMRuleService) ReconcileIAMGroupRule(nn k8stypes.NamespacedName, rule iamRule) (*types.ValidationResult, error) {
 
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMGroupPolicy)
@@ -155,7 +155,7 @@ func (s *IAMRuleService) ReconcileIAMGroupRule(nn k8stypes.NamespacedName, rule 
 }
 
 // ReconcileIAMPolicyRule reconciles an IAM policy validation rule from an AWSValidator config
-func (s *IAMRuleService) ReconcileIAMPolicyRule(nn k8stypes.NamespacedName, rule IamRuleObj) (*types.ValidationResult, error) {
+func (s *IAMRuleService) ReconcileIAMPolicyRule(nn k8stypes.NamespacedName, rule iamRule) (*types.ValidationResult, error) {
 
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMPolicy)
@@ -229,7 +229,7 @@ func (s *IAMRuleService) getPolicyDocument(policyArn *string, context []string) 
 }
 
 // buildValidationResult builds a default ValidationResult for a given validation type
-func buildValidationResult(rule IamRuleObj, validationType string) *types.ValidationResult {
+func buildValidationResult(rule iamRule, validationType string) *types.ValidationResult {
 	state := valid8orv1alpha1.ValidationSucceeded
 	latestCondition := valid8orv1alpha1.DefaultValidationCondition()
 	latestCondition.Message = fmt.Sprintf("All required %s permissions were found", validationType)
@@ -239,7 +239,7 @@ func buildValidationResult(rule IamRuleObj, validationType string) *types.Valida
 }
 
 // buildPermissions builds an IAM permission map from an IAM rule
-func buildPermissions(rule IamRuleObj) map[string]*permission {
+func buildPermissions(rule iamRule) map[string]*permission {
 	permissions := make(map[string]*permission)
 	for _, p := range rule.IAMPolicies() {
 		for _, s := range p.Statements {
@@ -332,7 +332,7 @@ func updatePermissions(policyDocument *awspolicy.Policy, permissions map[string]
 }
 
 // computeFailures derives IAM rule failures from an IAM permissions map once it has been fully updated
-func computeFailures(rule IamRuleObj, permissions map[string]*permission, vr *types.ValidationResult) {
+func computeFailures(rule iamRule, permissions map[string]*permission, vr *types.ValidationResult) {
 	failures := make([]string, 0)
 	missingActions := make(map[string]*missing)
 

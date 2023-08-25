@@ -40,9 +40,21 @@ var quotaUsageFuncs map[string]func(v1alpha1.ServiceQuotaRule, *session.Session,
 	"NAT gateways per Availability Zone": natGatewaysPerAz,
 }
 
+type ServiceQuotaRuleService struct {
+	log     logr.Logger
+	session *session.Session
+}
+
+func NewServiceQuotaRuleService(log logr.Logger, s *session.Session) *ServiceQuotaRuleService {
+	return &ServiceQuotaRuleService{
+		log:     log,
+		session: s,
+	}
+}
+
 // ReconcileServiceQuotaRule reconciles an AWS service quota validation rule from the AWSValidator config
-func ReconcileServiceQuotaRule(nn k8stypes.NamespacedName, rule v1alpha1.ServiceQuotaRule, s *session.Session, log logr.Logger) (*types.ValidationResult, error) {
-	sqSvc := aws.ServiceQuotasService(s, rule.Region)
+func (s *ServiceQuotaRuleService) ReconcileServiceQuotaRule(nn k8stypes.NamespacedName, rule v1alpha1.ServiceQuotaRule) (*types.ValidationResult, error) {
+	sqSvc := aws.ServiceQuotasService(s.session, rule.Region)
 
 	// Build the default latest condition for this tag rule
 	state := valid8orv1alpha1.ValidationSucceeded
@@ -70,12 +82,12 @@ func ReconcileServiceQuotaRule(nn k8stypes.NamespacedName, rule v1alpha1.Service
 			return true
 		})
 		if err != nil || quota == nil {
-			log.V(0).Error(err, "failed to get service quota", "region", rule.Region, "serviceCode", rule.ServiceCode, "quotaName", ruleQuota.Name)
+			s.log.V(0).Error(err, "failed to get service quota", "region", rule.Region, "serviceCode", rule.ServiceCode, "quotaName", ruleQuota.Name)
 			return validationResult, err
 		}
-		usageResult, err := quotaUsageFuncs[ruleQuota.Name](rule, s, log)
+		usageResult, err := quotaUsageFuncs[ruleQuota.Name](rule, s.session, s.log)
 		if err != nil {
-			log.V(0).Error(err, "failed to get usage for service quota", "region", rule.Region, "serviceCode", rule.ServiceCode, "quotaName", ruleQuota.Name)
+			s.log.V(0).Error(err, "failed to get usage for service quota", "region", rule.Region, "serviceCode", rule.ServiceCode, "quotaName", ruleQuota.Name)
 			return validationResult, err
 		}
 		if quota.Value != nil {
