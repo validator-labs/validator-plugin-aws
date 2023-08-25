@@ -125,10 +125,32 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	failed := &monotonicBool{}
 
 	// IAM rules
-	for _, rule := range validator.Spec.IamRules {
-		validationResult, err := iam.ReconcileIAMRule(nn, rule, session, r.Log)
+	iamRuleService := iam.NewIAMRuleService(r.Log, session)
+	for _, rule := range validator.Spec.IamRoleRules {
+		validationResult, err := iamRuleService.ReconcileIAMRoleRule(nn, rule)
 		if err != nil {
-			r.Log.V(0).Error(err, "failed to reconcile IAM rule")
+			r.Log.V(0).Error(err, "failed to reconcile IAM role rule")
+		}
+		r.safeUpdateValidationResult(nn, validationResult, failed, err)
+	}
+	for _, rule := range validator.Spec.IamUserRules {
+		validationResult, err := iamRuleService.ReconcileIAMUserRule(nn, rule)
+		if err != nil {
+			r.Log.V(0).Error(err, "failed to reconcile IAM user rule")
+		}
+		r.safeUpdateValidationResult(nn, validationResult, failed, err)
+	}
+	for _, rule := range validator.Spec.IamGroupRules {
+		validationResult, err := iamRuleService.ReconcileIAMGroupRule(nn, rule)
+		if err != nil {
+			r.Log.V(0).Error(err, "failed to reconcile IAM group rule")
+		}
+		r.safeUpdateValidationResult(nn, validationResult, failed, err)
+	}
+	for _, rule := range validator.Spec.IamPolicyRules {
+		validationResult, err := iamRuleService.ReconcileIAMPolicyRule(nn, rule)
+		if err != nil {
+			r.Log.V(0).Error(err, "failed to reconcile IAM policy rule")
 		}
 		r.safeUpdateValidationResult(nn, validationResult, failed, err)
 	}

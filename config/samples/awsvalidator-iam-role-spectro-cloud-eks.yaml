@@ -5,7 +5,7 @@ metadata:
 spec:
   auth:
     secretName: aws-creds
-  iamRules:
+  iamRoleRules:
   - iamPolicies:
     - name: Controllers EKS Policy
       statements:
@@ -130,4 +130,4 @@ spec:
         resources:
         - "*"
       version: "2012-10-17"
-    iamRole: SpectroCloudRole
+    iamRoleName: SpectroCloudRole

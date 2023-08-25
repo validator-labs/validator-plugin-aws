@@ -26,7 +26,10 @@ import (
 // AwsValidatorSpec defines the desired state of AwsValidator
 type AwsValidatorSpec struct {
 	Auth              AwsAuth            `json:"auth"`
-	IamRules          []IamRule          `json:"iamRules,omitempty"`
+	IamRoleRules      []IamRoleRule      `json:"iamRoleRules,omitempty"`
+	IamUserRules      []IamUserRule      `json:"iamUserRules,omitempty"`
+	IamGroupRules     []IamGroupRule     `json:"iamGroupRules,omitempty"`
+	IamPolicyRules    []IamPolicyRule    `json:"iamPolicyRules,omitempty"`
 	ServiceQuotaRules []ServiceQuotaRule `json:"serviceQuotaRules,omitempty"`
 	TagRules          []TagRule          `json:"tagRules,omitempty"`
 }
@@ -38,9 +41,56 @@ type AwsAuth struct {
 	ServiceAccountName string `json:"serviceAccountName,omitempty"`
 }
 
-type IamRule struct {
-	IamRole  string           `json:"iamRole"`
-	Policies []PolicyDocument `json:"iamPolicies"`
+type IamRoleRule struct {
+	IamRoleName string           `json:"iamRoleName"`
+	Policies    []PolicyDocument `json:"iamPolicies"`
+}
+
+func (r IamRoleRule) Name() string {
+	return r.IamRoleName
+}
+
+func (r IamRoleRule) IAMPolicies() []PolicyDocument {
+	return r.Policies
+}
+
+type IamUserRule struct {
+	IamUserName string           `json:"iamUserName"`
+	Policies    []PolicyDocument `json:"iamPolicies"`
+}
+
+func (r IamUserRule) Name() string {
+	return r.IamUserName
+}
+
+func (r IamUserRule) IAMPolicies() []PolicyDocument {
+	return r.Policies
+}
+
+type IamGroupRule struct {
+	IamGroupName string           `json:"iamGroupName"`
+	Policies     []PolicyDocument `json:"iamPolicies"`
+}
+
+func (r IamGroupRule) Name() string {
+	return r.IamGroupName
+}
+
+func (r IamGroupRule) IAMPolicies() []PolicyDocument {
+	return r.Policies
+}
+
+type IamPolicyRule struct {
+	IamPolicyARN string           `json:"iamPolicyArn"`
+	Policies     []PolicyDocument `json:"iamPolicies"`
+}
+
+func (r IamPolicyRule) Name() string {
+	return r.IamPolicyARN
+}
+
+func (r IamPolicyRule) IAMPolicies() []PolicyDocument {
+	return r.Policies
 }
 
 type PolicyDocument struct {
