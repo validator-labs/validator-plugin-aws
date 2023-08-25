@@ -51,3 +51,4 @@ metricsService:
     protocol: TCP
     targetPort: https
   type: ClusterIP
+fullnameOverride: valid8or-plugin-aws
