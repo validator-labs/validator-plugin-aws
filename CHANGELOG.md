@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.2](https://github.com/spectrocloud-labs/valid8or-plugin-aws/compare/v0.0.1...v0.0.2) (2023-08-25)
+
+
+### Bug Fixes
+
+* helm chart branch ([9a98631](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/9a98631d8a98587fd04399525331dffca7e5fcc7))
+
 ## [0.0.1](https://github.com/spectrocloud-labs/valid8or-plugin-aws/compare/v0.0.1...v0.0.1) (2023-08-25)
 
 
