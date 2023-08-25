@@ -2,9 +2,6 @@
 # Image URL to use all building/pushing image targets
 IMG ?= quay.io/spectrocloud-labs/valid8or-plugin-aws:latest
 
-# ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
-ENVTEST_K8S_VERSION = 1.27.1
-
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
 GOBIN=$(shell go env GOPATH)/bin
@@ -145,8 +142,11 @@ CONTROLLER_GEN ?= $(LOCALBIN)/controller-gen
 ENVTEST ?= $(LOCALBIN)/setup-envtest
 
 ## Tool Versions
-KUSTOMIZE_VERSION ?= v5.0.1
+CHART_VERSION=v0.0.1 # x-release-please-version
 CONTROLLER_TOOLS_VERSION ?= v0.12.0
+ENVTEST_K8S_VERSION = 1.27.1
+HELM_VERSION=v3.10.1
+KUSTOMIZE_VERSION ?= v5.0.1
 
 .PHONY: kustomize
 kustomize: $(KUSTOMIZE) ## Download kustomize locally if necessary. If wrong version is installed, it will be removed before downloading.
@@ -167,3 +167,35 @@ $(CONTROLLER_GEN): $(LOCALBIN)
 envtest: $(ENVTEST) ## Download envtest-setup locally if necessary.
 $(ENVTEST): $(LOCALBIN)
 	test -s $(LOCALBIN)/setup-envtest || GOBIN=$(LOCALBIN) go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
+
+OSARCH=$(shell ./hack/get-os.sh)
+HELM = $(shell pwd)/bin/$(OSARCH)/helm
+HELM_INSTALLER ?= "https://get.helm.sh/helm-$(HELM_VERSION)-$(OSARCH).tar.gz"
+HELMIFY ?= $(LOCALBIN)/helmify
+
+.PHONY: helm
+helm: $(HELM) ## Download helm locally if necessary.
+$(HELM): $(LOCALBIN)
+	[ -e "$(HELM)" ] && rm -rf "$(HELM)" || true
+	cd $(LOCALBIN) && curl -s $(HELM_INSTALLER) | tar -xzf - -C $(LOCALBIN)
+
+.PHONY: helmify
+helmify: $(HELMIFY) ## Download helmify locally if necessary.
+$(HELMIFY): $(LOCALBIN)
+	test -s $(LOCALBIN)/helmify || GOBIN=$(LOCALBIN) go install github.com/arttor/helmify/cmd/helmify@latest
+   
+.PHONY: helm-build
+helm-build: helm helmify manifests kustomize
+	cd config/manager && $(KUSTOMIZE) edit set image controller=$(IMG) && cd ../../
+	$(KUSTOMIZE) build config/default | $(HELMIFY) -crd-dir
+
+.PHONY: helm-package
+helm-package: generate manifests
+	$(HELM) package --version $(CHART_VERSION) chart/operator/
+	mkdir -p charts && mv valid8or-*.tgz charts
+	$(HELM) repo index --url https://charts.spectrocloud-labs.io/charts charts
+	mv charts/operator/index.yaml index.yaml
+
+.PHONY: frigate
+frigate:
+	frigate gen chart --no-deps -o markdown > chart/README.md
