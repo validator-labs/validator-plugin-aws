@@ -15,6 +15,7 @@ See the [samples](https://github.com/spectrocloud-labs/valid8or-plugin-aws/tree/
 ## Supported Service Quotas by AWS Service
 EC2:
 - EC2-VPC Elastic IPs
+- Public AMIs
 
 ELB:
 - Application Load Balancers per Region
