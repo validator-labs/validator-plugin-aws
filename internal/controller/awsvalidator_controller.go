@@ -37,10 +37,10 @@ import (
 
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/api/v1alpha1"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/constants"
-	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/iam"
-	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/servicequota"
-	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/tag"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/types"
+	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/validators/iam"
+	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/validators/servicequota"
+	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/validators/tag"
 	valid8orv1alpha1 "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
 )
 
@@ -51,12 +51,14 @@ type AwsValidatorReconciler struct {
 	Scheme *runtime.Scheme
 }
 
+// monotonicBool starts off false and remains true permanently if updated to true
 type monotonicBool struct {
 	ok bool
 }
 
+// Update updates the status of a monotonic bool. If the monotonic bool is already true, Update() is a noop.
 func (m *monotonicBool) Update(ok bool) {
-	m.ok = !ok || m.ok
+	m.ok = ok || m.ok
 }
 
 //+kubebuilder:rbac:groups=validation.spectrocloud.labs,resources=awsvalidators,verbs=get;list;watch;create;update;patch;delete
@@ -127,7 +129,7 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile IAM rule")
 		}
-		r.safeUpdateValidationResult(nn, *validationResult, failed)
+		r.safeUpdateValidationResult(nn, validationResult, failed, err)
 	}
 
 	// Service Quota rules
@@ -136,7 +138,7 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile Service Quota rule")
 		}
-		r.safeUpdateValidationResult(nn, *validationResult, failed)
+		r.safeUpdateValidationResult(nn, validationResult, failed, err)
 	}
 
 	// Tag rules
@@ -145,7 +147,7 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile Tag rule")
 		}
-		r.safeUpdateValidationResult(nn, *validationResult, failed)
+		r.safeUpdateValidationResult(nn, validationResult, failed, err)
 	}
 
 	r.Log.V(0).Info("Requeuing for re-validation in two minutes.", "name", req.Name, "namespace", req.Namespace)
@@ -157,18 +159,6 @@ func (r *AwsValidatorReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&v1alpha1.AwsValidator{}).
 		Complete(r)
-}
-
-// safeUpdateValidationResult updates the overall validation result, ensuring that the overall validation status remains failed if a single rule fails
-func (r *AwsValidatorReconciler) safeUpdateValidationResult(nn k8stypes.NamespacedName, validationResult types.ValidationResult, failed *monotonicBool) {
-	didFail := validationResult.State == valid8orv1alpha1.ValidationFailed
-	failed.Update(didFail)
-	if failed.ok && !didFail {
-		validationResult.State = valid8orv1alpha1.ValidationFailed
-	}
-	if err := r.updateValidationResult(nn, validationResult); err != nil {
-		r.Log.V(0).Error(err, "failed to update ValidationResult")
-	}
 }
 
 // secretKeyAuth creates AWS credentials from a secret containing an access key id and secret access key
@@ -259,6 +249,26 @@ func (r *AwsValidatorReconciler) handleNewValidationResult(nn k8stypes.Namespace
 	return nil, nil
 }
 
+// safeUpdateValidationResult updates the overall validation result, ensuring that the overall validation status remains failed if a single rule fails
+func (r *AwsValidatorReconciler) safeUpdateValidationResult(nn k8stypes.NamespacedName, validationResult *types.ValidationResult, failed *monotonicBool, err error) {
+	if err != nil {
+		validationResult.State = valid8orv1alpha1.ValidationFailed
+		validationResult.Condition.Status = corev1.ConditionFalse
+		validationResult.Condition.Message = "Validation failed with an unexpected error"
+		validationResult.Condition.Failures = append(validationResult.Condition.Failures, err.Error())
+	}
+
+	didFail := validationResult.State == valid8orv1alpha1.ValidationFailed
+	failed.Update(didFail)
+	if failed.ok && !didFail {
+		validationResult.State = valid8orv1alpha1.ValidationFailed
+	}
+
+	if err := r.updateValidationResult(nn, *validationResult); err != nil {
+		r.Log.V(0).Error(err, "failed to update ValidationResult")
+	}
+}
+
 // updateValidationResult updates the ValidationResult for the active validation rule
 func (r *AwsValidatorReconciler) updateValidationResult(nn k8stypes.NamespacedName, res types.ValidationResult) error {
 	vr := &valid8orv1alpha1.ValidationResult{}
@@ -269,9 +279,9 @@ func (r *AwsValidatorReconciler) updateValidationResult(nn k8stypes.NamespacedNa
 
 	idx := getConditionIndexByValidationRule(vr.Status.Conditions, res.Condition.ValidationRule)
 	if idx == -1 {
-		vr.Status.Conditions = append(vr.Status.Conditions, res.Condition)
+		vr.Status.Conditions = append(vr.Status.Conditions, *res.Condition)
 	} else {
-		vr.Status.Conditions[idx] = res.Condition
+		vr.Status.Conditions[idx] = *res.Condition
 	}
 
 	if err := r.Status().Update(context.Background(), vr); err != nil {

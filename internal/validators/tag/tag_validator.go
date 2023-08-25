@@ -10,9 +10,9 @@ import (
 	k8stypes "k8s.io/apimachinery/pkg/types"
 
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/api/v1alpha1"
-	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/aws"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/constants"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/types"
+	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/utils/aws"
 	valid8orv1alpha1 "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
 )
 
@@ -25,6 +25,8 @@ func ReconcileTagRule(nn k8stypes.NamespacedName, rule v1alpha1.TagRule, s *sess
 	latestCondition := valid8orv1alpha1.DefaultValidationCondition()
 	latestCondition.Message = "All required subnet tags were found"
 	latestCondition.ValidationRule = fmt.Sprintf("%s-%s-%s", constants.ValidationRulePrefix, rule.ResourceType, rule.Key)
+	latestCondition.ValidationType = constants.ValidationTypeTag
+	validationResult := &types.ValidationResult{Condition: &latestCondition, State: state}
 
 	switch rule.ResourceType {
 	case "subnet":
@@ -41,7 +43,7 @@ func ReconcileTagRule(nn k8stypes.NamespacedName, rule v1alpha1.TagRule, s *sess
 		})
 		if err != nil {
 			log.V(0).Error(err, "failed to describe subnets", "region", rule.Region)
-			return nil, err
+			return validationResult, err
 		}
 		for _, s := range subnets.Subnets {
 			if s.SubnetArn != nil {
@@ -64,6 +66,5 @@ func ReconcileTagRule(nn k8stypes.NamespacedName, rule v1alpha1.TagRule, s *sess
 		return nil, fmt.Errorf("unsupported resourceType %s for TagRule", rule.ResourceType)
 	}
 
-	validationResult := &types.ValidationResult{Condition: latestCondition, State: state}
 	return validationResult, nil
 }

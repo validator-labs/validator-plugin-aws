@@ -13,10 +13,10 @@ import (
 	k8stypes "k8s.io/apimachinery/pkg/types"
 
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/api/v1alpha1"
-	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/aws"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/constants"
-	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/strings"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/types"
+	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/utils/aws"
+	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/utils/strings"
 	valid8orv1alpha1 "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
 )
 
@@ -35,6 +35,14 @@ type missing struct {
 // reconcileIAMRule reconciles an IAM validation rule from the AWSValidator config
 func ReconcileIAMRule(nn k8stypes.NamespacedName, rule v1alpha1.IamRule, s *session.Session, log logr.Logger) (*types.ValidationResult, error) {
 	iamSvc := aws.IAMService(s)
+
+	// Build the latest condition for this IAM rule
+	state := valid8orv1alpha1.ValidationSucceeded
+	latestCondition := valid8orv1alpha1.DefaultValidationCondition()
+	latestCondition.Message = "All required IAM permissions were found"
+	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", constants.ValidationRulePrefix, rule.IamRole)
+	latestCondition.ValidationType = constants.ValidationTypeIAMRolePolicy
+	validationResult := &types.ValidationResult{Condition: &latestCondition, State: state}
 
 	// Build map of required permissions
 	permissions := make(map[string]*permission)
@@ -67,7 +75,7 @@ func ReconcileIAMRule(nn k8stypes.NamespacedName, rule v1alpha1.IamRule, s *sess
 	})
 	if err != nil {
 		log.V(0).Error(err, "failed to list policies for IAM role", "role", rule.IamRole)
-		return nil, err
+		return validationResult, err
 	}
 	for _, p := range policies.AttachedPolicies {
 		// Fetch the IAM policy's policy document
@@ -76,7 +84,7 @@ func ReconcileIAMRule(nn k8stypes.NamespacedName, rule v1alpha1.IamRule, s *sess
 		})
 		if err != nil {
 			log.V(0).Error(err, "failed to get IAM policy", "role", rule.IamRole, "policyArn", p.PolicyArn)
-			return nil, err
+			return validationResult, err
 		}
 		policyVersionOutput, err := iamSvc.GetPolicyVersion(&iam.GetPolicyVersionInput{
 			PolicyArn: p.PolicyArn,
@@ -84,7 +92,7 @@ func ReconcileIAMRule(nn k8stypes.NamespacedName, rule v1alpha1.IamRule, s *sess
 		})
 		if err != nil {
 			log.V(0).Error(err, "failed to get IAM policy version", "policyArn", p.PolicyArn, "versionId", policyOutput.Policy.DefaultVersionId)
-			return nil, err
+			return validationResult, err
 		}
 
 		// Parse the policy document
@@ -95,12 +103,12 @@ func ReconcileIAMRule(nn k8stypes.NamespacedName, rule v1alpha1.IamRule, s *sess
 		policyUnescaped, err := url.QueryUnescape(*policyVersionOutput.PolicyVersion.Document)
 		if err != nil {
 			log.V(0).Error(err, "failed to decode IAM policy document", "policyArn", p.PolicyArn, "versionId", policyOutput.Policy.DefaultVersionId)
-			return nil, err
+			return validationResult, err
 		}
 		policyDocument := &awspolicy.Policy{}
 		if err := policyDocument.UnmarshalJSON([]byte(policyUnescaped)); err != nil {
 			log.V(0).Error(err, "failed to unmarshal IAM policy", "role", rule.IamRole, "policyArn", p.PolicyArn)
-			return nil, err
+			return validationResult, err
 		}
 
 		// Update the permission map based on the content of the current policy
@@ -164,13 +172,6 @@ func ReconcileIAMRule(nn k8stypes.NamespacedName, rule v1alpha1.IamRule, s *sess
 		)
 		failures = append(failures, failure)
 	}
-
-	// Build the latest condition for this IAM rule
-	state := valid8orv1alpha1.ValidationSucceeded
-	latestCondition := valid8orv1alpha1.DefaultValidationCondition()
-	latestCondition.Message = "All required IAM permissions were found"
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", constants.ValidationRulePrefix, rule.IamRole)
-
 	if len(failures) > 0 {
 		state = valid8orv1alpha1.ValidationFailed
 		latestCondition.Failures = failures
@@ -178,6 +179,5 @@ func ReconcileIAMRule(nn k8stypes.NamespacedName, rule v1alpha1.IamRule, s *sess
 		latestCondition.Status = corev1.ConditionFalse
 	}
 
-	validationResult := &types.ValidationResult{Condition: latestCondition, State: state}
 	return validationResult, nil
 }
