@@ -25,6 +25,3 @@ Dockerfile.cross
 *.swp
 *.swo
 *~
-
-# secrets
-*.netrc

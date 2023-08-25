@@ -3,9 +3,6 @@ FROM golang:1.20 AS builder
 ARG TARGETOS
 ARG TARGETARCH
 
-ADD .netrc /root/.netrc
-RUN chmod 600 /root/.netrc
-
 WORKDIR /workspace
 # Copy the Go Modules manifests
 COPY go.mod go.mod
