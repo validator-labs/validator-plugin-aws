@@ -4,7 +4,7 @@ The AWS [valid8or](https://github.com/spectrocloud-labs/valid8or) plugin ensures
 ## Description
 The AWS valid8or plugin reconciles `AwsValidator` custom resources to perform the following validations against your AWS environment:
 
-1. Compare the IAM permissions associated with an IAM role against an expected permission set
+1. Compare the IAM permissions associated with an IAM user / group / role / policy against an expected permission set
 2. Compare the usage for a particular service quota against the active quota
 3. Compare the tags associated with a subnet against an expected tag set
 
@@ -19,6 +19,7 @@ EC2:
 ELB:
 - Application Load Balancers per Region
 - Classic Load Balancers per Region
+- Network Load Balancers per Region
 
 VPC:
 - VPCs per Region
