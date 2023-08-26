@@ -187,7 +187,7 @@ $(HELMIFY): $(LOCALBIN)
 .PHONY: helm-build
 helm-build: helm helmify manifests kustomize
 	cd config/manager && $(KUSTOMIZE) edit set image controller=$(IMG) && cd ../../
-	$(KUSTOMIZE) build config/default | $(HELMIFY) -crd-dir chart/valid8or-plugin-aws
+	$(KUSTOMIZE) build config/default | $(HELMIFY) -crd-dir
 	cat hack/extra-values.yaml >> chart/valid8or-plugin-aws/values.yaml
 
 .PHONY: helm-package
