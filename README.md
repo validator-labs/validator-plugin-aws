@@ -32,6 +32,15 @@ VPC:
 - NAT gateways per Availability Zone
 - Subnets per VPC
 
+## Installation
+The AWS valid8or plugin is meant to be [installed by valid8or](https://github.com/spectrocloud-labs/valid8or/tree/gh_pages#installation) (via a Valid8orConfig), but it can also be installed directly as follows:
+
+```bash
+helm repo add valid8or-plugin-aws https://spectrocloud-labs.github.io/valid8or-plugin-aws
+helm repo update
+helm install valid8or-plugin-aws valid8or-plugin-aws/valid8or-plugin-aws -n valid8or-plugin-aws --create-namespace
+```
+
 ## Getting Started
 You’ll need a Kubernetes cluster to run against. You can use [kind](https://sigs.k8s.io/kind) to get a local cluster for testing, or run against a remote cluster.
 **Note:** Your controller will automatically use the current context in your kubeconfig file (i.e. whatever cluster `kubectl cluster-info` shows).
