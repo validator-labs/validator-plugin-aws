@@ -2,6 +2,17 @@ apiVersion: v1
 entries:
   valid8or-plugin-aws:
   - apiVersion: v2
+    appVersion: 0.0.2
+    created: "2023-08-28T16:34:27.35175097Z"
+    description: valid8or-plugin-aws performs a variety of validations against your
+      AWS account
+    digest: 9839def7befff81a72b818eda2568c72812496b32bac5aba0dfad9289c701491
+    name: valid8or-plugin-aws
+    type: application
+    urls:
+    - https://spectrocloud-labs.github.io/valid8or-plugin-aws/valid8or-plugin-aws-0.0.2.tgz
+    version: 0.0.2
+  - apiVersion: v2
     appVersion: 0.0.1
     created: "2023-08-26T15:44:21.114962185Z"
     description: valid8or-plugin-aws performs a variety of validations against your
@@ -12,4 +23,4 @@ entries:
     urls:
     - https://spectrocloud-labs.github.io/valid8or-plugin-aws/valid8or-plugin-aws-0.0.1.tgz
     version: 0.0.1
-generated: "2023-08-26T15:44:21.114043778Z"
+generated: "2023-08-28T16:34:27.350846976Z"
