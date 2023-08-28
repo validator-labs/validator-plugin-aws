@@ -1,1 +1,4 @@
-fullnameOverride: valid8or-plugin-aws
+auth:
+  secretName: aws-creds
+  accessKeyId: ""
+  secretAccessKey: ""
