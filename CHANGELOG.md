@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.2](https://github.com/spectrocloud-labs/valid8or-plugin-aws/compare/v0.0.1...v0.0.2) (2023-08-28)
+
+
+### Other
+
+* release 0.0.2 ([5b96aa7](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/5b96aa7504136d1cf4ba70044f50d9742d5ae49c))
+
 ## [0.0.1](https://github.com/spectrocloud-labs/valid8or-plugin-aws/compare/v0.0.1...v0.0.1) (2023-08-26)
 
 
