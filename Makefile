@@ -199,4 +199,4 @@ helm-package: generate manifests
 
 .PHONY: frigate
 frigate:
-	frigate gen chart --no-deps -o markdown > chart/README.md
+	frigate gen chart/valid8or-plugin-aws --no-deps -o markdown > chart/valid8or-plugin-aws/README.md
