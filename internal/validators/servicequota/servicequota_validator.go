@@ -11,14 +11,16 @@ import (
 	"github.com/aws/aws-sdk-go/service/servicequotas"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
-	k8stypes "k8s.io/apimachinery/pkg/types"
+	ktypes "k8s.io/apimachinery/pkg/types"
 
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/api/v1alpha1"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/constants"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/types"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/utils/aws"
-	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/utils/ptr"
-	valid8orv1alpha1 "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
+	v8or "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
+	v8orconstants "github.com/spectrocloud-labs/valid8or/pkg/constants"
+	v8ortypes "github.com/spectrocloud-labs/valid8or/pkg/types"
+	"github.com/spectrocloud-labs/valid8or/pkg/util/ptr"
 )
 
 // quotaUsageFuncs maps AWS service quota names to functions that compute the usage and/or maximum usage for each service (maximum if the quota is broken out by VPC, AZ, etc.)
@@ -53,16 +55,16 @@ func NewServiceQuotaRuleService(log logr.Logger, s *session.Session) *ServiceQuo
 }
 
 // ReconcileServiceQuotaRule reconciles an AWS service quota validation rule from the AWSValidator config
-func (s *ServiceQuotaRuleService) ReconcileServiceQuotaRule(nn k8stypes.NamespacedName, rule v1alpha1.ServiceQuotaRule) (*types.ValidationResult, error) {
+func (s *ServiceQuotaRuleService) ReconcileServiceQuotaRule(nn ktypes.NamespacedName, rule v1alpha1.ServiceQuotaRule) (*v8ortypes.ValidationResult, error) {
 	sqSvc := aws.ServiceQuotasService(s.session, rule.Region)
 
 	// Build the default latest condition for this tag rule
-	state := valid8orv1alpha1.ValidationSucceeded
-	latestCondition := valid8orv1alpha1.DefaultValidationCondition()
+	state := v8or.ValidationSucceeded
+	latestCondition := v8or.DefaultValidationCondition()
 	latestCondition.Message = "Usage for all service quotas is below specified buffer"
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", constants.ValidationRulePrefix, rule.ServiceCode)
+	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", v8orconstants.ValidationRulePrefix, rule.ServiceCode)
 	latestCondition.ValidationType = constants.ValidationTypeServiceQuota
-	validationResult := &types.ValidationResult{Condition: &latestCondition, State: &state}
+	validationResult := &v8ortypes.ValidationResult{Condition: &latestCondition, State: &state}
 
 	// Fetch the quota by service code & name & compare against usage
 	failures := make([]string, 0)
@@ -108,7 +110,7 @@ func (s *ServiceQuotaRuleService) ReconcileServiceQuotaRule(nn k8stypes.Namespac
 	}
 
 	if len(failures) > 0 {
-		state = valid8orv1alpha1.ValidationFailed
+		state = v8or.ValidationFailed
 		latestCondition.Failures = failures
 		latestCondition.Message = "Usage for one or more service quotas exceeded the specified buffer"
 		latestCondition.Status = corev1.ConditionFalse

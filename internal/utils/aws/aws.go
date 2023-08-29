@@ -10,7 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/aws/aws-sdk-go/service/servicequotas"
 
-	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/utils/ptr"
+	"github.com/spectrocloud-labs/valid8or/pkg/util/ptr"
 )
 
 // IAMService creates an AWS IAM service object for a specific session

@@ -19,7 +19,6 @@ package controller
 import (
 	"context"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -28,21 +27,20 @@ import (
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	k8stypes "k8s.io/apimachinery/pkg/types"
+	ktypes "k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/api/v1alpha1"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/constants"
-	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/types"
-	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/utils/ptr"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/validators/iam"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/validators/servicequota"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/validators/tag"
-	valid8orv1alpha1 "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
+	v8or "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
+	"github.com/spectrocloud-labs/valid8or/pkg/types"
+	v8ores "github.com/spectrocloud-labs/valid8or/pkg/validationresult"
 )
 
 // AwsValidatorReconciler reconciles a AwsValidator object
@@ -50,16 +48,6 @@ type AwsValidatorReconciler struct {
 	client.Client
 	Log    logr.Logger
 	Scheme *runtime.Scheme
-}
-
-// monotonicBool starts off false and remains true permanently if updated to true
-type monotonicBool struct {
-	ok bool
-}
-
-// Update updates the status of a monotonic bool. If the monotonic bool is already true, Update() is a noop.
-func (m *monotonicBool) Update(ok bool) {
-	m.ok = ok || m.ok
 }
 
 //+kubebuilder:rbac:groups=validation.spectrocloud.labs,resources=awsvalidators,verbs=get;list;watch;create;update;patch;delete
@@ -105,13 +93,13 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	tagRuleService := tag.NewTagRuleService(r.Log, session)
 
 	// Get the active validator's validation result
-	vr := &valid8orv1alpha1.ValidationResult{}
-	nn := k8stypes.NamespacedName{
+	vr := &v8or.ValidationResult{}
+	nn := ktypes.NamespacedName{
 		Name:      fmt.Sprintf("valid8or-plugin-aws-%s", validator.Name),
 		Namespace: req.Namespace,
 	}
 	if err := r.Get(ctx, nn, vr); err == nil {
-		res, err := r.handleExistingValidationResult(nn, vr)
+		res, err := v8ores.HandleExistingValidationResult(nn, vr, r.Log)
 		if res != nil {
 			return *res, err
 		}
@@ -119,13 +107,13 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		if !apierrs.IsNotFound(err) {
 			r.Log.V(0).Error(err, "unexpected error getting ValidationResult", "name", nn.Name, "namespace", nn.Namespace)
 		}
-		res, err := r.handleNewValidationResult(nn, vr)
+		res, err := v8ores.HandleNewValidationResult(r.Client, constants.PluginCode, nn, vr, r.Log)
 		if res != nil {
 			return *res, err
 		}
 	}
 
-	failed := &monotonicBool{}
+	failed := &types.MonotonicBool{}
 
 	// IAM rules
 	for _, rule := range validator.Spec.IamRoleRules {
@@ -133,28 +121,28 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile IAM role rule")
 		}
-		r.safeUpdateValidationResult(nn, validationResult, failed, err)
+		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 	}
 	for _, rule := range validator.Spec.IamUserRules {
 		validationResult, err := iamRuleService.ReconcileIAMUserRule(nn, rule)
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile IAM user rule")
 		}
-		r.safeUpdateValidationResult(nn, validationResult, failed, err)
+		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 	}
 	for _, rule := range validator.Spec.IamGroupRules {
 		validationResult, err := iamRuleService.ReconcileIAMGroupRule(nn, rule)
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile IAM group rule")
 		}
-		r.safeUpdateValidationResult(nn, validationResult, failed, err)
+		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 	}
 	for _, rule := range validator.Spec.IamPolicyRules {
 		validationResult, err := iamRuleService.ReconcileIAMPolicyRule(nn, rule)
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile IAM policy rule")
 		}
-		r.safeUpdateValidationResult(nn, validationResult, failed, err)
+		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 	}
 
 	// Service Quota rules
@@ -163,7 +151,7 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile Service Quota rule")
 		}
-		r.safeUpdateValidationResult(nn, validationResult, failed, err)
+		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 	}
 
 	// Tag rules
@@ -172,7 +160,7 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile Tag rule")
 		}
-		r.safeUpdateValidationResult(nn, validationResult, failed, err)
+		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 	}
 
 	r.Log.V(0).Info("Requeuing for re-validation in two minutes.", "name", req.Name, "namespace", req.Namespace)
@@ -189,7 +177,7 @@ func (r *AwsValidatorReconciler) SetupWithManager(mgr ctrl.Manager) error {
 // secretKeyAuth creates AWS credentials from a secret containing an access key id and secret access key
 func (r *AwsValidatorReconciler) secretKeyAuth(req ctrl.Request, validator *v1alpha1.AwsValidator) (*credentials.Credentials, *reconcile.Result) {
 	authSecret := &corev1.Secret{}
-	nn := k8stypes.NamespacedName{Name: validator.Spec.Auth.SecretName, Namespace: req.Namespace}
+	nn := ktypes.NamespacedName{Name: validator.Spec.Auth.SecretName, Namespace: req.Namespace}
 
 	if err := r.Get(context.Background(), nn, authSecret); err != nil {
 		if apierrs.IsNotFound(err) {
@@ -216,129 +204,4 @@ func (r *AwsValidatorReconciler) secretKeyAuth(req ctrl.Request, validator *v1al
 	}
 
 	return credentials.NewStaticCredentials(string(id), string(secretKey), ""), nil
-}
-
-// handleExistingValidationResult processes a preexisting validation result for the active validator
-func (r *AwsValidatorReconciler) handleExistingValidationResult(nn k8stypes.NamespacedName, vr *valid8orv1alpha1.ValidationResult) (*ctrl.Result, error) {
-	switch vr.Status.State {
-
-	case valid8orv1alpha1.ValidationInProgress:
-		// validations are only left in progress if an unexpected error occurred
-		r.Log.V(0).Info("Previous validation failed with unexpected error", "name", nn.Name, "namespace", nn.Namespace)
-
-	case valid8orv1alpha1.ValidationFailed:
-		// log validation failure, but continue and retry
-		cs := getInvalidConditions(vr.Status.Conditions)
-		if len(cs) > 0 {
-			for _, c := range cs {
-				r.Log.V(0).Info(
-					"Validation failed. Retrying.", "name", nn.Name, "namespace", nn.Namespace,
-					"validation", c.ValidationRule, "error", c.Message, "details", c.Details, "failures", c.Failures,
-				)
-			}
-		}
-
-	case valid8orv1alpha1.ValidationSucceeded:
-		// log validation success, continue to re-validate
-		r.Log.V(0).Info("Previous validation succeeded. Re-validating.", "name", nn.Name, "namespace", nn.Namespace)
-	}
-
-	return nil, nil
-}
-
-// handleNewValidationResult creates a new validation result for the active validator
-func (r *AwsValidatorReconciler) handleNewValidationResult(nn k8stypes.NamespacedName, vr *valid8orv1alpha1.ValidationResult) (*ctrl.Result, error) {
-
-	// Create the ValidationResult
-	vr.ObjectMeta = metav1.ObjectMeta{
-		Name:      nn.Name,
-		Namespace: nn.Namespace,
-	}
-	vr.Spec = valid8orv1alpha1.ValidationResultSpec{
-		Plugin: "AWS",
-	}
-	if err := r.Client.Create(context.Background(), vr, &client.CreateOptions{}); err != nil {
-		r.Log.V(0).Error(err, "failed to create ValidationResult", "name", nn.Name, "namespace", nn.Namespace)
-		return &ctrl.Result{}, err
-	}
-
-	// Update the ValidationResult's status
-	vr.Status = valid8orv1alpha1.ValidationResultStatus{
-		State: valid8orv1alpha1.ValidationInProgress,
-	}
-	if err := r.Status().Update(context.Background(), vr); err != nil {
-		r.Log.V(0).Error(err, "failed to update ValidationResult status", "name", nn.Name, "namespace", nn.Namespace)
-		return &ctrl.Result{}, err
-	}
-
-	return nil, nil
-}
-
-// safeUpdateValidationResult updates the overall validation result, ensuring that the overall validation status remains failed if a single rule fails
-func (r *AwsValidatorReconciler) safeUpdateValidationResult(nn k8stypes.NamespacedName, validationResult *types.ValidationResult, failed *monotonicBool, err error) {
-	if err != nil {
-		validationResult.State = ptr.Ptr(valid8orv1alpha1.ValidationFailed)
-		validationResult.Condition.Status = corev1.ConditionFalse
-		validationResult.Condition.Message = "Validation failed with an unexpected error"
-		validationResult.Condition.Failures = append(validationResult.Condition.Failures, err.Error())
-	}
-
-	didFail := *validationResult.State == valid8orv1alpha1.ValidationFailed
-	failed.Update(didFail)
-	if failed.ok && !didFail {
-		validationResult.State = ptr.Ptr(valid8orv1alpha1.ValidationFailed)
-	}
-
-	if err := r.updateValidationResult(nn, *validationResult); err != nil {
-		r.Log.V(0).Error(err, "failed to update ValidationResult")
-	}
-}
-
-// updateValidationResult updates the ValidationResult for the active validation rule
-func (r *AwsValidatorReconciler) updateValidationResult(nn k8stypes.NamespacedName, res types.ValidationResult) error {
-	vr := &valid8orv1alpha1.ValidationResult{}
-	if err := r.Get(context.Background(), nn, vr); err != nil {
-		return fmt.Errorf("failed to get ValidationResult %s in namespace %s: %v", nn.Name, nn.Namespace, err)
-	}
-	vr.Status.State = *res.State
-
-	idx := getConditionIndexByValidationRule(vr.Status.Conditions, res.Condition.ValidationRule)
-	if idx == -1 {
-		vr.Status.Conditions = append(vr.Status.Conditions, *res.Condition)
-	} else {
-		vr.Status.Conditions[idx] = *res.Condition
-	}
-
-	if err := r.Status().Update(context.Background(), vr); err != nil {
-		r.Log.V(0).Error(err, "failed to update ValidationResult")
-		return err
-	}
-	r.Log.V(0).Info(
-		"Updated ValidationResult", "state", res.State, "reason", res.Condition.ValidationRule,
-		"message", res.Condition.Message, "details", res.Condition.Details,
-		"failures", res.Condition.Failures, "time", res.Condition.LastValidationTime,
-	)
-
-	return nil
-}
-
-// getInvalidConditions filters a ValidationCondition array and returns all conditions corresponding to a failed validation
-func getInvalidConditions(conditions []valid8orv1alpha1.ValidationCondition) []valid8orv1alpha1.ValidationCondition {
-	invalidConditions := make([]valid8orv1alpha1.ValidationCondition, 0)
-	for _, c := range conditions {
-		if strings.HasPrefix(c.ValidationRule, constants.ValidationRulePrefix) && c.Status == corev1.ConditionFalse {
-			invalidConditions = append(invalidConditions, c)
-		}
-	}
-	return invalidConditions
-}
-
-// getConditionIndexByValidationRule retrieves the index of a condition from a ValidationCondition array matching a specific reason
-func getConditionIndexByValidationRule(conditions []valid8orv1alpha1.ValidationCondition, validationRule string) int {
-	for i, c := range conditions {
-		if c.ValidationRule == validationRule {
-			return i
-		}
-	}
-	return -1
 }

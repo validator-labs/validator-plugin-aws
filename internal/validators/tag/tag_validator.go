@@ -11,10 +11,11 @@ import (
 
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/api/v1alpha1"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/constants"
-	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/types"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/utils/aws"
-	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/utils/ptr"
-	valid8orv1alpha1 "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
+	v8or "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
+	v8orconstants "github.com/spectrocloud-labs/valid8or/pkg/constants"
+	v8ortypes "github.com/spectrocloud-labs/valid8or/pkg/types"
+	"github.com/spectrocloud-labs/valid8or/pkg/util/ptr"
 )
 
 type TagRuleService struct {
@@ -30,16 +31,16 @@ func NewTagRuleService(log logr.Logger, s *session.Session) *TagRuleService {
 }
 
 // ReconcileTagRule reconciles an EC2 tagging validation rule from the AWSValidator config
-func (s *TagRuleService) ReconcileTagRule(nn k8stypes.NamespacedName, rule v1alpha1.TagRule) (*types.ValidationResult, error) {
+func (s *TagRuleService) ReconcileTagRule(nn k8stypes.NamespacedName, rule v1alpha1.TagRule) (*v8ortypes.ValidationResult, error) {
 	ec2Svc := aws.EC2Service(s.session, rule.Region)
 
 	// Build the default latest condition for this tag rule
-	state := valid8orv1alpha1.ValidationSucceeded
-	latestCondition := valid8orv1alpha1.DefaultValidationCondition()
+	state := v8or.ValidationSucceeded
+	latestCondition := v8or.DefaultValidationCondition()
 	latestCondition.Message = "All required subnet tags were found"
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s-%s", constants.ValidationRulePrefix, rule.ResourceType, rule.Key)
+	latestCondition.ValidationRule = fmt.Sprintf("%s-%s-%s", v8orconstants.ValidationRulePrefix, rule.ResourceType, rule.Key)
 	latestCondition.ValidationType = constants.ValidationTypeTag
-	validationResult := &types.ValidationResult{Condition: &latestCondition, State: &state}
+	validationResult := &v8ortypes.ValidationResult{Condition: &latestCondition, State: &state}
 
 	switch rule.ResourceType {
 	case "subnet":
@@ -70,7 +71,7 @@ func (s *TagRuleService) ReconcileTagRule(nn k8stypes.NamespacedName, rule v1alp
 			}
 		}
 		if len(failures) > 0 {
-			state = valid8orv1alpha1.ValidationFailed
+			state = v8or.ValidationFailed
 			latestCondition.Failures = failures
 			latestCondition.Message = "One or more required subnet tags was not found"
 			latestCondition.Status = corev1.ConditionFalse

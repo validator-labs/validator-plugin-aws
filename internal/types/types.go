@@ -1,7 +1,5 @@
 package types
 
-import valid8orv1alpha1 "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
-
 // UsageResult describes the maximum usage for an arbitrary category
 type UsageResult struct {
 	Description string
@@ -22,10 +20,4 @@ func (u UsageMap) Max() *UsageResult {
 		}
 	}
 	return &UsageResult{Description: maxUsageKey, MaxUsage: maxUsage}
-}
-
-// ValidationResult is the result of the execution of a validation rule by a validator
-type ValidationResult struct {
-	Condition *valid8orv1alpha1.ValidationCondition
-	State     *valid8orv1alpha1.ValidationState
 }

@@ -15,11 +15,12 @@ import (
 
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/api/v1alpha1"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/constants"
-	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/types"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/utils/aws"
-	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/utils/ptr"
 	str_utils "github.com/spectrocloud-labs/valid8or-plugin-aws/internal/utils/strings"
-	valid8orv1alpha1 "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
+	v8or "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
+	v8orconstants "github.com/spectrocloud-labs/valid8or/pkg/constants"
+	"github.com/spectrocloud-labs/valid8or/pkg/types"
+	"github.com/spectrocloud-labs/valid8or/pkg/util/ptr"
 )
 
 type iamAction struct {
@@ -230,10 +231,10 @@ func (s *IAMRuleService) getPolicyDocument(policyArn *string, context []string) 
 
 // buildValidationResult builds a default ValidationResult for a given validation type
 func buildValidationResult(rule iamRule, validationType string) *types.ValidationResult {
-	state := valid8orv1alpha1.ValidationSucceeded
-	latestCondition := valid8orv1alpha1.DefaultValidationCondition()
+	state := v8or.ValidationSucceeded
+	latestCondition := v8or.DefaultValidationCondition()
 	latestCondition.Message = fmt.Sprintf("All required %s permissions were found", validationType)
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", constants.ValidationRulePrefix, rule.Name())
+	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", v8orconstants.ValidationRulePrefix, rule.Name())
 	latestCondition.ValidationType = validationType
 	return &types.ValidationResult{Condition: &latestCondition, State: &state}
 }
@@ -362,7 +363,7 @@ func computeFailures(rule iamRule, permissions map[string]*permission, vr *types
 		failures = append(failures, failureMsg)
 	}
 	if len(failures) > 0 {
-		vr.State = ptr.Ptr(valid8orv1alpha1.ValidationFailed)
+		vr.State = ptr.Ptr(v8or.ValidationFailed)
 		vr.Condition.Failures = failures
 		vr.Condition.Message = "One or more required IAM permissions was not found, or a condition was not met"
 		vr.Condition.Status = corev1.ConditionFalse
