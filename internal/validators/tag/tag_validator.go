@@ -7,7 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
-	k8stypes "k8s.io/apimachinery/pkg/types"
+	ktypes "k8s.io/apimachinery/pkg/types"
 
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/api/v1alpha1"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/constants"
@@ -31,7 +31,7 @@ func NewTagRuleService(log logr.Logger, s *session.Session) *TagRuleService {
 }
 
 // ReconcileTagRule reconciles an EC2 tagging validation rule from the AWSValidator config
-func (s *TagRuleService) ReconcileTagRule(nn k8stypes.NamespacedName, rule v1alpha1.TagRule) (*v8ortypes.ValidationResult, error) {
+func (s *TagRuleService) ReconcileTagRule(nn ktypes.NamespacedName, rule v1alpha1.TagRule) (*v8ortypes.ValidationResult, error) {
 	ec2Svc := aws.EC2Service(s.session, rule.Region)
 
 	// Build the default latest condition for this tag rule

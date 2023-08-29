@@ -11,7 +11,7 @@ import (
 	"github.com/go-logr/logr"
 	"golang.org/x/exp/slices"
 	corev1 "k8s.io/api/core/v1"
-	k8stypes "k8s.io/apimachinery/pkg/types"
+	ktypes "k8s.io/apimachinery/pkg/types"
 
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/api/v1alpha1"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/constants"
@@ -66,7 +66,7 @@ func NewIAMRuleService(log logr.Logger, s *session.Session) *IAMRuleService {
 }
 
 // ReconcileIAMRoleRule reconciles an IAM role validation rule from an AWSValidator config
-func (s *IAMRuleService) ReconcileIAMRoleRule(nn k8stypes.NamespacedName, rule iamRule) (*types.ValidationResult, error) {
+func (s *IAMRuleService) ReconcileIAMRoleRule(nn ktypes.NamespacedName, rule iamRule) (*types.ValidationResult, error) {
 
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMRolePolicy)
@@ -96,7 +96,7 @@ func (s *IAMRuleService) ReconcileIAMRoleRule(nn k8stypes.NamespacedName, rule i
 }
 
 // ReconcileIAMUserRule reconciles an IAM user validation rule from an AWSValidator config
-func (s *IAMRuleService) ReconcileIAMUserRule(nn k8stypes.NamespacedName, rule iamRule) (*types.ValidationResult, error) {
+func (s *IAMRuleService) ReconcileIAMUserRule(nn ktypes.NamespacedName, rule iamRule) (*types.ValidationResult, error) {
 
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMUserPolicy)
@@ -126,7 +126,7 @@ func (s *IAMRuleService) ReconcileIAMUserRule(nn k8stypes.NamespacedName, rule i
 }
 
 // ReconcileIAMGroupRule reconciles an IAM group validation rule from an AWSValidator config
-func (s *IAMRuleService) ReconcileIAMGroupRule(nn k8stypes.NamespacedName, rule iamRule) (*types.ValidationResult, error) {
+func (s *IAMRuleService) ReconcileIAMGroupRule(nn ktypes.NamespacedName, rule iamRule) (*types.ValidationResult, error) {
 
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMGroupPolicy)
@@ -156,7 +156,7 @@ func (s *IAMRuleService) ReconcileIAMGroupRule(nn k8stypes.NamespacedName, rule 
 }
 
 // ReconcileIAMPolicyRule reconciles an IAM policy validation rule from an AWSValidator config
-func (s *IAMRuleService) ReconcileIAMPolicyRule(nn k8stypes.NamespacedName, rule iamRule) (*types.ValidationResult, error) {
+func (s *IAMRuleService) ReconcileIAMPolicyRule(nn ktypes.NamespacedName, rule iamRule) (*types.ValidationResult, error) {
 
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMPolicy)
