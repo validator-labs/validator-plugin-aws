@@ -6,7 +6,7 @@ require (
 	github.com/L30Bola/aws-policy v0.0.0-20230126045340-5e6118545ac1
 	github.com/aws/aws-sdk-go v1.44.329
 	github.com/go-logr/logr v1.2.4
-	github.com/onsi/ginkgo/v2 v2.11.0
+	github.com/onsi/ginkgo/v2 v2.12.0
 	github.com/onsi/gomega v1.27.10
 	github.com/spectrocloud-labs/valid8or v0.0.4
 	golang.org/x/exp v0.0.0-20230817173708-d852ddb80c63
