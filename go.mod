@@ -8,7 +8,7 @@ require (
 	github.com/go-logr/logr v1.2.4
 	github.com/onsi/ginkgo/v2 v2.12.0
 	github.com/onsi/gomega v1.27.10
-	github.com/spectrocloud-labs/valid8or v0.0.4
+	github.com/spectrocloud-labs/valid8or v0.0.5
 	golang.org/x/exp v0.0.0-20230817173708-d852ddb80c63
 	k8s.io/api v0.27.2
 	k8s.io/apimachinery v0.27.2
