@@ -35,6 +35,7 @@ import (
 
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/api/v1alpha1"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/constants"
+	aws_utils "github.com/spectrocloud-labs/valid8or-plugin-aws/internal/utils/aws"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/validators/iam"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/validators/servicequota"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/validators/tag"
@@ -88,7 +89,7 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		// allow flow to proceed - better errors will surface subsequently
 		r.Log.V(0).Error(err, "failed to establish AWS session")
 	}
-	iamRuleService := iam.NewIAMRuleService(r.Log, session)
+	iamRuleService := iam.NewIAMRuleService(r.Log, aws_utils.IAMService(session))
 	svcQuotaService := servicequota.NewServiceQuotaRuleService(r.Log, session)
 	tagRuleService := tag.NewTagRuleService(r.Log, session)
 
@@ -117,28 +118,28 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	// IAM rules
 	for _, rule := range validator.Spec.IamRoleRules {
-		validationResult, err := iamRuleService.ReconcileIAMRoleRule(nn, rule)
+		validationResult, err := iamRuleService.ReconcileIAMRoleRule(rule)
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile IAM role rule")
 		}
 		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 	}
 	for _, rule := range validator.Spec.IamUserRules {
-		validationResult, err := iamRuleService.ReconcileIAMUserRule(nn, rule)
+		validationResult, err := iamRuleService.ReconcileIAMUserRule(rule)
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile IAM user rule")
 		}
 		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 	}
 	for _, rule := range validator.Spec.IamGroupRules {
-		validationResult, err := iamRuleService.ReconcileIAMGroupRule(nn, rule)
+		validationResult, err := iamRuleService.ReconcileIAMGroupRule(rule)
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile IAM group rule")
 		}
 		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 	}
 	for _, rule := range validator.Spec.IamPolicyRules {
-		validationResult, err := iamRuleService.ReconcileIAMPolicyRule(nn, rule)
+		validationResult, err := iamRuleService.ReconcileIAMPolicyRule(rule)
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile IAM policy rule")
 		}

@@ -6,16 +6,13 @@ import (
 	"strings"
 
 	awspolicy "github.com/L30Bola/aws-policy"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/go-logr/logr"
 	"golang.org/x/exp/slices"
 	corev1 "k8s.io/api/core/v1"
-	ktypes "k8s.io/apimachinery/pkg/types"
 
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/api/v1alpha1"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/constants"
-	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/utils/aws"
 	str_utils "github.com/spectrocloud-labs/valid8or-plugin-aws/internal/utils/strings"
 	v8or "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
 	v8orconstants "github.com/spectrocloud-labs/valid8or/pkg/constants"
@@ -53,20 +50,28 @@ type iamRule interface {
 	IAMPolicies() []v1alpha1.PolicyDocument
 }
 
-type IAMRuleService struct {
-	log    logr.Logger
-	iamSvc *iam.IAM
+type iamApi interface {
+	GetPolicy(input *iam.GetPolicyInput) (*iam.GetPolicyOutput, error)
+	GetPolicyVersion(input *iam.GetPolicyVersionInput) (*iam.GetPolicyVersionOutput, error)
+	ListAttachedGroupPolicies(input *iam.ListAttachedGroupPoliciesInput) (*iam.ListAttachedGroupPoliciesOutput, error)
+	ListAttachedRolePolicies(input *iam.ListAttachedRolePoliciesInput) (*iam.ListAttachedRolePoliciesOutput, error)
+	ListAttachedUserPolicies(input *iam.ListAttachedUserPoliciesInput) (*iam.ListAttachedUserPoliciesOutput, error)
 }
 
-func NewIAMRuleService(log logr.Logger, s *session.Session) *IAMRuleService {
+type IAMRuleService struct {
+	log    logr.Logger
+	iamSvc iamApi
+}
+
+func NewIAMRuleService(log logr.Logger, iamSvc iamApi) *IAMRuleService {
 	return &IAMRuleService{
 		log:    log,
-		iamSvc: aws.IAMService(s),
+		iamSvc: iamSvc,
 	}
 }
 
 // ReconcileIAMRoleRule reconciles an IAM role validation rule from an AWSValidator config
-func (s *IAMRuleService) ReconcileIAMRoleRule(nn ktypes.NamespacedName, rule iamRule) (*types.ValidationResult, error) {
+func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationResult, error) {
 
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMRolePolicy)
@@ -96,7 +101,7 @@ func (s *IAMRuleService) ReconcileIAMRoleRule(nn ktypes.NamespacedName, rule iam
 }
 
 // ReconcileIAMUserRule reconciles an IAM user validation rule from an AWSValidator config
-func (s *IAMRuleService) ReconcileIAMUserRule(nn ktypes.NamespacedName, rule iamRule) (*types.ValidationResult, error) {
+func (s *IAMRuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationResult, error) {
 
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMUserPolicy)
@@ -126,7 +131,7 @@ func (s *IAMRuleService) ReconcileIAMUserRule(nn ktypes.NamespacedName, rule iam
 }
 
 // ReconcileIAMGroupRule reconciles an IAM group validation rule from an AWSValidator config
-func (s *IAMRuleService) ReconcileIAMGroupRule(nn ktypes.NamespacedName, rule iamRule) (*types.ValidationResult, error) {
+func (s *IAMRuleService) ReconcileIAMGroupRule(rule iamRule) (*types.ValidationResult, error) {
 
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMGroupPolicy)
@@ -156,7 +161,7 @@ func (s *IAMRuleService) ReconcileIAMGroupRule(nn ktypes.NamespacedName, rule ia
 }
 
 // ReconcileIAMPolicyRule reconciles an IAM policy validation rule from an AWSValidator config
-func (s *IAMRuleService) ReconcileIAMPolicyRule(nn ktypes.NamespacedName, rule iamRule) (*types.ValidationResult, error) {
+func (s *IAMRuleService) ReconcileIAMPolicyRule(rule iamRule) (*types.ValidationResult, error) {
 
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMPolicy)
