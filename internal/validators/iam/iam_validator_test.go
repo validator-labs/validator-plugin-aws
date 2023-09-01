@@ -2,7 +2,6 @@ package iam
 
 import (
 	"net/url"
-	"reflect"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/service/iam"
@@ -10,6 +9,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/api/v1alpha1"
+	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/utils/test"
 	v8or "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
 	"github.com/spectrocloud-labs/valid8or/pkg/types"
 	"github.com/spectrocloud-labs/valid8or/pkg/util/ptr"
@@ -76,7 +76,7 @@ const (
 
 var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 	attachedGroupPolicies: map[string]*iam.ListAttachedGroupPoliciesOutput{
-		"iamGroup": &iam.ListAttachedGroupPoliciesOutput{
+		"iamGroup": {
 			AttachedPolicies: []*iam.AttachedPolicy{
 				{
 					PolicyArn:  ptr.Ptr("iamRoleArn1"),
@@ -86,7 +86,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		},
 	},
 	attachedRolePolicies: map[string]*iam.ListAttachedRolePoliciesOutput{
-		"iamRole1": &iam.ListAttachedRolePoliciesOutput{
+		"iamRole1": {
 			AttachedPolicies: []*iam.AttachedPolicy{
 				{
 					PolicyArn:  ptr.Ptr("iamRoleArn1"),
@@ -94,7 +94,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 				},
 			},
 		},
-		"iamRole2": &iam.ListAttachedRolePoliciesOutput{
+		"iamRole2": {
 			AttachedPolicies: []*iam.AttachedPolicy{
 				{
 					PolicyArn:  ptr.Ptr("iamRoleArn2"),
@@ -104,19 +104,19 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		},
 	},
 	policyArns: map[string]*iam.GetPolicyOutput{
-		"iamRoleArn1": &iam.GetPolicyOutput{
+		"iamRoleArn1": {
 			Policy: ptr.Ptr(iam.Policy{
 				DefaultVersionId: ptr.Ptr("1"),
 			}),
 		},
-		"iamRoleArn2": &iam.GetPolicyOutput{
+		"iamRoleArn2": {
 			Policy: ptr.Ptr(iam.Policy{
 				DefaultVersionId: ptr.Ptr("1"),
 			}),
 		},
 	},
 	attachedUserPolicies: map[string]*iam.ListAttachedUserPoliciesOutput{
-		"iamUser": &iam.ListAttachedUserPoliciesOutput{
+		"iamUser": {
 			AttachedPolicies: []*iam.AttachedPolicy{
 				{
 					PolicyArn:  ptr.Ptr("iamRoleArn1"),
@@ -126,12 +126,12 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		},
 	},
 	policyVersions: map[string]*iam.GetPolicyVersionOutput{
-		"iamRoleArn1": &iam.GetPolicyVersionOutput{
+		"iamRoleArn1": {
 			PolicyVersion: ptr.Ptr(iam.PolicyVersion{
 				Document: ptr.Ptr(url.QueryEscape(policyDocumentOutput1)),
 			}),
 		},
-		"iamRoleArn2": &iam.GetPolicyVersionOutput{
+		"iamRoleArn2": {
 			PolicyVersion: ptr.Ptr(iam.PolicyVersion{
 				Document: ptr.Ptr(url.QueryEscape(policyDocumentOutput2)),
 			}),
@@ -144,33 +144,6 @@ type testCase struct {
 	rule           iamRule
 	expectedResult types.ValidationResult
 	expectedError  error
-}
-
-func checkTestCase(t *testing.T, c testCase, res *types.ValidationResult, err error) {
-	if !reflect.DeepEqual(res.State, c.expectedResult.State) {
-		t.Errorf("expected state (%+v), got (%+v)", c.expectedResult.State, res.State)
-	}
-	if !reflect.DeepEqual(res.Condition.ValidationType, c.expectedResult.Condition.ValidationType) {
-		t.Errorf("expected validation type (%s), got (%s)", c.expectedResult.Condition.ValidationType, res.Condition.ValidationType)
-	}
-	if !reflect.DeepEqual(res.Condition.ValidationRule, c.expectedResult.Condition.ValidationRule) {
-		t.Errorf("expected validation rule (%s), got (%s)", c.expectedResult.Condition.ValidationRule, res.Condition.ValidationRule)
-	}
-	if !reflect.DeepEqual(res.Condition.Message, c.expectedResult.Condition.Message) {
-		t.Errorf("expected message (%s), got (%s)", c.expectedResult.Condition.Message, res.Condition.Message)
-	}
-	if !reflect.DeepEqual(res.Condition.Details, c.expectedResult.Condition.Details) {
-		t.Errorf("expected details (%s), got (%s)", c.expectedResult.Condition.Details, res.Condition.Details)
-	}
-	if !reflect.DeepEqual(res.Condition.Failures, c.expectedResult.Condition.Failures) {
-		t.Errorf("expected failures (%s), got (%s)", c.expectedResult.Condition.Failures, res.Condition.Failures)
-	}
-	if !reflect.DeepEqual(res.Condition.Status, c.expectedResult.Condition.Status) {
-		t.Errorf("expected status (%s), got (%s)", c.expectedResult.Condition.Status, res.Condition.Status)
-	}
-	if !reflect.DeepEqual(err, c.expectedError) {
-		t.Errorf("expected error (%v), got (%v)", c.expectedError, err)
-	}
 }
 
 func TestIAMGroupValidation(t *testing.T) {
@@ -240,7 +213,7 @@ func TestIAMGroupValidation(t *testing.T) {
 	}
 	for _, c := range cs {
 		result, err := iamService.ReconcileIAMGroupRule(c.rule)
-		checkTestCase(t, c, result, err)
+		test.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
 	}
 }
 
@@ -341,7 +314,7 @@ func TestIAMRoleValidation(t *testing.T) {
 	}
 	for _, c := range cs {
 		result, err := iamService.ReconcileIAMRoleRule(c.rule)
-		checkTestCase(t, c, result, err)
+		test.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
 	}
 }
 
@@ -412,7 +385,7 @@ func TestIAMUserValidation(t *testing.T) {
 	}
 	for _, c := range cs {
 		result, err := iamService.ReconcileIAMUserRule(c.rule)
-		checkTestCase(t, c, result, err)
+		test.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
 	}
 }
 
@@ -483,6 +456,6 @@ func TestIAMPolicyValidation(t *testing.T) {
 	}
 	for _, c := range cs {
 		result, err := iamService.ReconcileIAMPolicyRule(c.rule)
-		checkTestCase(t, c, result, err)
+		test.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
 	}
 }

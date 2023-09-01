@@ -3,36 +3,36 @@ package tag
 import (
 	"fmt"
 
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
-	ktypes "k8s.io/apimachinery/pkg/types"
 
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/api/v1alpha1"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/constants"
-	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/utils/aws"
 	v8or "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
 	v8orconstants "github.com/spectrocloud-labs/valid8or/pkg/constants"
 	v8ortypes "github.com/spectrocloud-labs/valid8or/pkg/types"
 	"github.com/spectrocloud-labs/valid8or/pkg/util/ptr"
 )
 
-type TagRuleService struct {
-	log     logr.Logger
-	session *session.Session
+type tagApi interface {
+	DescribeSubnets(input *ec2.DescribeSubnetsInput) (*ec2.DescribeSubnetsOutput, error)
 }
 
-func NewTagRuleService(log logr.Logger, s *session.Session) *TagRuleService {
+type TagRuleService struct {
+	log    logr.Logger
+	tagSvc tagApi
+}
+
+func NewTagRuleService(log logr.Logger, tagSvc tagApi) *TagRuleService {
 	return &TagRuleService{
-		log:     log,
-		session: s,
+		log:    log,
+		tagSvc: tagSvc,
 	}
 }
 
 // ReconcileTagRule reconciles an EC2 tagging validation rule from the AWSValidator config
-func (s *TagRuleService) ReconcileTagRule(nn ktypes.NamespacedName, rule v1alpha1.TagRule) (*v8ortypes.ValidationResult, error) {
-	ec2Svc := aws.EC2Service(s.session, rule.Region)
+func (s *TagRuleService) ReconcileTagRule(rule v1alpha1.TagRule) (*v8ortypes.ValidationResult, error) {
 
 	// Build the default latest condition for this tag rule
 	state := v8or.ValidationSucceeded
@@ -47,7 +47,7 @@ func (s *TagRuleService) ReconcileTagRule(nn ktypes.NamespacedName, rule v1alpha
 		// match the tag rule's list of ARNs against the subnets with tag 'rule.Key=rule.ExpectedValue'
 		failures := make([]string, 0)
 		foundArns := make(map[string]bool)
-		subnets, err := ec2Svc.DescribeSubnets(&ec2.DescribeSubnetsInput{
+		subnets, err := s.tagSvc.DescribeSubnets(&ec2.DescribeSubnetsInput{
 			Filters: []*ec2.Filter{
 				{
 					Name:   ptr.Ptr(fmt.Sprintf("tag:%s", rule.Key)),

@@ -1,0 +1,95 @@
+package tag
+
+import (
+	"fmt"
+	"testing"
+
+	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/go-logr/logr"
+	corev1 "k8s.io/api/core/v1"
+
+	"github.com/spectrocloud-labs/valid8or-plugin-aws/api/v1alpha1"
+	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/utils/test"
+	v8or "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
+	"github.com/spectrocloud-labs/valid8or/pkg/types"
+	"github.com/spectrocloud-labs/valid8or/pkg/util/ptr"
+)
+
+type tagApiMock struct {
+	subnetsByTagValue map[string]*ec2.DescribeSubnetsOutput
+}
+
+func (m tagApiMock) DescribeSubnets(input *ec2.DescribeSubnetsInput) (*ec2.DescribeSubnetsOutput, error) {
+	key := fmt.Sprintf("%s=%s", *input.Filters[0].Name, *input.Filters[0].Values[0])
+	return m.subnetsByTagValue[key], nil
+}
+
+var tagService = NewTagRuleService(logr.Logger{}, tagApiMock{
+	subnetsByTagValue: map[string]*ec2.DescribeSubnetsOutput{
+		"tag:kubernetes.io/role/elb=1": {
+			Subnets: []*ec2.Subnet{
+				{
+					SubnetArn: ptr.Ptr("subnetArn2"),
+				},
+			},
+		},
+	},
+})
+
+type testCase struct {
+	name           string
+	rule           v1alpha1.TagRule
+	expectedResult types.ValidationResult
+	expectedError  error
+}
+
+func TestTagValidation(t *testing.T) {
+	cs := []testCase{
+		{
+			name: "Fail (missing tag)",
+			rule: v1alpha1.TagRule{
+				Key:           "kubernetes.io/role/elb",
+				ExpectedValue: "1",
+				Region:        "us-west-1",
+				ResourceType:  "subnet",
+				ARNs:          []string{"subnetArn1"},
+			},
+			expectedResult: types.ValidationResult{
+				Condition: &v8or.ValidationCondition{
+					ValidationType: "aws-tag",
+					ValidationRule: "validation-subnet-kubernetes.io/role/elb",
+					Message:        "One or more required subnet tags was not found",
+					Details:        []string{},
+					Failures:       []string{"Subnet with ARN subnetArn1 missing tag kubernetes.io/role/elb=1"},
+					Status:         corev1.ConditionFalse,
+				},
+				State: ptr.Ptr(v8or.ValidationFailed),
+			},
+		},
+		{
+			name: "Pass",
+			rule: v1alpha1.TagRule{
+				Key:           "kubernetes.io/role/elb",
+				ExpectedValue: "1",
+				Region:        "us-west-1",
+				ResourceType:  "subnet",
+				ARNs:          []string{"subnetArn2"},
+			},
+			expectedResult: types.ValidationResult{
+				Condition: &v8or.ValidationCondition{
+					ValidationType: "aws-tag",
+					ValidationRule: "validation-subnet-kubernetes.io/role/elb",
+					Message:        "All required subnet tags were found",
+					Details:        []string{},
+					Failures:       nil,
+					Status:         corev1.ConditionTrue,
+				},
+				State: ptr.Ptr(v8or.ValidationSucceeded),
+			},
+		},
+	}
+	for _, c := range cs {
+		result, err := tagService.ReconcileTagRule(c.rule)
+		test.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
+	}
+}

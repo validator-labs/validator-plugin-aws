@@ -91,7 +91,6 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	}
 	iamRuleService := iam.NewIAMRuleService(r.Log, aws_utils.IAMService(session))
 	svcQuotaService := servicequota.NewServiceQuotaRuleService(r.Log, session)
-	tagRuleService := tag.NewTagRuleService(r.Log, session)
 
 	// Get the active validator's validation result
 	vr := &v8or.ValidationResult{}
@@ -157,7 +156,8 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	// Tag rules
 	for _, rule := range validator.Spec.TagRules {
-		validationResult, err := tagRuleService.ReconcileTagRule(nn, rule)
+		tagRuleService := tag.NewTagRuleService(r.Log, aws_utils.EC2Service(session, rule.Region))
+		validationResult, err := tagRuleService.ReconcileTagRule(rule)
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile Tag rule")
 		}
