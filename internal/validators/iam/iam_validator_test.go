@@ -74,59 +74,178 @@ const (
 	}`
 )
 
-func TestIAMValidation(t *testing.T) {
-
-	iamService := NewIAMRuleService(logr.Logger{}, iamApiMock{
-		attachedRolePolicies: map[string]*iam.ListAttachedRolePoliciesOutput{
-			"iamRole1": &iam.ListAttachedRolePoliciesOutput{
-				AttachedPolicies: []*iam.AttachedPolicy{
-					{
-						PolicyArn:  ptr.Ptr("iamRoleArn1"),
-						PolicyName: ptr.Ptr("iamRole1"),
-					},
-				},
-			},
-			"iamRole2": &iam.ListAttachedRolePoliciesOutput{
-				AttachedPolicies: []*iam.AttachedPolicy{
-					{
-						PolicyArn:  ptr.Ptr("iamRoleArn2"),
-						PolicyName: ptr.Ptr("iamRole2"),
-					},
+var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
+	attachedGroupPolicies: map[string]*iam.ListAttachedGroupPoliciesOutput{
+		"iamGroup": &iam.ListAttachedGroupPoliciesOutput{
+			AttachedPolicies: []*iam.AttachedPolicy{
+				{
+					PolicyArn:  ptr.Ptr("iamRoleArn1"),
+					PolicyName: ptr.Ptr("iamPolicy"),
 				},
 			},
 		},
-		policyArns: map[string]*iam.GetPolicyOutput{
-			"iamRoleArn1": &iam.GetPolicyOutput{
-				Policy: ptr.Ptr(iam.Policy{
-					DefaultVersionId: ptr.Ptr("1"),
-				}),
-			},
-			"iamRoleArn2": &iam.GetPolicyOutput{
-				Policy: ptr.Ptr(iam.Policy{
-					DefaultVersionId: ptr.Ptr("1"),
-				}),
+	},
+	attachedRolePolicies: map[string]*iam.ListAttachedRolePoliciesOutput{
+		"iamRole1": &iam.ListAttachedRolePoliciesOutput{
+			AttachedPolicies: []*iam.AttachedPolicy{
+				{
+					PolicyArn:  ptr.Ptr("iamRoleArn1"),
+					PolicyName: ptr.Ptr("iamPolicy"),
+				},
 			},
 		},
-		policyVersions: map[string]*iam.GetPolicyVersionOutput{
-			"iamRoleArn1": &iam.GetPolicyVersionOutput{
-				PolicyVersion: ptr.Ptr(iam.PolicyVersion{
-					Document: ptr.Ptr(url.QueryEscape(policyDocumentOutput1)),
-				}),
-			},
-			"iamRoleArn2": &iam.GetPolicyVersionOutput{
-				PolicyVersion: ptr.Ptr(iam.PolicyVersion{
-					Document: ptr.Ptr(url.QueryEscape(policyDocumentOutput2)),
-				}),
+		"iamRole2": &iam.ListAttachedRolePoliciesOutput{
+			AttachedPolicies: []*iam.AttachedPolicy{
+				{
+					PolicyArn:  ptr.Ptr("iamRoleArn2"),
+					PolicyName: ptr.Ptr("iamPolicy"),
+				},
 			},
 		},
-	})
+	},
+	policyArns: map[string]*iam.GetPolicyOutput{
+		"iamRoleArn1": &iam.GetPolicyOutput{
+			Policy: ptr.Ptr(iam.Policy{
+				DefaultVersionId: ptr.Ptr("1"),
+			}),
+		},
+		"iamRoleArn2": &iam.GetPolicyOutput{
+			Policy: ptr.Ptr(iam.Policy{
+				DefaultVersionId: ptr.Ptr("1"),
+			}),
+		},
+	},
+	attachedUserPolicies: map[string]*iam.ListAttachedUserPoliciesOutput{
+		"iamUser": &iam.ListAttachedUserPoliciesOutput{
+			AttachedPolicies: []*iam.AttachedPolicy{
+				{
+					PolicyArn:  ptr.Ptr("iamRoleArn1"),
+					PolicyName: ptr.Ptr("iamPolicy"),
+				},
+			},
+		},
+	},
+	policyVersions: map[string]*iam.GetPolicyVersionOutput{
+		"iamRoleArn1": &iam.GetPolicyVersionOutput{
+			PolicyVersion: ptr.Ptr(iam.PolicyVersion{
+				Document: ptr.Ptr(url.QueryEscape(policyDocumentOutput1)),
+			}),
+		},
+		"iamRoleArn2": &iam.GetPolicyVersionOutput{
+			PolicyVersion: ptr.Ptr(iam.PolicyVersion{
+				Document: ptr.Ptr(url.QueryEscape(policyDocumentOutput2)),
+			}),
+		},
+	},
+})
 
-	cs := []struct {
-		name           string
-		rule           iamRule
-		expectedResult types.ValidationResult
-		expectedError  error
-	}{
+type testCase struct {
+	name           string
+	rule           iamRule
+	expectedResult types.ValidationResult
+	expectedError  error
+}
+
+func checkTestCase(t *testing.T, c testCase, res *types.ValidationResult, err error) {
+	if !reflect.DeepEqual(res.State, c.expectedResult.State) {
+		t.Errorf("expected state (%+v), got (%+v)", c.expectedResult.State, res.State)
+	}
+	if !reflect.DeepEqual(res.Condition.ValidationType, c.expectedResult.Condition.ValidationType) {
+		t.Errorf("expected validation type (%s), got (%s)", c.expectedResult.Condition.ValidationType, res.Condition.ValidationType)
+	}
+	if !reflect.DeepEqual(res.Condition.ValidationRule, c.expectedResult.Condition.ValidationRule) {
+		t.Errorf("expected validation rule (%s), got (%s)", c.expectedResult.Condition.ValidationRule, res.Condition.ValidationRule)
+	}
+	if !reflect.DeepEqual(res.Condition.Message, c.expectedResult.Condition.Message) {
+		t.Errorf("expected message (%s), got (%s)", c.expectedResult.Condition.Message, res.Condition.Message)
+	}
+	if !reflect.DeepEqual(res.Condition.Details, c.expectedResult.Condition.Details) {
+		t.Errorf("expected details (%s), got (%s)", c.expectedResult.Condition.Details, res.Condition.Details)
+	}
+	if !reflect.DeepEqual(res.Condition.Failures, c.expectedResult.Condition.Failures) {
+		t.Errorf("expected failures (%s), got (%s)", c.expectedResult.Condition.Failures, res.Condition.Failures)
+	}
+	if !reflect.DeepEqual(res.Condition.Status, c.expectedResult.Condition.Status) {
+		t.Errorf("expected status (%s), got (%s)", c.expectedResult.Condition.Status, res.Condition.Status)
+	}
+	if !reflect.DeepEqual(err, c.expectedError) {
+		t.Errorf("expected error (%v), got (%v)", c.expectedError, err)
+	}
+}
+
+func TestIAMGroupValidation(t *testing.T) {
+	cs := []testCase{
+		{
+			name: "Fail (missing permission)",
+			rule: v1alpha1.IamGroupRule{
+				IamGroupName: "iamGroup",
+				Policies: []v1alpha1.PolicyDocument{
+					{
+						Name:    "iamPolicy",
+						Version: "1",
+						Statements: []v1alpha1.StatementEntry{
+							{
+								Effect:    "Allow",
+								Actions:   []string{"s3:GetBuckets"},
+								Resources: []string{"*"},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: types.ValidationResult{
+				Condition: &v8or.ValidationCondition{
+					ValidationType: "aws-iam-group-policy",
+					ValidationRule: "validation-iamGroup",
+					Message:        "One or more required IAM permissions was not found, or a condition was not met",
+					Details:        []string{},
+					Failures: []string{
+						"v1alpha1.IamGroupRule iamGroup missing action(s): [s3:GetBuckets] for resource * from policy iamPolicy",
+					},
+					Status: corev1.ConditionFalse,
+				},
+				State: ptr.Ptr(v8or.ValidationFailed),
+			},
+		},
+		{
+			name: "Pass (basic)",
+			rule: v1alpha1.IamGroupRule{
+				IamGroupName: "iamGroup",
+				Policies: []v1alpha1.PolicyDocument{
+					{
+						Name:    "iamPolicy",
+						Version: "1",
+						Statements: []v1alpha1.StatementEntry{
+							{
+								Effect:    "Allow",
+								Actions:   []string{"ec2:DescribeInstances"},
+								Resources: []string{"*"},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: types.ValidationResult{
+				Condition: &v8or.ValidationCondition{
+					ValidationType: "aws-iam-group-policy",
+					ValidationRule: "validation-iamGroup",
+					Message:        "All required aws-iam-group-policy permissions were found",
+					Details:        []string{},
+					Failures:       nil,
+					Status:         corev1.ConditionTrue,
+				},
+				State: ptr.Ptr(v8or.ValidationSucceeded),
+			},
+		},
+	}
+	for _, c := range cs {
+		result, err := iamService.ReconcileIAMGroupRule(c.rule)
+		checkTestCase(t, c, result, err)
+	}
+}
+
+func TestIAMRoleValidation(t *testing.T) {
+	cs := []testCase{
 		{
 			name: "Fail (missing permission)",
 			rule: v1alpha1.IamRoleRule{
@@ -222,29 +341,148 @@ func TestIAMValidation(t *testing.T) {
 	}
 	for _, c := range cs {
 		result, err := iamService.ReconcileIAMRoleRule(c.rule)
-		if !reflect.DeepEqual(result.State, c.expectedResult.State) {
-			t.Errorf("expected state (%+v), got (%+v)", c.expectedResult.State, result.State)
-		}
-		if !reflect.DeepEqual(result.Condition.ValidationType, c.expectedResult.Condition.ValidationType) {
-			t.Errorf("expected validation type (%s), got (%s)", c.expectedResult.Condition.ValidationType, result.Condition.ValidationType)
-		}
-		if !reflect.DeepEqual(result.Condition.ValidationRule, c.expectedResult.Condition.ValidationRule) {
-			t.Errorf("expected validation rule (%s), got (%s)", c.expectedResult.Condition.ValidationRule, result.Condition.ValidationRule)
-		}
-		if !reflect.DeepEqual(result.Condition.Message, c.expectedResult.Condition.Message) {
-			t.Errorf("expected message (%s), got (%s)", c.expectedResult.Condition.Message, result.Condition.Message)
-		}
-		if !reflect.DeepEqual(result.Condition.Details, c.expectedResult.Condition.Details) {
-			t.Errorf("expected details (%s), got (%s)", c.expectedResult.Condition.Details, result.Condition.Details)
-		}
-		if !reflect.DeepEqual(result.Condition.Failures, c.expectedResult.Condition.Failures) {
-			t.Errorf("expected failures (%s), got (%s)", c.expectedResult.Condition.Failures, result.Condition.Failures)
-		}
-		if !reflect.DeepEqual(result.Condition.Status, c.expectedResult.Condition.Status) {
-			t.Errorf("expected status (%s), got (%s)", c.expectedResult.Condition.Status, result.Condition.Status)
-		}
-		if !reflect.DeepEqual(err, c.expectedError) {
-			t.Errorf("expected error (%v), got (%v)", c.expectedError, err)
-		}
+		checkTestCase(t, c, result, err)
+	}
+}
+
+func TestIAMUserValidation(t *testing.T) {
+	cs := []testCase{
+		{
+			name: "Fail (missing permission)",
+			rule: v1alpha1.IamUserRule{
+				IamUserName: "iamUser",
+				Policies: []v1alpha1.PolicyDocument{
+					{
+						Name:    "iamPolicy",
+						Version: "1",
+						Statements: []v1alpha1.StatementEntry{
+							{
+								Effect:    "Allow",
+								Actions:   []string{"s3:GetBuckets"},
+								Resources: []string{"*"},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: types.ValidationResult{
+				Condition: &v8or.ValidationCondition{
+					ValidationType: "aws-iam-user-policy",
+					ValidationRule: "validation-iamUser",
+					Message:        "One or more required IAM permissions was not found, or a condition was not met",
+					Details:        []string{},
+					Failures: []string{
+						"v1alpha1.IamUserRule iamUser missing action(s): [s3:GetBuckets] for resource * from policy iamPolicy",
+					},
+					Status: corev1.ConditionFalse,
+				},
+				State: ptr.Ptr(v8or.ValidationFailed),
+			},
+		},
+		{
+			name: "Pass (basic)",
+			rule: v1alpha1.IamUserRule{
+				IamUserName: "iamUser",
+				Policies: []v1alpha1.PolicyDocument{
+					{
+						Name:    "iamPolicy",
+						Version: "1",
+						Statements: []v1alpha1.StatementEntry{
+							{
+								Effect:    "Allow",
+								Actions:   []string{"ec2:DescribeInstances"},
+								Resources: []string{"*"},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: types.ValidationResult{
+				Condition: &v8or.ValidationCondition{
+					ValidationType: "aws-iam-user-policy",
+					ValidationRule: "validation-iamUser",
+					Message:        "All required aws-iam-user-policy permissions were found",
+					Details:        []string{},
+					Failures:       nil,
+					Status:         corev1.ConditionTrue,
+				},
+				State: ptr.Ptr(v8or.ValidationSucceeded),
+			},
+		},
+	}
+	for _, c := range cs {
+		result, err := iamService.ReconcileIAMUserRule(c.rule)
+		checkTestCase(t, c, result, err)
+	}
+}
+
+func TestIAMPolicyValidation(t *testing.T) {
+	cs := []testCase{
+		{
+			name: "Fail (missing permission)",
+			rule: v1alpha1.IamPolicyRule{
+				IamPolicyARN: "iamRoleArn1",
+				Policies: []v1alpha1.PolicyDocument{
+					{
+						Name:    "iamPolicy",
+						Version: "1",
+						Statements: []v1alpha1.StatementEntry{
+							{
+								Effect:    "Allow",
+								Actions:   []string{"s3:GetBuckets"},
+								Resources: []string{"*"},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: types.ValidationResult{
+				Condition: &v8or.ValidationCondition{
+					ValidationType: "aws-iam-policy",
+					ValidationRule: "validation-iamRoleArn1",
+					Message:        "One or more required IAM permissions was not found, or a condition was not met",
+					Details:        []string{},
+					Failures: []string{
+						"v1alpha1.IamPolicyRule iamRoleArn1 missing action(s): [s3:GetBuckets] for resource * from policy iamPolicy",
+					},
+					Status: corev1.ConditionFalse,
+				},
+				State: ptr.Ptr(v8or.ValidationFailed),
+			},
+		},
+		{
+			name: "Pass (basic)",
+			rule: v1alpha1.IamPolicyRule{
+				IamPolicyARN: "iamRoleArn1",
+				Policies: []v1alpha1.PolicyDocument{
+					{
+						Name:    "iamPolicy",
+						Version: "1",
+						Statements: []v1alpha1.StatementEntry{
+							{
+								Effect:    "Allow",
+								Actions:   []string{"ec2:DescribeInstances"},
+								Resources: []string{"*"},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: types.ValidationResult{
+				Condition: &v8or.ValidationCondition{
+					ValidationType: "aws-iam-policy",
+					ValidationRule: "validation-iamRoleArn1",
+					Message:        "All required aws-iam-policy permissions were found",
+					Details:        []string{},
+					Failures:       nil,
+					Status:         corev1.ConditionTrue,
+				},
+				State: ptr.Ptr(v8or.ValidationSucceeded),
+			},
+		},
+	}
+	for _, c := range cs {
+		result, err := iamService.ReconcileIAMPolicyRule(c.rule)
+		checkTestCase(t, c, result, err)
 	}
 }
