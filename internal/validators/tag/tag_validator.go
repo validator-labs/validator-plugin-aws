@@ -1,9 +1,11 @@
 package tag
 
 import (
+	"context"
 	"fmt"
 
-	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/aws/aws-sdk-go-v2/service/ec2"
+	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 
@@ -16,7 +18,7 @@ import (
 )
 
 type tagApi interface {
-	DescribeSubnets(input *ec2.DescribeSubnetsInput) (*ec2.DescribeSubnetsOutput, error)
+	DescribeSubnets(ctx context.Context, params *ec2.DescribeSubnetsInput, optFns ...func(*ec2.Options)) (*ec2.DescribeSubnetsOutput, error)
 }
 
 type TagRuleService struct {
@@ -47,11 +49,11 @@ func (s *TagRuleService) ReconcileTagRule(rule v1alpha1.TagRule) (*v8ortypes.Val
 		// match the tag rule's list of ARNs against the subnets with tag 'rule.Key=rule.ExpectedValue'
 		failures := make([]string, 0)
 		foundArns := make(map[string]bool)
-		subnets, err := s.tagSvc.DescribeSubnets(&ec2.DescribeSubnetsInput{
-			Filters: []*ec2.Filter{
+		subnets, err := s.tagSvc.DescribeSubnets(context.Background(), &ec2.DescribeSubnetsInput{
+			Filters: []ec2types.Filter{
 				{
 					Name:   ptr.Ptr(fmt.Sprintf("tag:%s", rule.Key)),
-					Values: []*string{ptr.Ptr(rule.ExpectedValue)},
+					Values: []string{rule.ExpectedValue},
 				},
 			},
 		})

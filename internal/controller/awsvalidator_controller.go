@@ -21,17 +21,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/go-logr/logr"
-	corev1 "k8s.io/api/core/v1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ktypes "k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/api/v1alpha1"
 	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/constants"
@@ -69,29 +64,6 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	// Initialize AWS session
-	var awsCreds *credentials.Credentials
-	var res *ctrl.Result
-	if validator.Spec.Auth.SecretName != "" {
-		awsCreds, res = r.secretKeyAuth(req, validator)
-		if res != nil {
-			return *res, nil
-		}
-	} else if validator.Spec.Auth.ServiceAccountName != "" {
-		// TODO: EKS service account auth
-		r.Log.V(0).Info("WARNING: service account auth not implemented")
-	}
-	session, err := session.NewSession(&aws.Config{
-		Credentials: awsCreds,
-		MaxRetries:  aws.Int(3),
-	})
-	if err != nil {
-		// allow flow to proceed - better errors will surface subsequently
-		r.Log.V(0).Error(err, "failed to establish AWS session")
-	}
-	iamRuleService := iam.NewIAMRuleService(r.Log, aws_utils.IAMService(session))
-	svcQuotaService := servicequota.NewServiceQuotaRuleService(r.Log, session)
-
 	// Get the active validator's validation result
 	vr := &v8or.ValidationResult{}
 	nn := ktypes.NamespacedName{
@@ -116,38 +88,58 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	failed := &types.MonotonicBool{}
 
 	// IAM rules
-	for _, rule := range validator.Spec.IamRoleRules {
-		validationResult, err := iamRuleService.ReconcileIAMRoleRule(rule)
-		if err != nil {
-			r.Log.V(0).Error(err, "failed to reconcile IAM role rule")
+	awsApi, err := aws_utils.NewAwsApi("")
+	if err != nil {
+		r.Log.V(0).Error(err, "failed to get AWS client")
+	} else {
+		iamRuleService := iam.NewIAMRuleService(r.Log, awsApi.IAM)
+
+		for _, rule := range validator.Spec.IamRoleRules {
+			validationResult, err := iamRuleService.ReconcileIAMRoleRule(rule)
+			if err != nil {
+				r.Log.V(0).Error(err, "failed to reconcile IAM role rule")
+			}
+			v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 		}
-		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
-	}
-	for _, rule := range validator.Spec.IamUserRules {
-		validationResult, err := iamRuleService.ReconcileIAMUserRule(rule)
-		if err != nil {
-			r.Log.V(0).Error(err, "failed to reconcile IAM user rule")
+		for _, rule := range validator.Spec.IamUserRules {
+			validationResult, err := iamRuleService.ReconcileIAMUserRule(rule)
+			if err != nil {
+				r.Log.V(0).Error(err, "failed to reconcile IAM user rule")
+			}
+			v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 		}
-		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
-	}
-	for _, rule := range validator.Spec.IamGroupRules {
-		validationResult, err := iamRuleService.ReconcileIAMGroupRule(rule)
-		if err != nil {
-			r.Log.V(0).Error(err, "failed to reconcile IAM group rule")
+		for _, rule := range validator.Spec.IamGroupRules {
+			validationResult, err := iamRuleService.ReconcileIAMGroupRule(rule)
+			if err != nil {
+				r.Log.V(0).Error(err, "failed to reconcile IAM group rule")
+			}
+			v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 		}
-		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
-	}
-	for _, rule := range validator.Spec.IamPolicyRules {
-		validationResult, err := iamRuleService.ReconcileIAMPolicyRule(rule)
-		if err != nil {
-			r.Log.V(0).Error(err, "failed to reconcile IAM policy rule")
+		for _, rule := range validator.Spec.IamPolicyRules {
+			validationResult, err := iamRuleService.ReconcileIAMPolicyRule(rule)
+			if err != nil {
+				r.Log.V(0).Error(err, "failed to reconcile IAM policy rule")
+			}
+			v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 		}
-		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 	}
 
 	// Service Quota rules
 	for _, rule := range validator.Spec.ServiceQuotaRules {
-		validationResult, err := svcQuotaService.ReconcileServiceQuotaRule(nn, rule)
+		awsApi, err := aws_utils.NewAwsApi(rule.Region)
+		if err != nil {
+			r.Log.V(0).Error(err, "failed to reconcile Service Quota rule")
+			continue
+		}
+		svcQuotaService := servicequota.NewServiceQuotaRuleService(
+			r.Log,
+			awsApi.EC2,
+			awsApi.EFS,
+			awsApi.ELB,
+			awsApi.ELBV2,
+			awsApi.SQ,
+		)
+		validationResult, err := svcQuotaService.ReconcileServiceQuotaRule(rule)
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile Service Quota rule")
 		}
@@ -156,7 +148,12 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	// Tag rules
 	for _, rule := range validator.Spec.TagRules {
-		tagRuleService := tag.NewTagRuleService(r.Log, aws_utils.EC2Service(session, rule.Region))
+		awsApi, err := aws_utils.NewAwsApi(rule.Region)
+		if err != nil {
+			r.Log.V(0).Error(err, "failed to reconcile Tag rule")
+			continue
+		}
+		tagRuleService := tag.NewTagRuleService(r.Log, awsApi.EC2)
 		validationResult, err := tagRuleService.ReconcileTagRule(rule)
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile Tag rule")
@@ -173,36 +170,4 @@ func (r *AwsValidatorReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&v1alpha1.AwsValidator{}).
 		Complete(r)
-}
-
-// secretKeyAuth creates AWS credentials from a secret containing an access key id and secret access key
-func (r *AwsValidatorReconciler) secretKeyAuth(req ctrl.Request, validator *v1alpha1.AwsValidator) (*credentials.Credentials, *reconcile.Result) {
-	authSecret := &corev1.Secret{}
-	nn := ktypes.NamespacedName{Name: validator.Spec.Auth.SecretName, Namespace: req.Namespace}
-
-	if err := r.Get(context.Background(), nn, authSecret); err != nil {
-		if apierrs.IsNotFound(err) {
-			r.Log.V(0).Error(err, "auth secret does not exist", "name", validator.Spec.Auth.SecretName, "namespace", req.Namespace)
-		} else {
-			r.Log.V(0).Error(err, "failed to fetch auth secret")
-		}
-		r.Log.V(0).Info("Requeuing for re-validation in two minutes.", "name", req.Name, "namespace", req.Namespace)
-		return nil, &ctrl.Result{RequeueAfter: time.Second * 120}
-	}
-
-	id, ok := authSecret.Data["AWS_ACCESS_KEY_ID"]
-	if !ok {
-		r.Log.V(0).Info("Auth secret missing AWS_ACCESS_KEY_ID", "name", validator.Spec.Auth.SecretName, "namespace", req.Namespace)
-		r.Log.V(0).Info("Requeuing for re-validation in two minutes.", "name", req.Name, "namespace", req.Namespace)
-		return nil, &ctrl.Result{RequeueAfter: time.Second * 120}
-	}
-
-	secretKey, ok := authSecret.Data["AWS_SECRET_ACCESS_KEY"]
-	if !ok {
-		r.Log.V(0).Info("Auth secret missing AWS_SECRET_ACCESS_KEY", "name", validator.Spec.Auth.SecretName, "namespace", req.Namespace)
-		r.Log.V(0).Info("Requeuing for re-validation in two minutes.", "name", req.Name, "namespace", req.Namespace)
-		return nil, &ctrl.Result{RequeueAfter: time.Second * 120}
-	}
-
-	return credentials.NewStaticCredentials(string(id), string(secretKey), ""), nil
 }

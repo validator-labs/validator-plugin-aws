@@ -1,10 +1,12 @@
 package tag
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/aws/aws-sdk-go-v2/service/ec2"
+	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 
@@ -19,15 +21,15 @@ type tagApiMock struct {
 	subnetsByTagValue map[string]*ec2.DescribeSubnetsOutput
 }
 
-func (m tagApiMock) DescribeSubnets(input *ec2.DescribeSubnetsInput) (*ec2.DescribeSubnetsOutput, error) {
-	key := fmt.Sprintf("%s=%s", *input.Filters[0].Name, *input.Filters[0].Values[0])
+func (m tagApiMock) DescribeSubnets(ctx context.Context, params *ec2.DescribeSubnetsInput, optFns ...func(*ec2.Options)) (*ec2.DescribeSubnetsOutput, error) {
+	key := fmt.Sprintf("%s=%s", *params.Filters[0].Name, params.Filters[0].Values[0])
 	return m.subnetsByTagValue[key], nil
 }
 
 var tagService = NewTagRuleService(logr.Logger{}, tagApiMock{
 	subnetsByTagValue: map[string]*ec2.DescribeSubnetsOutput{
 		"tag:kubernetes.io/role/elb=1": {
-			Subnets: []*ec2.Subnet{
+			Subnets: []ec2types.Subnet{
 				{
 					SubnetArn: ptr.Ptr("subnetArn2"),
 				},
