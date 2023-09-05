@@ -105,7 +105,9 @@ func (s *ServiceQuotaRuleService) execQuotaUsageFunc(quotaName string, rule v1al
 // ReconcileServiceQuotaRule reconciles an AWS service quota validation rule from the AWSValidator config
 func (s *ServiceQuotaRuleService) ReconcileServiceQuotaRule(rule v1alpha1.ServiceQuotaRule) (*v8ortypes.ValidationResult, error) {
 
-	sqPager := servicequotas.NewListServiceQuotasPaginator(s.sqSvc, &servicequotas.ListServiceQuotasInput{})
+	sqPager := servicequotas.NewListServiceQuotasPaginator(s.sqSvc, &servicequotas.ListServiceQuotasInput{
+		ServiceCode: &rule.ServiceCode,
+	})
 
 	// Build the default latest condition for this tag rule
 	state := v8or.ValidationSucceeded
