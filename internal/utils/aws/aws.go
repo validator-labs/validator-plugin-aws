@@ -1,64 +1,38 @@
 package aws
 
 import (
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/ec2"
-	"github.com/aws/aws-sdk-go/service/efs"
-	"github.com/aws/aws-sdk-go/service/elb"
-	"github.com/aws/aws-sdk-go/service/elbv2"
-	"github.com/aws/aws-sdk-go/service/iam"
-	"github.com/aws/aws-sdk-go/service/servicequotas"
+	"context"
 
-	"github.com/spectrocloud-labs/valid8or/pkg/util/ptr"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/ec2"
+	"github.com/aws/aws-sdk-go-v2/service/efs"
+	"github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing"
+	"github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2"
+	"github.com/aws/aws-sdk-go-v2/service/iam"
+	"github.com/aws/aws-sdk-go-v2/service/servicequotas"
 )
 
-// IAMService creates an AWS IAM service object for a specific session
-func IAMService(session *session.Session) *iam.IAM {
-	return iam.New(session, &aws.Config{})
+type AwsApi struct {
+	IAM   *iam.Client
+	EC2   *ec2.Client
+	EFS   *efs.Client
+	ELB   *elasticloadbalancing.Client
+	ELBV2 *elasticloadbalancingv2.Client
+	SQ    *servicequotas.Client
 }
 
-// EC2Service creates an AWS EC2 service object for a specific session and region
-func EC2Service(session *session.Session, region string) *ec2.EC2 {
-	config := &aws.Config{}
-	if region != "" {
-		config.Region = ptr.Ptr(region)
+// NewAwsApi creates an AwsApi object that aggregates AWS service clients
+func NewAwsApi(region string) (*AwsApi, error) {
+	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion(region))
+	if err != nil {
+		return nil, err
 	}
-	return ec2.New(session, config)
-}
-
-// EFSService creates an AWS EFS service object for a specific session and region
-func EFSService(session *session.Session, region string) *efs.EFS {
-	config := &aws.Config{}
-	if region != "" {
-		config.Region = ptr.Ptr(region)
-	}
-	return efs.New(session, config)
-}
-
-// ELBService creates an AWS ELB service object for a specific session and region
-func ELBService(session *session.Session, region string) *elb.ELB {
-	config := &aws.Config{}
-	if region != "" {
-		config.Region = ptr.Ptr(region)
-	}
-	return elb.New(session, config)
-}
-
-// ELBv2Service creates an AWS ELBv2 service object for a specific session and region
-func ELBv2Service(session *session.Session, region string) *elbv2.ELBV2 {
-	config := &aws.Config{}
-	if region != "" {
-		config.Region = ptr.Ptr(region)
-	}
-	return elbv2.New(session, config)
-}
-
-// ServiceQuotasService creates an AWS service quotas service object for a specific session and region
-func ServiceQuotasService(session *session.Session, region string) *servicequotas.ServiceQuotas {
-	config := &aws.Config{}
-	if region != "" {
-		config.Region = ptr.Ptr(region)
-	}
-	return servicequotas.New(session, config)
+	return &AwsApi{
+		IAM:   iam.NewFromConfig(cfg),
+		EC2:   ec2.NewFromConfig(cfg),
+		EFS:   efs.NewFromConfig(cfg),
+		ELB:   elasticloadbalancing.NewFromConfig(cfg),
+		ELBV2: elasticloadbalancingv2.NewFromConfig(cfg),
+		SQ:    servicequotas.NewFromConfig(cfg),
+	}, nil
 }

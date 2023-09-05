@@ -1,10 +1,12 @@
 package iam
 
 import (
+	"context"
 	"net/url"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/service/iam"
+	"github.com/aws/aws-sdk-go-v2/service/iam"
+	iamtypes "github.com/aws/aws-sdk-go-v2/service/iam/types"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 
@@ -23,24 +25,24 @@ type iamApiMock struct {
 	policyVersions        map[string]*iam.GetPolicyVersionOutput
 }
 
-func (m iamApiMock) GetPolicy(input *iam.GetPolicyInput) (*iam.GetPolicyOutput, error) {
-	return m.policyArns[*input.PolicyArn], nil
+func (m iamApiMock) GetPolicy(ctx context.Context, params *iam.GetPolicyInput, optFns ...func(*iam.Options)) (*iam.GetPolicyOutput, error) {
+	return m.policyArns[*params.PolicyArn], nil
 }
 
-func (m iamApiMock) GetPolicyVersion(input *iam.GetPolicyVersionInput) (*iam.GetPolicyVersionOutput, error) {
-	return m.policyVersions[*input.PolicyArn], nil
+func (m iamApiMock) GetPolicyVersion(ctx context.Context, params *iam.GetPolicyVersionInput, optFns ...func(*iam.Options)) (*iam.GetPolicyVersionOutput, error) {
+	return m.policyVersions[*params.PolicyArn], nil
 }
 
-func (m iamApiMock) ListAttachedGroupPolicies(input *iam.ListAttachedGroupPoliciesInput) (*iam.ListAttachedGroupPoliciesOutput, error) {
-	return m.attachedGroupPolicies[*input.GroupName], nil
+func (m iamApiMock) ListAttachedGroupPolicies(ctx context.Context, params *iam.ListAttachedGroupPoliciesInput, optFns ...func(*iam.Options)) (*iam.ListAttachedGroupPoliciesOutput, error) {
+	return m.attachedGroupPolicies[*params.GroupName], nil
 }
 
-func (m iamApiMock) ListAttachedRolePolicies(input *iam.ListAttachedRolePoliciesInput) (*iam.ListAttachedRolePoliciesOutput, error) {
-	return m.attachedRolePolicies[*input.RoleName], nil
+func (m iamApiMock) ListAttachedRolePolicies(ctx context.Context, params *iam.ListAttachedRolePoliciesInput, optFns ...func(*iam.Options)) (*iam.ListAttachedRolePoliciesOutput, error) {
+	return m.attachedRolePolicies[*params.RoleName], nil
 }
 
-func (m iamApiMock) ListAttachedUserPolicies(input *iam.ListAttachedUserPoliciesInput) (*iam.ListAttachedUserPoliciesOutput, error) {
-	return m.attachedUserPolicies[*input.UserName], nil
+func (m iamApiMock) ListAttachedUserPolicies(ctx context.Context, params *iam.ListAttachedUserPoliciesInput, optFns ...func(*iam.Options)) (*iam.ListAttachedUserPoliciesOutput, error) {
+	return m.attachedUserPolicies[*params.UserName], nil
 }
 
 const (
@@ -77,7 +79,7 @@ const (
 var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 	attachedGroupPolicies: map[string]*iam.ListAttachedGroupPoliciesOutput{
 		"iamGroup": {
-			AttachedPolicies: []*iam.AttachedPolicy{
+			AttachedPolicies: []iamtypes.AttachedPolicy{
 				{
 					PolicyArn:  ptr.Ptr("iamRoleArn1"),
 					PolicyName: ptr.Ptr("iamPolicy"),
@@ -87,7 +89,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 	},
 	attachedRolePolicies: map[string]*iam.ListAttachedRolePoliciesOutput{
 		"iamRole1": {
-			AttachedPolicies: []*iam.AttachedPolicy{
+			AttachedPolicies: []iamtypes.AttachedPolicy{
 				{
 					PolicyArn:  ptr.Ptr("iamRoleArn1"),
 					PolicyName: ptr.Ptr("iamPolicy"),
@@ -95,7 +97,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 			},
 		},
 		"iamRole2": {
-			AttachedPolicies: []*iam.AttachedPolicy{
+			AttachedPolicies: []iamtypes.AttachedPolicy{
 				{
 					PolicyArn:  ptr.Ptr("iamRoleArn2"),
 					PolicyName: ptr.Ptr("iamPolicy"),
@@ -105,19 +107,19 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 	},
 	policyArns: map[string]*iam.GetPolicyOutput{
 		"iamRoleArn1": {
-			Policy: ptr.Ptr(iam.Policy{
+			Policy: ptr.Ptr(iamtypes.Policy{
 				DefaultVersionId: ptr.Ptr("1"),
 			}),
 		},
 		"iamRoleArn2": {
-			Policy: ptr.Ptr(iam.Policy{
+			Policy: ptr.Ptr(iamtypes.Policy{
 				DefaultVersionId: ptr.Ptr("1"),
 			}),
 		},
 	},
 	attachedUserPolicies: map[string]*iam.ListAttachedUserPoliciesOutput{
 		"iamUser": {
-			AttachedPolicies: []*iam.AttachedPolicy{
+			AttachedPolicies: []iamtypes.AttachedPolicy{
 				{
 					PolicyArn:  ptr.Ptr("iamRoleArn1"),
 					PolicyName: ptr.Ptr("iamPolicy"),
@@ -127,12 +129,12 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 	},
 	policyVersions: map[string]*iam.GetPolicyVersionOutput{
 		"iamRoleArn1": {
-			PolicyVersion: ptr.Ptr(iam.PolicyVersion{
+			PolicyVersion: ptr.Ptr(iamtypes.PolicyVersion{
 				Document: ptr.Ptr(url.QueryEscape(policyDocumentOutput1)),
 			}),
 		},
 		"iamRoleArn2": {
-			PolicyVersion: ptr.Ptr(iam.PolicyVersion{
+			PolicyVersion: ptr.Ptr(iamtypes.PolicyVersion{
 				Document: ptr.Ptr(url.QueryEscape(policyDocumentOutput2)),
 			}),
 		},

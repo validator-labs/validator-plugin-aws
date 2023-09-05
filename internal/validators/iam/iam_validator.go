@@ -1,12 +1,14 @@
 package iam
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"strings"
 
 	awspolicy "github.com/L30Bola/aws-policy"
-	"github.com/aws/aws-sdk-go/service/iam"
+	"github.com/aws/aws-sdk-go-v2/service/iam"
+	iamtypes "github.com/aws/aws-sdk-go-v2/service/iam/types"
 	"github.com/go-logr/logr"
 	"golang.org/x/exp/slices"
 	corev1 "k8s.io/api/core/v1"
@@ -51,11 +53,11 @@ type iamRule interface {
 }
 
 type iamApi interface {
-	GetPolicy(input *iam.GetPolicyInput) (*iam.GetPolicyOutput, error)
-	GetPolicyVersion(input *iam.GetPolicyVersionInput) (*iam.GetPolicyVersionOutput, error)
-	ListAttachedGroupPolicies(input *iam.ListAttachedGroupPoliciesInput) (*iam.ListAttachedGroupPoliciesOutput, error)
-	ListAttachedRolePolicies(input *iam.ListAttachedRolePoliciesInput) (*iam.ListAttachedRolePoliciesOutput, error)
-	ListAttachedUserPolicies(input *iam.ListAttachedUserPoliciesInput) (*iam.ListAttachedUserPoliciesOutput, error)
+	GetPolicy(ctx context.Context, params *iam.GetPolicyInput, optFns ...func(*iam.Options)) (*iam.GetPolicyOutput, error)
+	GetPolicyVersion(ctx context.Context, params *iam.GetPolicyVersionInput, optFns ...func(*iam.Options)) (*iam.GetPolicyVersionOutput, error)
+	ListAttachedGroupPolicies(ctx context.Context, params *iam.ListAttachedGroupPoliciesInput, optFns ...func(*iam.Options)) (*iam.ListAttachedGroupPoliciesOutput, error)
+	ListAttachedRolePolicies(ctx context.Context, params *iam.ListAttachedRolePoliciesInput, optFns ...func(*iam.Options)) (*iam.ListAttachedRolePoliciesOutput, error)
+	ListAttachedUserPolicies(ctx context.Context, params *iam.ListAttachedUserPoliciesInput, optFns ...func(*iam.Options)) (*iam.ListAttachedUserPoliciesOutput, error)
 }
 
 type IAMRuleService struct {
@@ -77,7 +79,7 @@ func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationRe
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMRolePolicy)
 
 	// Retrieve all IAM policies attached to the IAM role
-	policies, err := s.iamSvc.ListAttachedRolePolicies(&iam.ListAttachedRolePoliciesInput{
+	policies, err := s.iamSvc.ListAttachedRolePolicies(context.Background(), &iam.ListAttachedRolePoliciesInput{
 		RoleName: ptr.Ptr(rule.Name()),
 	})
 	if err != nil {
@@ -107,7 +109,7 @@ func (s *IAMRuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationRe
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMUserPolicy)
 
 	// Retrieve all IAM policies attached to the IAM user
-	policies, err := s.iamSvc.ListAttachedUserPolicies(&iam.ListAttachedUserPoliciesInput{
+	policies, err := s.iamSvc.ListAttachedUserPolicies(context.Background(), &iam.ListAttachedUserPoliciesInput{
 		UserName: ptr.Ptr(rule.Name()),
 	})
 	if err != nil {
@@ -137,7 +139,7 @@ func (s *IAMRuleService) ReconcileIAMGroupRule(rule iamRule) (*types.ValidationR
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMGroupPolicy)
 
 	// Retrieve all IAM policies attached to the IAM user
-	policies, err := s.iamSvc.ListAttachedGroupPolicies(&iam.ListAttachedGroupPoliciesInput{
+	policies, err := s.iamSvc.ListAttachedGroupPolicies(context.Background(), &iam.ListAttachedGroupPoliciesInput{
 		GroupName: ptr.Ptr(rule.Name()),
 	})
 	if err != nil {
@@ -184,7 +186,7 @@ func (s *IAMRuleService) ReconcileIAMPolicyRule(rule iamRule) (*types.Validation
 }
 
 // processPolicies updates an IAM permission map for each IAM policy in an array of IAM policies attached to a IAM user / group / role
-func (s *IAMRuleService) processPolicies(policies []*iam.AttachedPolicy, permissions map[string]*permission, context []string) error {
+func (s *IAMRuleService) processPolicies(policies []iamtypes.AttachedPolicy, permissions map[string]*permission, context []string) error {
 	for _, p := range policies {
 		policyDocument, err := s.getPolicyDocument(p.PolicyArn, context)
 		if err != nil {
@@ -198,16 +200,16 @@ func (s *IAMRuleService) processPolicies(policies []*iam.AttachedPolicy, permiss
 }
 
 // getPolicyDocument generates an awspolicy.Policy, given an AWS IAM policy ARN
-func (s *IAMRuleService) getPolicyDocument(policyArn *string, context []string) (*awspolicy.Policy, error) {
+func (s *IAMRuleService) getPolicyDocument(policyArn *string, ctx []string) (*awspolicy.Policy, error) {
 	// Fetch the IAM policy's policy document
-	policyOutput, err := s.iamSvc.GetPolicy(&iam.GetPolicyInput{
+	policyOutput, err := s.iamSvc.GetPolicy(context.Background(), &iam.GetPolicyInput{
 		PolicyArn: policyArn,
 	})
 	if err != nil {
-		s.log.V(0).Error(err, "failed to get IAM policy", context, "policyArn", policyArn)
+		s.log.V(0).Error(err, "failed to get IAM policy", ctx, "policyArn", policyArn)
 		return nil, err
 	}
-	policyVersionOutput, err := s.iamSvc.GetPolicyVersion(&iam.GetPolicyVersionInput{
+	policyVersionOutput, err := s.iamSvc.GetPolicyVersion(context.Background(), &iam.GetPolicyVersionInput{
 		PolicyArn: policyArn,
 		VersionId: policyOutput.Policy.DefaultVersionId,
 	})
@@ -228,7 +230,7 @@ func (s *IAMRuleService) getPolicyDocument(policyArn *string, context []string) 
 	}
 	policyDocument := &awspolicy.Policy{}
 	if err := policyDocument.UnmarshalJSON([]byte(policyUnescaped)); err != nil {
-		s.log.V(0).Error(err, "failed to unmarshal IAM policy", context, "policyArn", policyArn)
+		s.log.V(0).Error(err, "failed to unmarshal IAM policy", ctx, "policyArn", policyArn)
 		return nil, err
 	}
 	return policyDocument, nil
