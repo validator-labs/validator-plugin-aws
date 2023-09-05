@@ -57,10 +57,7 @@ type ServiceQuotaRuleService struct {
 	sqSvc    sqApi
 }
 
-func NewServiceQuotaRuleService(
-	log logr.Logger,
-	ec2Svc ec2Api, efsSvc efsApi, elbSvc elbApi, elbv2Svc elbv2Api, sqSvc sqApi,
-) *ServiceQuotaRuleService {
+func NewServiceQuotaRuleService(log logr.Logger, ec2Svc ec2Api, efsSvc efsApi, elbSvc elbApi, elbv2Svc elbv2Api, sqSvc sqApi) *ServiceQuotaRuleService {
 	return &ServiceQuotaRuleService{
 		log:      log,
 		ec2Svc:   ec2Svc,
@@ -122,8 +119,8 @@ func (s *ServiceQuotaRuleService) ReconcileServiceQuotaRule(rule v1alpha1.Servic
 	failures := make([]string, 0)
 
 	for _, ruleQuota := range rule.ServiceQuotas {
-
 		var quota sqtypes.ServiceQuota
+
 	svcQuota:
 		for sqPager.HasMorePages() {
 			page, err := sqPager.NextPage(context.Background())
