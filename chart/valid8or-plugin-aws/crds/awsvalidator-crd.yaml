@@ -42,6 +42,8 @@ spec:
                     description: 'Option 2: specify a service account (EKS)'
                     type: string
                 type: object
+              defaultRegion:
+                type: string
               iamGroupRules:
                 items:
                   properties:
@@ -320,6 +322,7 @@ spec:
                 type: array
             required:
             - auth
+            - defaultRegion
             type: object
           status:
             description: AwsValidatorStatus defines the observed state of AwsValidator

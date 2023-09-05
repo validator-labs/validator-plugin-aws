@@ -88,7 +88,7 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	failed := &types.MonotonicBool{}
 
 	// IAM rules
-	awsApi, err := aws_utils.NewAwsApi("")
+	awsApi, err := aws_utils.NewAwsApi(validator.Spec.DefaultRegion)
 	if err != nil {
 		r.Log.V(0).Error(err, "failed to get AWS client")
 	} else {
