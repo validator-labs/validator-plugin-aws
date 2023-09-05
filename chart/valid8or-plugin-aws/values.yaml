@@ -53,5 +53,7 @@ metricsService:
   type: ClusterIP
 auth:
   secretName: aws-creds
+  createSecret: true
   accessKeyId: ""
   secretAccessKey: ""
+  sessionToken: ""

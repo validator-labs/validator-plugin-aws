@@ -2,3 +2,4 @@ auth:
   secretName: aws-creds
   accessKeyId: ""
   secretAccessKey: ""
+  sessionToken: ""
