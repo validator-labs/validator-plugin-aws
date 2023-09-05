@@ -206,7 +206,7 @@ func (s *IAMRuleService) getPolicyDocument(policyArn *string, ctx []string) (*aw
 		PolicyArn: policyArn,
 	})
 	if err != nil {
-		s.log.V(0).Error(err, "failed to get IAM policy", ctx, "policyArn", policyArn)
+		s.log.V(0).Error(err, "failed to get IAM policy", ctx[0], ctx[1], "policyArn", policyArn)
 		return nil, err
 	}
 	policyVersionOutput, err := s.iamSvc.GetPolicyVersion(context.Background(), &iam.GetPolicyVersionInput{
@@ -230,7 +230,7 @@ func (s *IAMRuleService) getPolicyDocument(policyArn *string, ctx []string) (*aw
 	}
 	policyDocument := &awspolicy.Policy{}
 	if err := policyDocument.UnmarshalJSON([]byte(policyUnescaped)); err != nil {
-		s.log.V(0).Error(err, "failed to unmarshal IAM policy", ctx, "policyArn", policyArn)
+		s.log.V(0).Error(err, "failed to unmarshal IAM policy", ctx[0], ctx[1], "policyArn", policyArn)
 		return nil, err
 	}
 	return policyDocument, nil
