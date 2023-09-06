@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.0.5](https://github.com/spectrocloud-labs/valid8or-plugin-aws/compare/v0.0.4...v0.0.5) (2023-09-06)
+
+
+### Bug Fixes
+
+* **deps:** update golang.org/x/exp digest to 9212866 ([#35](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/35)) ([69970f5](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/69970f5e128e97f7aef312cd28e69077fdaca07a))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/config to v1.18.39 ([#36](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/36)) ([1942a6b](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/1942a6b996aacdfb17392193ca80d9d977fbc2e1))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/ec2 to v1.116.0 ([#37](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/37)) ([61e7736](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/61e7736887027e21a4578534f70267b5d83b8d8f))
+* remove metrics bind address from chart values ([8f7cc39](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/8f7cc39b381e165bdc4e82ca0a73650218e308f7))
+
 ## [0.0.4](https://github.com/spectrocloud-labs/valid8or-plugin-aws/compare/v0.0.3...v0.0.4) (2023-09-05)
 
 
