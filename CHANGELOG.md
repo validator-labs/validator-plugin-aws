@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.6](https://github.com/spectrocloud-labs/valid8or-plugin-aws/compare/v0.0.5...v0.0.6) (2023-09-06)
+
+
+### Other
+
+* add YAML tags to AWS validator spec ([e7f9356](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/e7f9356c9a4032463818391fdc5873ef5fcac14c))
+* **deps:** update actions/upload-artifact digest to a8a3f3a ([#40](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/40)) ([edb0c03](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/edb0c034e2ca637458afed52c51bca99c1e34f52))
+
 ## [0.0.5](https://github.com/spectrocloud-labs/valid8or-plugin-aws/compare/v0.0.4...v0.0.5) (2023-09-06)
 
 
