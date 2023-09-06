@@ -25,26 +25,26 @@ import (
 
 // AwsValidatorSpec defines the desired state of AwsValidator
 type AwsValidatorSpec struct {
-	Auth              AwsAuth            `json:"auth"`
-	DefaultRegion     string             `json:"defaultRegion"`
-	IamRoleRules      []IamRoleRule      `json:"iamRoleRules,omitempty"`
-	IamUserRules      []IamUserRule      `json:"iamUserRules,omitempty"`
-	IamGroupRules     []IamGroupRule     `json:"iamGroupRules,omitempty"`
-	IamPolicyRules    []IamPolicyRule    `json:"iamPolicyRules,omitempty"`
-	ServiceQuotaRules []ServiceQuotaRule `json:"serviceQuotaRules,omitempty"`
-	TagRules          []TagRule          `json:"tagRules,omitempty"`
+	Auth              AwsAuth            `json:"auth" yaml:"auth"`
+	DefaultRegion     string             `json:"defaultRegion" yaml:"defaultRegion"`
+	IamRoleRules      []IamRoleRule      `json:"iamRoleRules,omitempty" yaml:"iamRoleRules,omitempty"`
+	IamUserRules      []IamUserRule      `json:"iamUserRules,omitempty" yaml:"iamUserRules,omitempty"`
+	IamGroupRules     []IamGroupRule     `json:"iamGroupRules,omitempty" yaml:"iamGroupRules,omitempty"`
+	IamPolicyRules    []IamPolicyRule    `json:"iamPolicyRules,omitempty" yaml:"iamPolicyRules,omitempty"`
+	ServiceQuotaRules []ServiceQuotaRule `json:"serviceQuotaRules,omitempty" yaml:"serviceQuotaRules,omitempty"`
+	TagRules          []TagRule          `json:"tagRules,omitempty" yaml:"tagRules,omitempty"`
 }
 
 type AwsAuth struct {
 	// Option 1: lookup AWS creds from a secret
-	SecretName string `json:"secretName,omitempty"`
+	SecretName string `json:"secretName,omitempty" yaml:"secretName,omitempty"`
 	// Option 2: specify a service account (EKS)
-	ServiceAccountName string `json:"serviceAccountName,omitempty"`
+	ServiceAccountName string `json:"serviceAccountName,omitempty" yaml:"serviceAccountName,omitempty"`
 }
 
 type IamRoleRule struct {
-	IamRoleName string           `json:"iamRoleName"`
-	Policies    []PolicyDocument `json:"iamPolicies"`
+	IamRoleName string           `json:"iamRoleName" yaml:"iamRoleName"`
+	Policies    []PolicyDocument `json:"iamPolicies" yaml:"iamPolicies"`
 }
 
 func (r IamRoleRule) Name() string {
@@ -56,8 +56,8 @@ func (r IamRoleRule) IAMPolicies() []PolicyDocument {
 }
 
 type IamUserRule struct {
-	IamUserName string           `json:"iamUserName"`
-	Policies    []PolicyDocument `json:"iamPolicies"`
+	IamUserName string           `json:"iamUserName" yaml:"iamUserName"`
+	Policies    []PolicyDocument `json:"iamPolicies" yaml:"iamPolicies"`
 }
 
 func (r IamUserRule) Name() string {
@@ -69,8 +69,8 @@ func (r IamUserRule) IAMPolicies() []PolicyDocument {
 }
 
 type IamGroupRule struct {
-	IamGroupName string           `json:"iamGroupName"`
-	Policies     []PolicyDocument `json:"iamPolicies"`
+	IamGroupName string           `json:"iamGroupName" yaml:"iamGroupName"`
+	Policies     []PolicyDocument `json:"iamPolicies" yaml:"iamPolicies"`
 }
 
 func (r IamGroupRule) Name() string {
@@ -82,8 +82,8 @@ func (r IamGroupRule) IAMPolicies() []PolicyDocument {
 }
 
 type IamPolicyRule struct {
-	IamPolicyARN string           `json:"iamPolicyArn"`
-	Policies     []PolicyDocument `json:"iamPolicies"`
+	IamPolicyARN string           `json:"iamPolicyArn" yaml:"iamPolicyArn"`
+	Policies     []PolicyDocument `json:"iamPolicies" yaml:"iamPolicies"`
 }
 
 func (r IamPolicyRule) Name() string {
@@ -95,22 +95,22 @@ func (r IamPolicyRule) IAMPolicies() []PolicyDocument {
 }
 
 type PolicyDocument struct {
-	Name       string           `json:"name"`
-	Version    string           `json:"version"`
-	Statements []StatementEntry `json:"statements"`
+	Name       string           `json:"name" yaml:"name"`
+	Version    string           `json:"version" yaml:"version"`
+	Statements []StatementEntry `json:"statements" yaml:"statements"`
 }
 
 type StatementEntry struct {
-	Condition *Condition `json:"condition,omitempty"`
-	Effect    string     `json:"effect"`
-	Actions   []string   `json:"actions"`
-	Resources []string   `json:"resources"`
+	Condition *Condition `json:"condition,omitempty" yaml:"condition,omitempty"`
+	Effect    string     `json:"effect" yaml:"effect"`
+	Actions   []string   `json:"actions" yaml:"actions"`
+	Resources []string   `json:"resources" yaml:"resources"`
 }
 
 type Condition struct {
-	Type   string   `json:"type"`
-	Key    string   `json:"key"`
-	Values []string `json:"values"`
+	Type   string   `json:"type" yaml:"type"`
+	Key    string   `json:"key" yaml:"key"`
+	Values []string `json:"values" yaml:"values"`
 }
 
 func (c *Condition) String() string {
@@ -118,22 +118,22 @@ func (c *Condition) String() string {
 }
 
 type ServiceQuotaRule struct {
-	Region        string         `json:"region"`
-	ServiceCode   string         `json:"serviceCode"`
-	ServiceQuotas []ServiceQuota `json:"serviceQuotas"`
+	Region        string         `json:"region" yaml:"region"`
+	ServiceCode   string         `json:"serviceCode" yaml:"serviceCode"`
+	ServiceQuotas []ServiceQuota `json:"serviceQuotas" yaml:"serviceQuotas"`
 }
 
 type ServiceQuota struct {
-	Name   string `json:"name"`
-	Buffer int    `json:"buffer"`
+	Name   string `json:"name" yaml:"name"`
+	Buffer int    `json:"buffer" yaml:"buffer"`
 }
 
 type TagRule struct {
-	Key           string   `json:"key"`
-	ExpectedValue string   `json:"expectedValue"`
-	Region        string   `json:"region"`
-	ResourceType  string   `json:"resourceType"`
-	ARNs          []string `json:"arns"`
+	Key           string   `json:"key" yaml:"key"`
+	ExpectedValue string   `json:"expectedValue" yaml:"expectedValue"`
+	Region        string   `json:"region" yaml:"region"`
+	ResourceType  string   `json:"resourceType" yaml:"resourceType"`
+	ARNs          []string `json:"arns" yaml:"arns"`
 }
 
 // AwsValidatorStatus defines the observed state of AwsValidator
