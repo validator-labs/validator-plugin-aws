@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.7](https://github.com/spectrocloud-labs/valid8or-plugin-aws/compare/v0.0.6...v0.0.7) (2023-09-06)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/ec2 to v1.117.0 ([#45](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/45)) ([a097acb](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/a097acbe160bf8d1e57cf5f79766dd496b573b85))
+
 ## [0.0.6](https://github.com/spectrocloud-labs/valid8or-plugin-aws/compare/v0.0.5...v0.0.6) (2023-09-06)
 
 
