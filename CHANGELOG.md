@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.0.6](https://github.com/spectrocloud-labs/valid8or-plugin-aws/compare/v0.0.5...v0.0.6) (2023-09-06)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 to v1.21.4 ([#41](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/41)) ([5e78203](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/5e78203e13d6a0d492fc21cd8419e5bc88ee4059))
+* omit session token unless provided ([6e53f25](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/6e53f252af0d0f9e76227437f328f0ed80fafdad))
+
+
+### Other
+
+* add YAML tags to AWS validator spec ([e7f9356](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/e7f9356c9a4032463818391fdc5873ef5fcac14c))
+* **deps:** update actions/upload-artifact digest to a8a3f3a ([#40](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/40)) ([edb0c03](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/edb0c034e2ca637458afed52c51bca99c1e34f52))
+* merge main ([11e3ea9](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/11e3ea9411d57165a2ae70dc2bddd2823ac7315e))
+
 ## [0.0.5](https://github.com/spectrocloud-labs/valid8or-plugin-aws/compare/v0.0.4...v0.0.5) (2023-09-06)
 
 
