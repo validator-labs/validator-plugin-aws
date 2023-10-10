@@ -155,8 +155,8 @@ github.com/rogpeppe/go-internal v1.10.0 h1:TMyTOH3F/DB16zRVcYyreMH6GnZZrwQVAoYjR
 github.com/rs/xid v1.4.0/go.mod h1:trrq9SKmegXys3aeAKXMUTdJsYXVwGY3RLcfgqegfbg=
 github.com/rs/zerolog v1.28.0 h1:MirSo27VyNi7RJYP3078AA1+Cyzd2GB66qy3aUHvsWY=
 github.com/rs/zerolog v1.28.0/go.mod h1:NILgTygv/Uej1ra5XxGf82ZFSLk58MFGAUS2o6usyD0=
-github.com/spectrocloud-labs/valid8or v0.0.8 h1:gIARdcmWIjd9h+uZSERYB7AJ/4XikqXACs9FwLk3FrA=
-github.com/spectrocloud-labs/valid8or v0.0.8/go.mod h1:F+IAKzhk/1ksKRiAuDpRjANl08tsa09v3y+4fVOZt2M=
+github.com/spectrocloud-labs/valid8or v0.0.9 h1:Pbr1GwxvsWqSffqSIX3bM+n/NZrdiwm9ROWV/tvs9Dk=
+github.com/spectrocloud-labs/valid8or v0.0.9/go.mod h1:duMm2TvM+2jDF6qwfdPMsRij0vPa93hcal2ytW+J7uM=
 github.com/spf13/pflag v1.0.5 h1:iy+VFUOCP1a+8yFto/drg2CJ5u0yRoB7fZw3DKv/JXA=
 github.com/spf13/pflag v1.0.5/go.mod h1:McXfInJRrz4CZXVZOBLb0bTZqETkiAhM9Iw0y3An2Bg=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
