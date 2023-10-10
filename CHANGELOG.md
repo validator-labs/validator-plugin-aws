@@ -1,5 +1,49 @@
 # Changelog
 
+## [0.0.7](https://github.com/spectrocloud-labs/valid8or-plugin-aws/compare/v0.0.6...v0.0.7) (2023-10-10)
+
+
+### Bug Fixes
+
+* **deps:** update golang.org/x/exp digest to 7918f67 ([#71](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/71)) ([18045be](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/18045beafb618fcd8983997ff8673550d3ded4d2))
+* **deps:** update kubernetes packages to v0.28.2 ([#57](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/57)) ([bc7309e](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/bc7309ee80fc4f3621008a510b40e49e60ea7ada))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/config to v1.18.40 ([#59](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/59)) ([15255e5](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/15255e56632bfb2117fe935411ec3af7e1850ddf))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/config to v1.18.41 ([#62](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/62)) ([6ad3813](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/6ad38138bcd79e0efefa8a984399bc1add32df6e))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/config to v1.18.42 ([#64](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/64)) ([cecf9fa](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/cecf9fa6518bc908bc4684632bab5cb29fd0549d))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/config to v1.18.43 ([#69](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/69)) ([b4448c2](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/b4448c219b12ab30952b8237690dc21756b4fb14))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/config to v1.18.44 ([#74](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/74)) ([3f6e019](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/3f6e019719443fd3fcd7c1ead2fc50cb78ee966a))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/ec2 to v1.117.0 ([#45](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/45)) ([a097acb](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/a097acbe160bf8d1e57cf5f79766dd496b573b85))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/ec2 to v1.118.0 ([#56](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/56)) ([38d2d2d](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/38d2d2dd5959940f25dee7dc51864ff5af67eeec))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/ec2 to v1.119.0 ([#61](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/61)) ([884dd5e](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/884dd5e146ed833754c4340e564ebecf2173a757))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/ec2 to v1.121.0 ([#66](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/66)) ([184776a](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/184776aa49e930816bac12d0714615fa56c40016))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/ec2 to v1.122.0 ([#68](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/68)) ([2344123](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/2344123e4a18c6717c4a63328e19c7c1b7ec6353))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/ec2 to v1.123.0 ([#70](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/70)) ([dfed8d5](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/dfed8d55121cc35333f1a1d8d743a25bdd2631af))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/ec2 to v1.124.0 ([#78](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/78)) ([2f1bf61](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/2f1bf6100df63ded554be94f92ca110d78995814))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/efs to v1.21.7 ([#65](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/65)) ([c533ec4](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/c533ec4e3f18cb443789092df7197937d89574c7))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/efs to v1.21.8 ([#72](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/72)) ([33ac9a6](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/33ac9a65d25ff7cb895660d3fba184b81f03c11b))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing to v1.17.0 ([#58](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/58)) ([8cb9bb5](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/8cb9bb51ad9f7a0d71ed7208372e96162ac7ee13))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing to v1.17.1 ([#75](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/75)) ([648c7c0](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/648c7c0f72ee9247b0a20d860719a83bd738dc74))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 to v1.21.5 ([#73](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/73)) ([bba4e1d](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/bba4e1d4936beed092a39190586a5cde92686e0e))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/iam to v1.22.6 ([#76](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/76)) ([d2cc3ff](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/d2cc3ff7890c9b02ee797366a8e1c12a109cf27f))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/servicequotas to v1.16.1 ([#77](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/77)) ([f101215](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/f1012151fa8ad79316ccf90fa8a6d8295dff4715))
+* **deps:** update module github.com/onsi/ginkgo/v2 to v2.12.1 ([#60](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/60)) ([bde8a94](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/bde8a94416e1d992436d25fc288d0d9b43bd13ed))
+* **deps:** update module github.com/onsi/ginkgo/v2 to v2.13.0 ([#79](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/79)) ([fcc3921](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/fcc39218ec825fd23f532a09578071abdb3cb6c1))
+* **deps:** update module github.com/onsi/gomega to v1.28.0 ([#67](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/67)) ([bc62993](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/bc62993a588c2afff392eb93a57eef8d588093d4))
+* **deps:** update module github.com/spectrocloud-labs/valid8or to v0.0.7 ([#44](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/44)) ([7098296](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/7098296704a73518ad741e0f13ac6af1a309404f))
+* **deps:** update module github.com/spectrocloud-labs/valid8or to v0.0.8 ([#48](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/48)) ([8e92866](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/8e9286604f864d84b28ef195ae87b8f7eec5bb19))
+* **deps:** update module github.com/spectrocloud-labs/valid8or to v0.0.9 ([#80](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/80)) ([81a34fa](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/81a34fac5a9e04638fc4952ce6c237181f8f8225))
+* **deps:** update module sigs.k8s.io/controller-runtime to v0.16.2 ([#55](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/55)) ([07569da](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/07569da7bd39b7ee44c292ebbfe28c2441b1fe1f))
+
+
+### Other
+
+* **deps:** update actions/checkout digest to 8ade135 ([#63](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/63)) ([980cbbc](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/980cbbc533519fd9c357e7fd8ab1df9c763fe0f2))
+* **deps:** update docker/build-push-action action to v5 ([#52](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/52)) ([91dbfb4](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/91dbfb4f576250fe67cc20eac477f5ff61f6bca2))
+* **deps:** update docker/build-push-action digest to 0a97817 ([#50](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/50)) ([efe04fc](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/efe04fc58f21428d005f9db34e9c4ba8fbb69749))
+* **deps:** update docker/build-push-action digest to 4e4ee68 ([#49](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/49)) ([5935f15](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/5935f1557e46a02b659b8b5f7c86a0d8c3ce4fd3))
+* **deps:** update docker/login-action action to v3 ([#53](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/53)) ([19d2738](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/19d2738827f45f5d65039062deab93db98f071da))
+* **deps:** update docker/setup-buildx-action action to v3 ([#54](https://github.com/spectrocloud-labs/valid8or-plugin-aws/issues/54)) ([57bb514](https://github.com/spectrocloud-labs/valid8or-plugin-aws/commit/57bb514bdcdc327cdcc7d395621b42a75b11e268))
+
 ## [0.0.6](https://github.com/spectrocloud-labs/valid8or-plugin-aws/compare/v0.0.5...v0.0.6) (2023-09-06)
 
 
