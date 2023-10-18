@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/L30Bola/aws-policy v0.0.0-20230126045340-5e6118545ac1
-	github.com/aws/aws-sdk-go-v2/config v1.18.45
+	github.com/aws/aws-sdk-go-v2/config v1.19.0
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.125.0
 	github.com/aws/aws-sdk-go-v2/service/efs v1.21.9
 	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing v1.17.2
