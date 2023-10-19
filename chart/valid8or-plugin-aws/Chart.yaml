@@ -2,5 +2,5 @@ apiVersion: v2
 name: valid8or-plugin-aws
 description: Perform various AWS validations (IAM, Service Quotas, Tags)
 type: application
-version: 0.0.7  # x-release-please-version
-appVersion: "0.0.7"  # x-release-please-version
+version: 0.0.8  # x-release-please-version
+appVersion: "0.0.8"  # x-release-please-version
