@@ -16,9 +16,9 @@ require (
 	github.com/onsi/gomega v1.28.0
 	github.com/spectrocloud-labs/valid8or v0.0.9
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
-	k8s.io/api v0.28.2
-	k8s.io/apimachinery v0.28.2
-	k8s.io/client-go v0.28.2
+	k8s.io/api v0.28.3
+	k8s.io/apimachinery v0.28.3
+	k8s.io/client-go v0.28.3
 	sigs.k8s.io/controller-runtime v0.16.2
 )
 
