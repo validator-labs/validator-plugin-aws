@@ -22,7 +22,7 @@ limitations under the License.
 package v1alpha1
 
 import (
-	apiv1alpha1 "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
+	apiv1alpha1 "github.com/spectrocloud-labs/validator/api/v1alpha1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 )
 

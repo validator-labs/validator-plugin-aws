@@ -6,8 +6,8 @@ metadata:
     app.kubernetes.io/name: clusterrole
     app.kubernetes.io/instance: awsvalidator-viewer-role
     app.kubernetes.io/component: rbac
-    app.kubernetes.io/created-by: valid8or-plugin-aws
-    app.kubernetes.io/part-of: valid8or-plugin-aws
+    app.kubernetes.io/created-by: validator-plugin-aws
+    app.kubernetes.io/part-of: validator-plugin-aws
     app.kubernetes.io/managed-by: kustomize
   name: awsvalidator-viewer-role
 rules:

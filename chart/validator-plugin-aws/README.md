@@ -1,13 +1,13 @@
 
-Valid8or-plugin-aws
+Validator-plugin-aws
 ===========
 
-valid8or-plugin-aws performs a variety of validations against your AWS account
+validator-plugin-aws performs a variety of validations against your AWS account
 
 
 ## Configuration
 
-The following table lists the configurable parameters of the Valid8or-plugin-aws chart and their default values.
+The following table lists the configurable parameters of the Validator-plugin-aws chart and their default values.
 
 | Parameter                | Description             | Default        |
 | ------------------------ | ----------------------- | -------------- |
@@ -23,7 +23,7 @@ The following table lists the configurable parameters of the Valid8or-plugin-aws
 | `controllerManager.manager.args` |  | `["--health-probe-bind-address=:8081", "--metrics-bind-address=127.0.0.1:8080", "--leader-elect"]` |
 | `controllerManager.manager.containerSecurityContext.allowPrivilegeEscalation` |  | `false` |
 | `controllerManager.manager.containerSecurityContext.capabilities.drop` |  | `["ALL"]` |
-| `controllerManager.manager.image.repository` |  | `"quay.io/spectrocloud-labs/valid8or-plugin-aws"` |
+| `controllerManager.manager.image.repository` |  | `"quay.io/spectrocloud-labs/validator-plugin-aws"` |
 | `controllerManager.manager.image.tag` | x-release-please-version | `"v0.0.7"` |
 | `controllerManager.manager.resources.limits.cpu` |  | `"500m"` |
 | `controllerManager.manager.resources.limits.memory` |  | `"128Mi"` |

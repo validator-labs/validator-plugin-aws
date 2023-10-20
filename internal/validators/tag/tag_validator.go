@@ -9,12 +9,12 @@ import (
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/spectrocloud-labs/valid8or-plugin-aws/api/v1alpha1"
-	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/constants"
-	v8or "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
-	v8orconstants "github.com/spectrocloud-labs/valid8or/pkg/constants"
-	v8ortypes "github.com/spectrocloud-labs/valid8or/pkg/types"
-	"github.com/spectrocloud-labs/valid8or/pkg/util/ptr"
+	"github.com/spectrocloud-labs/validator-plugin-aws/api/v1alpha1"
+	"github.com/spectrocloud-labs/validator-plugin-aws/internal/constants"
+	v8or "github.com/spectrocloud-labs/validator/api/v1alpha1"
+	v8orconstants "github.com/spectrocloud-labs/validator/pkg/constants"
+	v8ortypes "github.com/spectrocloud-labs/validator/pkg/types"
+	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
 )
 
 type tagApi interface {
