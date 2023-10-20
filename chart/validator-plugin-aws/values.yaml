@@ -30,7 +30,7 @@ controllerManager:
         drop:
         - ALL
     image:
-      repository: quay.io/spectrocloud-labs/valid8or-plugin-aws
+      repository: quay.io/spectrocloud-labs/validator-plugin-aws
       tag: v0.0.7  # x-release-please-version
     resources:
       limits:

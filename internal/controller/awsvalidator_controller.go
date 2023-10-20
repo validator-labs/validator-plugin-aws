@@ -28,15 +28,15 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/spectrocloud-labs/valid8or-plugin-aws/api/v1alpha1"
-	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/constants"
-	aws_utils "github.com/spectrocloud-labs/valid8or-plugin-aws/internal/utils/aws"
-	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/validators/iam"
-	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/validators/servicequota"
-	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/validators/tag"
-	v8or "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
-	"github.com/spectrocloud-labs/valid8or/pkg/types"
-	v8ores "github.com/spectrocloud-labs/valid8or/pkg/validationresult"
+	"github.com/spectrocloud-labs/validator-plugin-aws/api/v1alpha1"
+	"github.com/spectrocloud-labs/validator-plugin-aws/internal/constants"
+	aws_utils "github.com/spectrocloud-labs/validator-plugin-aws/internal/utils/aws"
+	"github.com/spectrocloud-labs/validator-plugin-aws/internal/validators/iam"
+	"github.com/spectrocloud-labs/validator-plugin-aws/internal/validators/servicequota"
+	"github.com/spectrocloud-labs/validator-plugin-aws/internal/validators/tag"
+	v8or "github.com/spectrocloud-labs/validator/api/v1alpha1"
+	"github.com/spectrocloud-labs/validator/pkg/types"
+	v8ores "github.com/spectrocloud-labs/validator/pkg/validationresult"
 )
 
 // AwsValidatorReconciler reconciles a AwsValidator object
@@ -67,7 +67,7 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	// Get the active validator's validation result
 	vr := &v8or.ValidationResult{}
 	nn := ktypes.NamespacedName{
-		Name:      fmt.Sprintf("valid8or-plugin-aws-%s", validator.Name),
+		Name:      fmt.Sprintf("validator-plugin-aws-%s", validator.Name),
 		Namespace: req.Namespace,
 	}
 	if err := r.Get(ctx, nn, vr); err == nil {
