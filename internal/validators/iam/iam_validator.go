@@ -1,25 +1,25 @@
 package iam
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"strings"
 
 	awspolicy "github.com/L30Bola/aws-policy"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/iam"
+	"github.com/aws/aws-sdk-go-v2/service/iam"
+	iamtypes "github.com/aws/aws-sdk-go-v2/service/iam/types"
 	"github.com/go-logr/logr"
 	"golang.org/x/exp/slices"
 	corev1 "k8s.io/api/core/v1"
-	k8stypes "k8s.io/apimachinery/pkg/types"
 
-	"github.com/spectrocloud-labs/valid8or-plugin-aws/api/v1alpha1"
-	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/constants"
-	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/types"
-	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/utils/aws"
-	"github.com/spectrocloud-labs/valid8or-plugin-aws/internal/utils/ptr"
-	str_utils "github.com/spectrocloud-labs/valid8or-plugin-aws/internal/utils/strings"
-	valid8orv1alpha1 "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
+	"github.com/spectrocloud-labs/validator-plugin-aws/api/v1alpha1"
+	"github.com/spectrocloud-labs/validator-plugin-aws/internal/constants"
+	str_utils "github.com/spectrocloud-labs/validator-plugin-aws/internal/utils/strings"
+	v8or "github.com/spectrocloud-labs/validator/api/v1alpha1"
+	v8orconstants "github.com/spectrocloud-labs/validator/pkg/constants"
+	"github.com/spectrocloud-labs/validator/pkg/types"
+	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
 )
 
 type iamAction struct {
@@ -52,26 +52,34 @@ type iamRule interface {
 	IAMPolicies() []v1alpha1.PolicyDocument
 }
 
-type IAMRuleService struct {
-	log    logr.Logger
-	iamSvc *iam.IAM
+type iamApi interface {
+	GetPolicy(ctx context.Context, params *iam.GetPolicyInput, optFns ...func(*iam.Options)) (*iam.GetPolicyOutput, error)
+	GetPolicyVersion(ctx context.Context, params *iam.GetPolicyVersionInput, optFns ...func(*iam.Options)) (*iam.GetPolicyVersionOutput, error)
+	ListAttachedGroupPolicies(ctx context.Context, params *iam.ListAttachedGroupPoliciesInput, optFns ...func(*iam.Options)) (*iam.ListAttachedGroupPoliciesOutput, error)
+	ListAttachedRolePolicies(ctx context.Context, params *iam.ListAttachedRolePoliciesInput, optFns ...func(*iam.Options)) (*iam.ListAttachedRolePoliciesOutput, error)
+	ListAttachedUserPolicies(ctx context.Context, params *iam.ListAttachedUserPoliciesInput, optFns ...func(*iam.Options)) (*iam.ListAttachedUserPoliciesOutput, error)
 }
 
-func NewIAMRuleService(log logr.Logger, s *session.Session) *IAMRuleService {
+type IAMRuleService struct {
+	log    logr.Logger
+	iamSvc iamApi
+}
+
+func NewIAMRuleService(log logr.Logger, iamSvc iamApi) *IAMRuleService {
 	return &IAMRuleService{
 		log:    log,
-		iamSvc: aws.IAMService(s),
+		iamSvc: iamSvc,
 	}
 }
 
 // ReconcileIAMRoleRule reconciles an IAM role validation rule from an AWSValidator config
-func (s *IAMRuleService) ReconcileIAMRoleRule(nn k8stypes.NamespacedName, rule iamRule) (*types.ValidationResult, error) {
+func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationResult, error) {
 
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMRolePolicy)
 
 	// Retrieve all IAM policies attached to the IAM role
-	policies, err := s.iamSvc.ListAttachedRolePolicies(&iam.ListAttachedRolePoliciesInput{
+	policies, err := s.iamSvc.ListAttachedRolePolicies(context.Background(), &iam.ListAttachedRolePoliciesInput{
 		RoleName: ptr.Ptr(rule.Name()),
 	})
 	if err != nil {
@@ -95,13 +103,13 @@ func (s *IAMRuleService) ReconcileIAMRoleRule(nn k8stypes.NamespacedName, rule i
 }
 
 // ReconcileIAMUserRule reconciles an IAM user validation rule from an AWSValidator config
-func (s *IAMRuleService) ReconcileIAMUserRule(nn k8stypes.NamespacedName, rule iamRule) (*types.ValidationResult, error) {
+func (s *IAMRuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationResult, error) {
 
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMUserPolicy)
 
 	// Retrieve all IAM policies attached to the IAM user
-	policies, err := s.iamSvc.ListAttachedUserPolicies(&iam.ListAttachedUserPoliciesInput{
+	policies, err := s.iamSvc.ListAttachedUserPolicies(context.Background(), &iam.ListAttachedUserPoliciesInput{
 		UserName: ptr.Ptr(rule.Name()),
 	})
 	if err != nil {
@@ -125,13 +133,13 @@ func (s *IAMRuleService) ReconcileIAMUserRule(nn k8stypes.NamespacedName, rule i
 }
 
 // ReconcileIAMGroupRule reconciles an IAM group validation rule from an AWSValidator config
-func (s *IAMRuleService) ReconcileIAMGroupRule(nn k8stypes.NamespacedName, rule iamRule) (*types.ValidationResult, error) {
+func (s *IAMRuleService) ReconcileIAMGroupRule(rule iamRule) (*types.ValidationResult, error) {
 
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMGroupPolicy)
 
 	// Retrieve all IAM policies attached to the IAM user
-	policies, err := s.iamSvc.ListAttachedGroupPolicies(&iam.ListAttachedGroupPoliciesInput{
+	policies, err := s.iamSvc.ListAttachedGroupPolicies(context.Background(), &iam.ListAttachedGroupPoliciesInput{
 		GroupName: ptr.Ptr(rule.Name()),
 	})
 	if err != nil {
@@ -155,7 +163,7 @@ func (s *IAMRuleService) ReconcileIAMGroupRule(nn k8stypes.NamespacedName, rule 
 }
 
 // ReconcileIAMPolicyRule reconciles an IAM policy validation rule from an AWSValidator config
-func (s *IAMRuleService) ReconcileIAMPolicyRule(nn k8stypes.NamespacedName, rule iamRule) (*types.ValidationResult, error) {
+func (s *IAMRuleService) ReconcileIAMPolicyRule(rule iamRule) (*types.ValidationResult, error) {
 
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMPolicy)
@@ -178,7 +186,7 @@ func (s *IAMRuleService) ReconcileIAMPolicyRule(nn k8stypes.NamespacedName, rule
 }
 
 // processPolicies updates an IAM permission map for each IAM policy in an array of IAM policies attached to a IAM user / group / role
-func (s *IAMRuleService) processPolicies(policies []*iam.AttachedPolicy, permissions map[string]*permission, context []string) error {
+func (s *IAMRuleService) processPolicies(policies []iamtypes.AttachedPolicy, permissions map[string]*permission, context []string) error {
 	for _, p := range policies {
 		policyDocument, err := s.getPolicyDocument(p.PolicyArn, context)
 		if err != nil {
@@ -192,16 +200,16 @@ func (s *IAMRuleService) processPolicies(policies []*iam.AttachedPolicy, permiss
 }
 
 // getPolicyDocument generates an awspolicy.Policy, given an AWS IAM policy ARN
-func (s *IAMRuleService) getPolicyDocument(policyArn *string, context []string) (*awspolicy.Policy, error) {
+func (s *IAMRuleService) getPolicyDocument(policyArn *string, ctx []string) (*awspolicy.Policy, error) {
 	// Fetch the IAM policy's policy document
-	policyOutput, err := s.iamSvc.GetPolicy(&iam.GetPolicyInput{
+	policyOutput, err := s.iamSvc.GetPolicy(context.Background(), &iam.GetPolicyInput{
 		PolicyArn: policyArn,
 	})
 	if err != nil {
-		s.log.V(0).Error(err, "failed to get IAM policy", context, "policyArn", policyArn)
+		s.log.V(0).Error(err, "failed to get IAM policy", ctx[0], ctx[1], "policyArn", policyArn)
 		return nil, err
 	}
-	policyVersionOutput, err := s.iamSvc.GetPolicyVersion(&iam.GetPolicyVersionInput{
+	policyVersionOutput, err := s.iamSvc.GetPolicyVersion(context.Background(), &iam.GetPolicyVersionInput{
 		PolicyArn: policyArn,
 		VersionId: policyOutput.Policy.DefaultVersionId,
 	})
@@ -222,7 +230,7 @@ func (s *IAMRuleService) getPolicyDocument(policyArn *string, context []string) 
 	}
 	policyDocument := &awspolicy.Policy{}
 	if err := policyDocument.UnmarshalJSON([]byte(policyUnescaped)); err != nil {
-		s.log.V(0).Error(err, "failed to unmarshal IAM policy", context, "policyArn", policyArn)
+		s.log.V(0).Error(err, "failed to unmarshal IAM policy", ctx[0], ctx[1], "policyArn", policyArn)
 		return nil, err
 	}
 	return policyDocument, nil
@@ -230,10 +238,10 @@ func (s *IAMRuleService) getPolicyDocument(policyArn *string, context []string) 
 
 // buildValidationResult builds a default ValidationResult for a given validation type
 func buildValidationResult(rule iamRule, validationType string) *types.ValidationResult {
-	state := valid8orv1alpha1.ValidationSucceeded
-	latestCondition := valid8orv1alpha1.DefaultValidationCondition()
+	state := v8or.ValidationSucceeded
+	latestCondition := v8or.DefaultValidationCondition()
 	latestCondition.Message = fmt.Sprintf("All required %s permissions were found", validationType)
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", constants.ValidationRulePrefix, rule.Name())
+	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", v8orconstants.ValidationRulePrefix, rule.Name())
 	latestCondition.ValidationType = validationType
 	return &types.ValidationResult{Condition: &latestCondition, State: &state}
 }
@@ -362,7 +370,7 @@ func computeFailures(rule iamRule, permissions map[string]*permission, vr *types
 		failures = append(failures, failureMsg)
 	}
 	if len(failures) > 0 {
-		vr.State = ptr.Ptr(valid8orv1alpha1.ValidationFailed)
+		vr.State = ptr.Ptr(v8or.ValidationFailed)
 		vr.Condition.Failures = failures
 		vr.Condition.Message = "One or more required IAM permissions was not found, or a condition was not met"
 		vr.Condition.Status = corev1.ConditionFalse

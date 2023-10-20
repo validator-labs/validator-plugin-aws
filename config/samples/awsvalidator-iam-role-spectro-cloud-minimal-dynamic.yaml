@@ -5,6 +5,7 @@ metadata:
 spec:
   auth:
     secretName: aws-creds
+  defaultRegion: us-west-1
   iamRoleRules:
   - iamPolicies:
     - name: Minimal Policy - Dynamic Provisioning

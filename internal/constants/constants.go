@@ -1,7 +1,7 @@
 package constants
 
 const (
-	ValidationRulePrefix string = "validation"
+	PluginCode string = "AWS"
 
 	ValidationTypeIAMRolePolicy  string = "aws-iam-role-policy"
 	ValidationTypeIAMUserPolicy  string = "aws-iam-user-policy"

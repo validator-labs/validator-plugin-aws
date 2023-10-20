@@ -5,6 +5,7 @@ metadata:
 spec:
   auth:
     secretName: aws-creds
+  defaultRegion: us-west-1
   iamPolicyRules:
   - iamPolicies:
     - name: control-plane.cluster-api-provider-aws.sigs.k8s.io

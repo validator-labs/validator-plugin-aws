@@ -12,7 +12,7 @@ controllerManager:
         - ALL
     image:
       repository: gcr.io/kubebuilder/kube-rbac-proxy
-      tag: v0.14.1
+      tag: v0.14.4
     resources:
       limits:
         cpu: 500m
@@ -23,7 +23,6 @@ controllerManager:
   manager:
     args:
     - --health-probe-bind-address=:8081
-    - --metrics-bind-address=127.0.0.1:8080
     - --leader-elect
     containerSecurityContext:
       allowPrivilegeEscalation: false
@@ -31,8 +30,8 @@ controllerManager:
         drop:
         - ALL
     image:
-      repository: quay.io/spectrocloud-labs/valid8or-plugin-aws
-      tag: v0.0.2 # x-release-please-version
+      repository: quay.io/spectrocloud-labs/validator-plugin-aws
+      tag: v0.0.8  # x-release-please-version
     resources:
       limits:
         cpu: 500m
@@ -51,3 +50,9 @@ metricsService:
     protocol: TCP
     targetPort: https
   type: ClusterIP
+auth:
+  secretName: aws-creds
+  createSecret: true
+  accessKeyId: ""
+  secretAccessKey: ""
+  sessionToken: ""

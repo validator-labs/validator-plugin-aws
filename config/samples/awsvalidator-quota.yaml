@@ -5,6 +5,7 @@ metadata:
 spec:
   auth:
     secretName: aws-creds
+  defaultRegion: us-west-1
   serviceQuotaRules:
   - region: us-east-2
     serviceCode: ec2
