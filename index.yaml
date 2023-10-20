@@ -73,4 +73,15 @@ entries:
     urls:
     - https://spectrocloud-labs.github.io/valid8or-plugin-aws/valid8or-plugin-aws-0.0.1.tgz
     version: 0.0.1
-generated: "2023-10-10T19:17:45.965771545Z"
+  validator-plugin-aws:
+  - apiVersion: v2
+    appVersion: 0.0.8
+    created: "2023-10-20T16:50:03.384795964Z"
+    description: Perform various AWS validations (IAM, Service Quotas, Tags)
+    digest: 02f1a1f2e36791ebddb44efb18b2a52b4b8be70778b366adda9681882175dbdb
+    name: validator-plugin-aws
+    type: application
+    urls:
+    - https://spectrocloud-labs.github.io/valid8or-plugin-aws/validator-plugin-aws-0.0.8.tgz
+    version: 0.0.8
+generated: "2023-10-20T16:50:03.383814745Z"
