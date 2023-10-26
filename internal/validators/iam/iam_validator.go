@@ -16,8 +16,8 @@ import (
 	"github.com/spectrocloud-labs/validator-plugin-aws/api/v1alpha1"
 	"github.com/spectrocloud-labs/validator-plugin-aws/internal/constants"
 	str_utils "github.com/spectrocloud-labs/validator-plugin-aws/internal/utils/strings"
-	v8or "github.com/spectrocloud-labs/validator/api/v1alpha1"
-	v8orconstants "github.com/spectrocloud-labs/validator/pkg/constants"
+	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
+	vapiconstants "github.com/spectrocloud-labs/validator/pkg/constants"
 	"github.com/spectrocloud-labs/validator/pkg/types"
 	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
 )
@@ -238,10 +238,10 @@ func (s *IAMRuleService) getPolicyDocument(policyArn *string, ctx []string) (*aw
 
 // buildValidationResult builds a default ValidationResult for a given validation type
 func buildValidationResult(rule iamRule, validationType string) *types.ValidationResult {
-	state := v8or.ValidationSucceeded
-	latestCondition := v8or.DefaultValidationCondition()
+	state := vapi.ValidationSucceeded
+	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = fmt.Sprintf("All required %s permissions were found", validationType)
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", v8orconstants.ValidationRulePrefix, rule.Name())
+	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, rule.Name())
 	latestCondition.ValidationType = validationType
 	return &types.ValidationResult{Condition: &latestCondition, State: &state}
 }
@@ -370,7 +370,7 @@ func computeFailures(rule iamRule, permissions map[string]*permission, vr *types
 		failures = append(failures, failureMsg)
 	}
 	if len(failures) > 0 {
-		vr.State = ptr.Ptr(v8or.ValidationFailed)
+		vr.State = ptr.Ptr(vapi.ValidationFailed)
 		vr.Condition.Failures = failures
 		vr.Condition.Message = "One or more required IAM permissions was not found, or a condition was not met"
 		vr.Condition.Status = corev1.ConditionFalse

@@ -20,7 +20,7 @@ import (
 
 	"github.com/spectrocloud-labs/validator-plugin-aws/api/v1alpha1"
 	"github.com/spectrocloud-labs/validator-plugin-aws/internal/utils/test"
-	v8or "github.com/spectrocloud-labs/validator/api/v1alpha1"
+	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
 	"github.com/spectrocloud-labs/validator/pkg/types"
 	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
 )
@@ -232,7 +232,7 @@ func TestQuotaValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
 					Message:        "Usage for one or more service quotas exceeded the specified buffer",
@@ -240,7 +240,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       []string{"Remaining quota 0, less than buffer 3, for service ec2 and quota EC2-VPC Elastic IPs"},
 					Status:         corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(v8or.ValidationFailed),
+				State: ptr.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -262,7 +262,7 @@ func TestQuotaValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
 					Message:        "Usage for all service quotas is below specified buffer",
@@ -270,7 +270,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(v8or.ValidationSucceeded),
+				State: ptr.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -292,7 +292,7 @@ func TestQuotaValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
 					Message:        "Usage for one or more service quotas exceeded the specified buffer",
@@ -300,7 +300,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       []string{"Remaining quota 0, less than buffer 3, for service ec2 and quota Public AMIs"},
 					Status:         corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(v8or.ValidationFailed),
+				State: ptr.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -322,7 +322,7 @@ func TestQuotaValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
 					Message:        "Usage for all service quotas is below specified buffer",
@@ -330,7 +330,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(v8or.ValidationSucceeded),
+				State: ptr.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -352,7 +352,7 @@ func TestQuotaValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
 					Message:        "Usage for one or more service quotas exceeded the specified buffer",
@@ -360,7 +360,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       []string{"Remaining quota 0, less than buffer 3, for service ec2 and quota Internet gateways per Region"},
 					Status:         corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(v8or.ValidationFailed),
+				State: ptr.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -382,7 +382,7 @@ func TestQuotaValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
 					Message:        "Usage for all service quotas is below specified buffer",
@@ -390,7 +390,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(v8or.ValidationSucceeded),
+				State: ptr.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -412,7 +412,7 @@ func TestQuotaValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
 					Message:        "Usage for one or more service quotas exceeded the specified buffer",
@@ -420,7 +420,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       []string{"Remaining quota 0, less than buffer 3, for service ec2 and quota Network interfaces per Region"},
 					Status:         corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(v8or.ValidationFailed),
+				State: ptr.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -442,7 +442,7 @@ func TestQuotaValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
 					Message:        "Usage for all service quotas is below specified buffer",
@@ -450,7 +450,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(v8or.ValidationSucceeded),
+				State: ptr.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -472,7 +472,7 @@ func TestQuotaValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
 					Message:        "Usage for one or more service quotas exceeded the specified buffer",
@@ -480,7 +480,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       []string{"Remaining quota 0, less than buffer 3, for service ec2 and quota VPCs per Region"},
 					Status:         corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(v8or.ValidationFailed),
+				State: ptr.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -502,7 +502,7 @@ func TestQuotaValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
 					Message:        "Usage for all service quotas is below specified buffer",
@@ -510,7 +510,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(v8or.ValidationSucceeded),
+				State: ptr.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -532,7 +532,7 @@ func TestQuotaValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
 					Message:        "Usage for one or more service quotas exceeded the specified buffer",
@@ -540,7 +540,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       []string{"Remaining quota 0, less than buffer 3, for service ec2 and quota Subnets per VPC"},
 					Status:         corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(v8or.ValidationFailed),
+				State: ptr.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -562,7 +562,7 @@ func TestQuotaValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
 					Message:        "Usage for all service quotas is below specified buffer",
@@ -570,7 +570,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(v8or.ValidationSucceeded),
+				State: ptr.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -592,7 +592,7 @@ func TestQuotaValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
 					Message:        "Usage for one or more service quotas exceeded the specified buffer",
@@ -600,7 +600,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       []string{"Remaining quota 0, less than buffer 3, for service ec2 and quota NAT gateways per Availability Zone"},
 					Status:         corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(v8or.ValidationFailed),
+				State: ptr.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -622,7 +622,7 @@ func TestQuotaValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
 					Message:        "Usage for all service quotas is below specified buffer",
@@ -630,7 +630,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(v8or.ValidationSucceeded),
+				State: ptr.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -652,7 +652,7 @@ func TestQuotaValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-efs",
 					Message:        "Usage for one or more service quotas exceeded the specified buffer",
@@ -660,7 +660,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       []string{"Remaining quota 0, less than buffer 3, for service efs and quota File systems per account"},
 					Status:         corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(v8or.ValidationFailed),
+				State: ptr.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -682,7 +682,7 @@ func TestQuotaValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-efs",
 					Message:        "Usage for all service quotas is below specified buffer",
@@ -690,7 +690,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(v8or.ValidationSucceeded),
+				State: ptr.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -712,7 +712,7 @@ func TestQuotaValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-elasticloadbalancing",
 					Message:        "Usage for one or more service quotas exceeded the specified buffer",
@@ -720,7 +720,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       []string{"Remaining quota 0, less than buffer 3, for service elasticloadbalancing and quota Classic Load Balancers per Region"},
 					Status:         corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(v8or.ValidationFailed),
+				State: ptr.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -742,7 +742,7 @@ func TestQuotaValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-elasticloadbalancing",
 					Message:        "Usage for all service quotas is below specified buffer",
@@ -750,7 +750,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(v8or.ValidationSucceeded),
+				State: ptr.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -772,7 +772,7 @@ func TestQuotaValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-elasticloadbalancing",
 					Message:        "Usage for one or more service quotas exceeded the specified buffer",
@@ -780,7 +780,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       []string{"Remaining quota 0, less than buffer 3, for service elasticloadbalancing and quota Application Load Balancers per Region"},
 					Status:         corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(v8or.ValidationFailed),
+				State: ptr.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -802,7 +802,7 @@ func TestQuotaValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-elasticloadbalancing",
 					Message:        "Usage for all service quotas is below specified buffer",
@@ -810,7 +810,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(v8or.ValidationSucceeded),
+				State: ptr.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -832,7 +832,7 @@ func TestQuotaValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-elasticloadbalancing",
 					Message:        "Usage for one or more service quotas exceeded the specified buffer",
@@ -840,7 +840,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       []string{"Remaining quota 0, less than buffer 3, for service elasticloadbalancing and quota Network Load Balancers per Region"},
 					Status:         corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(v8or.ValidationFailed),
+				State: ptr.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -862,7 +862,7 @@ func TestQuotaValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-elasticloadbalancing",
 					Message:        "Usage for all service quotas is below specified buffer",
@@ -870,7 +870,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(v8or.ValidationSucceeded),
+				State: ptr.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 	}

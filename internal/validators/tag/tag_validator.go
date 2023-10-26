@@ -11,9 +11,9 @@ import (
 
 	"github.com/spectrocloud-labs/validator-plugin-aws/api/v1alpha1"
 	"github.com/spectrocloud-labs/validator-plugin-aws/internal/constants"
-	v8or "github.com/spectrocloud-labs/validator/api/v1alpha1"
-	v8orconstants "github.com/spectrocloud-labs/validator/pkg/constants"
-	v8ortypes "github.com/spectrocloud-labs/validator/pkg/types"
+	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
+	vapiconstants "github.com/spectrocloud-labs/validator/pkg/constants"
+	vapitypes "github.com/spectrocloud-labs/validator/pkg/types"
 	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
 )
 
@@ -34,15 +34,15 @@ func NewTagRuleService(log logr.Logger, tagSvc tagApi) *TagRuleService {
 }
 
 // ReconcileTagRule reconciles an EC2 tagging validation rule from the AWSValidator config
-func (s *TagRuleService) ReconcileTagRule(rule v1alpha1.TagRule) (*v8ortypes.ValidationResult, error) {
+func (s *TagRuleService) ReconcileTagRule(rule v1alpha1.TagRule) (*vapitypes.ValidationResult, error) {
 
 	// Build the default latest condition for this tag rule
-	state := v8or.ValidationSucceeded
-	latestCondition := v8or.DefaultValidationCondition()
+	state := vapi.ValidationSucceeded
+	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = "All required subnet tags were found"
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s-%s", v8orconstants.ValidationRulePrefix, rule.ResourceType, rule.Key)
+	latestCondition.ValidationRule = fmt.Sprintf("%s-%s-%s", vapiconstants.ValidationRulePrefix, rule.ResourceType, rule.Key)
 	latestCondition.ValidationType = constants.ValidationTypeTag
-	validationResult := &v8ortypes.ValidationResult{Condition: &latestCondition, State: &state}
+	validationResult := &vapitypes.ValidationResult{Condition: &latestCondition, State: &state}
 
 	switch rule.ResourceType {
 	case "subnet":
@@ -73,7 +73,7 @@ func (s *TagRuleService) ReconcileTagRule(rule v1alpha1.TagRule) (*v8ortypes.Val
 			}
 		}
 		if len(failures) > 0 {
-			state = v8or.ValidationFailed
+			state = vapi.ValidationFailed
 			latestCondition.Failures = failures
 			latestCondition.Message = "One or more required subnet tags was not found"
 			latestCondition.Status = corev1.ConditionFalse

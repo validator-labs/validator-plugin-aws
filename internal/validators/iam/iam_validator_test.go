@@ -12,7 +12,7 @@ import (
 
 	"github.com/spectrocloud-labs/validator-plugin-aws/api/v1alpha1"
 	"github.com/spectrocloud-labs/validator-plugin-aws/internal/utils/test"
-	v8or "github.com/spectrocloud-labs/validator/api/v1alpha1"
+	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
 	"github.com/spectrocloud-labs/validator/pkg/types"
 	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
 )
@@ -169,7 +169,7 @@ func TestIAMGroupValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-group-policy",
 					ValidationRule: "validation-iamGroup",
 					Message:        "One or more required IAM permissions was not found, or a condition was not met",
@@ -179,7 +179,7 @@ func TestIAMGroupValidation(t *testing.T) {
 					},
 					Status: corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(v8or.ValidationFailed),
+				State: ptr.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -201,7 +201,7 @@ func TestIAMGroupValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-group-policy",
 					ValidationRule: "validation-iamGroup",
 					Message:        "All required aws-iam-group-policy permissions were found",
@@ -209,7 +209,7 @@ func TestIAMGroupValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(v8or.ValidationSucceeded),
+				State: ptr.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 	}
@@ -240,7 +240,7 @@ func TestIAMRoleValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-role-policy",
 					ValidationRule: "validation-iamRole1",
 					Message:        "One or more required IAM permissions was not found, or a condition was not met",
@@ -250,7 +250,7 @@ func TestIAMRoleValidation(t *testing.T) {
 					},
 					Status: corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(v8or.ValidationFailed),
+				State: ptr.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -272,7 +272,7 @@ func TestIAMRoleValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-role-policy",
 					ValidationRule: "validation-iamRole1",
 					Message:        "All required aws-iam-role-policy permissions were found",
@@ -280,7 +280,7 @@ func TestIAMRoleValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(v8or.ValidationSucceeded),
+				State: ptr.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -302,7 +302,7 @@ func TestIAMRoleValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-role-policy",
 					ValidationRule: "validation-iamRole2",
 					Message:        "All required aws-iam-role-policy permissions were found",
@@ -310,7 +310,7 @@ func TestIAMRoleValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(v8or.ValidationSucceeded),
+				State: ptr.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 	}
@@ -341,7 +341,7 @@ func TestIAMUserValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-user-policy",
 					ValidationRule: "validation-iamUser",
 					Message:        "One or more required IAM permissions was not found, or a condition was not met",
@@ -351,7 +351,7 @@ func TestIAMUserValidation(t *testing.T) {
 					},
 					Status: corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(v8or.ValidationFailed),
+				State: ptr.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -373,7 +373,7 @@ func TestIAMUserValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-user-policy",
 					ValidationRule: "validation-iamUser",
 					Message:        "All required aws-iam-user-policy permissions were found",
@@ -381,7 +381,7 @@ func TestIAMUserValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(v8or.ValidationSucceeded),
+				State: ptr.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 	}
@@ -412,7 +412,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-policy",
 					ValidationRule: "validation-iamRoleArn1",
 					Message:        "One or more required IAM permissions was not found, or a condition was not met",
@@ -422,7 +422,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 					},
 					Status: corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(v8or.ValidationFailed),
+				State: ptr.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -444,7 +444,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 				},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-policy",
 					ValidationRule: "validation-iamRoleArn1",
 					Message:        "All required aws-iam-policy permissions were found",
@@ -452,7 +452,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(v8or.ValidationSucceeded),
+				State: ptr.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 	}
