@@ -17,9 +17,9 @@ import (
 	"github.com/spectrocloud-labs/validator-plugin-aws/api/v1alpha1"
 	"github.com/spectrocloud-labs/validator-plugin-aws/internal/constants"
 	"github.com/spectrocloud-labs/validator-plugin-aws/internal/types"
-	v8or "github.com/spectrocloud-labs/validator/api/v1alpha1"
-	v8orconstants "github.com/spectrocloud-labs/validator/pkg/constants"
-	v8ortypes "github.com/spectrocloud-labs/validator/pkg/types"
+	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
+	vapiconstants "github.com/spectrocloud-labs/validator/pkg/constants"
+	vapitypes "github.com/spectrocloud-labs/validator/pkg/types"
 )
 
 type ec2Api interface {
@@ -103,19 +103,19 @@ func (s *ServiceQuotaRuleService) execQuotaUsageFunc(quotaName string, rule v1al
 }
 
 // ReconcileServiceQuotaRule reconciles an AWS service quota validation rule from the AWSValidator config
-func (s *ServiceQuotaRuleService) ReconcileServiceQuotaRule(rule v1alpha1.ServiceQuotaRule) (*v8ortypes.ValidationResult, error) {
+func (s *ServiceQuotaRuleService) ReconcileServiceQuotaRule(rule v1alpha1.ServiceQuotaRule) (*vapitypes.ValidationResult, error) {
 
 	sqPager := servicequotas.NewListServiceQuotasPaginator(s.sqSvc, &servicequotas.ListServiceQuotasInput{
 		ServiceCode: &rule.ServiceCode,
 	})
 
 	// Build the default latest condition for this tag rule
-	state := v8or.ValidationSucceeded
-	latestCondition := v8or.DefaultValidationCondition()
+	state := vapi.ValidationSucceeded
+	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = "Usage for all service quotas is below specified buffer"
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", v8orconstants.ValidationRulePrefix, rule.ServiceCode)
+	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, rule.ServiceCode)
 	latestCondition.ValidationType = constants.ValidationTypeServiceQuota
-	validationResult := &v8ortypes.ValidationResult{Condition: &latestCondition, State: &state}
+	validationResult := &vapitypes.ValidationResult{Condition: &latestCondition, State: &state}
 
 	// Fetch the quota by service code & name & compare against usage
 	failures := make([]string, 0)
@@ -160,7 +160,7 @@ func (s *ServiceQuotaRuleService) ReconcileServiceQuotaRule(rule v1alpha1.Servic
 	}
 
 	if len(failures) > 0 {
-		state = v8or.ValidationFailed
+		state = vapi.ValidationFailed
 		latestCondition.Failures = failures
 		latestCondition.Message = "Usage for one or more service quotas exceeded the specified buffer"
 		latestCondition.Status = corev1.ConditionFalse

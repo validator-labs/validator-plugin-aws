@@ -12,7 +12,7 @@ import (
 
 	"github.com/spectrocloud-labs/validator-plugin-aws/api/v1alpha1"
 	"github.com/spectrocloud-labs/validator-plugin-aws/internal/utils/test"
-	v8or "github.com/spectrocloud-labs/validator/api/v1alpha1"
+	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
 	"github.com/spectrocloud-labs/validator/pkg/types"
 	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
 )
@@ -57,7 +57,7 @@ func TestTagValidation(t *testing.T) {
 				ARNs:          []string{"subnetArn1"},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-tag",
 					ValidationRule: "validation-subnet-kubernetes.io/role/elb",
 					Message:        "One or more required subnet tags was not found",
@@ -65,7 +65,7 @@ func TestTagValidation(t *testing.T) {
 					Failures:       []string{"Subnet with ARN subnetArn1 missing tag kubernetes.io/role/elb=1"},
 					Status:         corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(v8or.ValidationFailed),
+				State: ptr.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -78,7 +78,7 @@ func TestTagValidation(t *testing.T) {
 				ARNs:          []string{"subnetArn2"},
 			},
 			expectedResult: types.ValidationResult{
-				Condition: &v8or.ValidationCondition{
+				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-tag",
 					ValidationRule: "validation-subnet-kubernetes.io/role/elb",
 					Message:        "All required subnet tags were found",
@@ -86,7 +86,7 @@ func TestTagValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(v8or.ValidationSucceeded),
+				State: ptr.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 	}

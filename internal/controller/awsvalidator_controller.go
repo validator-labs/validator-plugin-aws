@@ -34,9 +34,9 @@ import (
 	"github.com/spectrocloud-labs/validator-plugin-aws/internal/validators/iam"
 	"github.com/spectrocloud-labs/validator-plugin-aws/internal/validators/servicequota"
 	"github.com/spectrocloud-labs/validator-plugin-aws/internal/validators/tag"
-	v8or "github.com/spectrocloud-labs/validator/api/v1alpha1"
+	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
 	"github.com/spectrocloud-labs/validator/pkg/types"
-	v8ores "github.com/spectrocloud-labs/validator/pkg/validationresult"
+	vres "github.com/spectrocloud-labs/validator/pkg/validationresult"
 )
 
 // AwsValidatorReconciler reconciles a AwsValidator object
@@ -65,13 +65,13 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	}
 
 	// Get the active validator's validation result
-	vr := &v8or.ValidationResult{}
+	vr := &vapi.ValidationResult{}
 	nn := ktypes.NamespacedName{
 		Name:      fmt.Sprintf("validator-plugin-aws-%s", validator.Name),
 		Namespace: req.Namespace,
 	}
 	if err := r.Get(ctx, nn, vr); err == nil {
-		res, err := v8ores.HandleExistingValidationResult(nn, vr, r.Log)
+		res, err := vres.HandleExistingValidationResult(nn, vr, r.Log)
 		if res != nil {
 			return *res, err
 		}
@@ -79,7 +79,7 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		if !apierrs.IsNotFound(err) {
 			r.Log.V(0).Error(err, "unexpected error getting ValidationResult", "name", nn.Name, "namespace", nn.Namespace)
 		}
-		res, err := v8ores.HandleNewValidationResult(r.Client, constants.PluginCode, nn, vr, r.Log)
+		res, err := vres.HandleNewValidationResult(r.Client, constants.PluginCode, nn, vr, r.Log)
 		if res != nil {
 			return *res, err
 		}
@@ -99,28 +99,28 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 			if err != nil {
 				r.Log.V(0).Error(err, "failed to reconcile IAM role rule")
 			}
-			v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+			vres.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 		}
 		for _, rule := range validator.Spec.IamUserRules {
 			validationResult, err := iamRuleService.ReconcileIAMUserRule(rule)
 			if err != nil {
 				r.Log.V(0).Error(err, "failed to reconcile IAM user rule")
 			}
-			v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+			vres.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 		}
 		for _, rule := range validator.Spec.IamGroupRules {
 			validationResult, err := iamRuleService.ReconcileIAMGroupRule(rule)
 			if err != nil {
 				r.Log.V(0).Error(err, "failed to reconcile IAM group rule")
 			}
-			v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+			vres.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 		}
 		for _, rule := range validator.Spec.IamPolicyRules {
 			validationResult, err := iamRuleService.ReconcileIAMPolicyRule(rule)
 			if err != nil {
 				r.Log.V(0).Error(err, "failed to reconcile IAM policy rule")
 			}
-			v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+			vres.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 		}
 	}
 
@@ -143,7 +143,7 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile Service Quota rule")
 		}
-		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+		vres.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 	}
 
 	// Tag rules
@@ -158,7 +158,7 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile Tag rule")
 		}
-		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+		vres.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 	}
 
 	r.Log.V(0).Info("Requeuing for re-validation in two minutes.", "name", req.Name, "namespace", req.Namespace)
