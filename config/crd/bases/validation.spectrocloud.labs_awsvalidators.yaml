@@ -36,6 +36,13 @@ spec:
             properties:
               auth:
                 properties:
+                  durationSeconds:
+                    type: integer
+                  roleArn:
+                    description: STS Options
+                    type: string
+                  roleSessionName:
+                    type: string
                   secretName:
                     description: 'Option 1: lookup AWS creds from a secret'
                     type: string

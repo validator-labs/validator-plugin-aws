@@ -88,7 +88,7 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	failed := &types.MonotonicBool{}
 
 	// IAM rules
-	awsApi, err := aws_utils.NewAwsApi(validator.Spec.DefaultRegion)
+	awsApi, err := aws_utils.NewAwsApi(r.Log, validator)
 	if err != nil {
 		r.Log.V(0).Error(err, "failed to get AWS client")
 	} else {
@@ -126,7 +126,7 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	// Service Quota rules
 	for _, rule := range validator.Spec.ServiceQuotaRules {
-		awsApi, err := aws_utils.NewAwsApi(rule.Region)
+		awsApi, err := aws_utils.NewAwsApi(r.Log, validator)
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile Service Quota rule")
 			continue
@@ -148,7 +148,7 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	// Tag rules
 	for _, rule := range validator.Spec.TagRules {
-		awsApi, err := aws_utils.NewAwsApi(rule.Region)
+		awsApi, err := aws_utils.NewAwsApi(r.Log, validator)
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile Tag rule")
 			continue

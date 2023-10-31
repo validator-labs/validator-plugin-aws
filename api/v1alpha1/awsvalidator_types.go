@@ -40,6 +40,11 @@ type AwsAuth struct {
 	SecretName string `json:"secretName,omitempty" yaml:"secretName,omitempty"`
 	// Option 2: specify a service account (EKS)
 	ServiceAccountName string `json:"serviceAccountName,omitempty" yaml:"serviceAccountName,omitempty"`
+
+	// STS Options
+	RoleArn         string `json:"roleArn,omitempty" yaml:"roleArn,omitempty"`
+	RoleSessionName string `json:"roleSessionName,omitempty" yaml:"roleSessionName,omitempty"`
+	DurationSeconds int    `json:"durationSeconds,omitempty" yaml:"durationSeconds,omitempty"`
 }
 
 type IamRoleRule struct {
