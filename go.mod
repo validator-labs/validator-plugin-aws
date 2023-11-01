@@ -6,7 +6,7 @@ require (
 	github.com/L30Bola/aws-policy v0.0.0-20230126045340-5e6118545ac1
 	github.com/aws/aws-sdk-go-v2/config v1.20.0
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.129.0
-	github.com/aws/aws-sdk-go-v2/service/efs v1.21.9
+	github.com/aws/aws-sdk-go-v2/service/efs v1.22.0
 	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing v1.18.0
 	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.22.0
 	github.com/aws/aws-sdk-go-v2/service/iam v1.24.0
