@@ -36,19 +36,34 @@ spec:
             properties:
               auth:
                 properties:
-                  durationSeconds:
-                    type: integer
-                  roleArn:
-                    description: STS Options
-                    type: string
-                  roleSessionName:
-                    type: string
                   secretName:
                     description: 'Option 1: lookup AWS creds from a secret'
                     type: string
                   serviceAccountName:
                     description: 'Option 2: specify a service account (EKS)'
                     type: string
+                  stsAuth:
+                    description: 'Option 3: define STS'
+                    properties:
+                      durationSeconds:
+                        description: The duration, in seconds, of the role session.
+                        type: integer
+                      externalId:
+                        description: A unique identifier that might be required when
+                          you assume a role in another account.
+                        type: string
+                      roleArn:
+                        description: The Amazon Resource Name (ARN) of the role to
+                          assume.
+                        type: string
+                      roleSessionName:
+                        description: An identifier for the assumed role session.
+                        type: string
+                    required:
+                    - durationSeconds
+                    - roleArn
+                    - roleSessionName
+                    type: object
                 type: object
               defaultRegion:
                 type: string

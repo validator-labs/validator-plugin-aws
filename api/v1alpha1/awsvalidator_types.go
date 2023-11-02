@@ -40,11 +40,19 @@ type AwsAuth struct {
 	SecretName string `json:"secretName,omitempty" yaml:"secretName,omitempty"`
 	// Option 2: specify a service account (EKS)
 	ServiceAccountName string `json:"serviceAccountName,omitempty" yaml:"serviceAccountName,omitempty"`
+	// Option 3: define STS authentication properties
+	StsAuth AwsSTSAuth `json:"stsAuth,omitempty" yaml:"stsAuth,omitempty"`
+}
 
-	// STS Options
-	RoleArn         string `json:"roleArn,omitempty" yaml:"roleArn,omitempty"`
-	RoleSessionName string `json:"roleSessionName,omitempty" yaml:"roleSessionName,omitempty"`
-	DurationSeconds int    `json:"durationSeconds,omitempty" yaml:"durationSeconds,omitempty"`
+type AwsSTSAuth struct {
+	// The Amazon Resource Name (ARN) of the role to assume.
+	RoleArn string `json:"roleArn" yaml:"roleArn"`
+	// An identifier for the assumed role session.
+	RoleSessionName string `json:"roleSessionName" yaml:"roleSessionName"`
+	// The duration, in seconds, of the role session.
+	DurationSeconds int `json:"durationSeconds" yaml:"durationSeconds"`
+	// A unique identifier that might be required when you assume a role in another account.
+	ExternalId string `json:"externalId,omitempty" yaml:"externalId,omitempty"`
 }
 
 type IamRoleRule struct {

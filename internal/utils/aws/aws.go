@@ -34,11 +34,16 @@ func NewAwsApi(log logr.Logger, validator *v1alpha1.AwsValidator) (*AwsApi, erro
 		return nil, err
 	}
 
-	if validator.Spec.Auth.RoleArn != "" {
+	if validator.Spec.Auth.StsAuth.RoleArn != "" {
 
-		creds := stscreds.NewAssumeRoleProvider(sts.NewFromConfig(cfg), validator.Spec.Auth.RoleArn, func(o *stscreds.AssumeRoleOptions) {
-			o.Duration = time.Duration(validator.Spec.Auth.DurationSeconds) * time.Second
-			o.RoleSessionName = validator.Spec.Auth.RoleSessionName
+		creds := stscreds.NewAssumeRoleProvider(sts.NewFromConfig(cfg), validator.Spec.Auth.StsAuth.RoleArn, func(o *stscreds.AssumeRoleOptions) {
+			o.Duration = time.Duration(validator.Spec.Auth.StsAuth.DurationSeconds) * time.Second
+			o.RoleSessionName = validator.Spec.Auth.StsAuth.RoleSessionName
+
+			if validator.Spec.Auth.StsAuth.ExternalId != "" {
+				o.ExternalID = &validator.Spec.Auth.StsAuth.ExternalId
+			}
+
 		})
 
 		cfg.Credentials = aws.NewCredentialsCache(creds)
