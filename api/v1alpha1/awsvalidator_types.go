@@ -40,7 +40,7 @@ type AwsAuth struct {
 	SecretName string `json:"secretName,omitempty" yaml:"secretName,omitempty"`
 	// Option 2: specify a service account (EKS)
 	ServiceAccountName string `json:"serviceAccountName,omitempty" yaml:"serviceAccountName,omitempty"`
-	// Option 3: define STS authentication properties
+	// STS authentication properties (optional, to be provided in conjunction with Option 1 or 2)
 	StsAuth AwsSTSAuth `json:"stsAuth,omitempty" yaml:"stsAuth,omitempty"`
 }
 

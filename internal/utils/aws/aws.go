@@ -34,19 +34,8 @@ func NewAwsApi(log logr.Logger, validator *v1alpha1.AwsValidator) (*AwsApi, erro
 		return nil, err
 	}
 
-	if validator.Spec.Auth.StsAuth.RoleArn != "" {
-
-		creds := stscreds.NewAssumeRoleProvider(sts.NewFromConfig(cfg), validator.Spec.Auth.StsAuth.RoleArn, func(o *stscreds.AssumeRoleOptions) {
-			o.Duration = time.Duration(validator.Spec.Auth.StsAuth.DurationSeconds) * time.Second
-			o.RoleSessionName = validator.Spec.Auth.StsAuth.RoleSessionName
-
-			if validator.Spec.Auth.StsAuth.ExternalId != "" {
-				o.ExternalID = &validator.Spec.Auth.StsAuth.ExternalId
-			}
-
-		})
-
-		cfg.Credentials = aws.NewCredentialsCache(creds)
+	if &validator.Spec.Auth.StsAuth != nil {
+		awsStsConfig(&cfg, &validator.Spec.Auth.StsAuth)
 	}
 
 	return &AwsApi{
@@ -57,4 +46,18 @@ func NewAwsApi(log logr.Logger, validator *v1alpha1.AwsValidator) (*AwsApi, erro
 		ELBV2: elasticloadbalancingv2.NewFromConfig(cfg),
 		SQ:    servicequotas.NewFromConfig(cfg),
 	}, nil
+}
+
+func awsStsConfig(cfg *aws.Config, auth *v1alpha1.AwsSTSAuth) {
+	creds := stscreds.NewAssumeRoleProvider(sts.NewFromConfig(*cfg), auth.RoleArn, func(o *stscreds.AssumeRoleOptions) {
+		o.Duration = time.Duration(auth.DurationSeconds) * time.Second
+		o.RoleSessionName = auth.RoleSessionName
+
+		if auth.ExternalId != "" {
+			o.ExternalID = &auth.ExternalId
+		}
+
+	})
+
+	cfg.Credentials = aws.NewCredentialsCache(creds)
 }
