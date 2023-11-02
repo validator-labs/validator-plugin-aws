@@ -35,10 +35,12 @@ func NewAwsApi(log logr.Logger, validator *v1alpha1.AwsValidator) (*AwsApi, erro
 	}
 
 	if validator.Spec.Auth.RoleArn != "" {
+
 		creds := stscreds.NewAssumeRoleProvider(sts.NewFromConfig(cfg), validator.Spec.Auth.RoleArn, func(o *stscreds.AssumeRoleOptions) {
-			o.Duration = time.Duration(validator.Spec.Auth.DurationSeconds)
+			o.Duration = time.Duration(validator.Spec.Auth.DurationSeconds) * time.Second
 			o.RoleSessionName = validator.Spec.Auth.RoleSessionName
 		})
+
 		cfg.Credentials = aws.NewCredentialsCache(creds)
 	}
 
