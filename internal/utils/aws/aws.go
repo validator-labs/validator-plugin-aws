@@ -34,8 +34,8 @@ func NewAwsApi(log logr.Logger, validator *v1alpha1.AwsValidator) (*AwsApi, erro
 		return nil, err
 	}
 
-	if &validator.Spec.Auth.StsAuth != nil {
-		awsStsConfig(&cfg, &validator.Spec.Auth.StsAuth)
+	if validator.Spec.Auth.StsAuth != nil {
+		awsStsConfig(&cfg, validator.Spec.Auth.StsAuth)
 	}
 
 	return &AwsApi{
