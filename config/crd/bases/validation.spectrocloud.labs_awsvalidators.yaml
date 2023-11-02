@@ -43,7 +43,7 @@ spec:
                     description: 'Option 2: specify a service account (EKS)'
                     type: string
                   stsAuth:
-                    description: 'Option 3: define STS'
+                    description: 'Option 3: define STS authentication properties'
                     properties:
                       durationSeconds:
                         description: The duration, in seconds, of the role session.
