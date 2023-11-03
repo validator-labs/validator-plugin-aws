@@ -50,6 +50,9 @@ type AwsSTSAuth struct {
 	// An identifier for the assumed role session.
 	RoleSessionName string `json:"roleSessionName" yaml:"roleSessionName"`
 	// The duration, in seconds, of the role session.
+	// +kubebuilder:default=3600
+	// +kubebuilder:validation:Minimum=900
+	// +kubebuilder:validation:Maximum=43200
 	DurationSeconds int `json:"durationSeconds" yaml:"durationSeconds"`
 	// A unique identifier that might be required when you assume a role in another account.
 	ExternalId string `json:"externalId,omitempty" yaml:"externalId,omitempty"`

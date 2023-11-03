@@ -47,7 +47,10 @@ spec:
                       in conjunction with Option 1 or 2)
                     properties:
                       durationSeconds:
+                        default: 3600
                         description: The duration, in seconds, of the role session.
+                        maximum: 43200
+                        minimum: 900
                         type: integer
                       externalId:
                         description: A unique identifier that might be required when
