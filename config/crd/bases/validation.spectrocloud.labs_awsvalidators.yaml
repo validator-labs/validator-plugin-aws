@@ -42,6 +42,32 @@ spec:
                   serviceAccountName:
                     description: 'Option 2: specify a service account (EKS)'
                     type: string
+                  stsAuth:
+                    description: STS authentication properties (optional, to be provided
+                      in conjunction with Option 1 or 2)
+                    properties:
+                      durationSeconds:
+                        default: 3600
+                        description: The duration, in seconds, of the role session.
+                        maximum: 43200
+                        minimum: 900
+                        type: integer
+                      externalId:
+                        description: A unique identifier that might be required when
+                          you assume a role in another account.
+                        type: string
+                      roleArn:
+                        description: The Amazon Resource Name (ARN) of the role to
+                          assume.
+                        type: string
+                      roleSessionName:
+                        description: An identifier for the assumed role session.
+                        type: string
+                    required:
+                    - durationSeconds
+                    - roleArn
+                    - roleSessionName
+                    type: object
                 type: object
               defaultRegion:
                 type: string
