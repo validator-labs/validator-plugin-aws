@@ -3,8 +3,6 @@
 IMG ?= quay.io/spectrocloud-labs/validator-plugin-aws:latest
 
 GOARCH ?= $(shell go env GOARCH)
-# TARGETARCH ?= ${GOARCH}
-TARGETARCH ?= amd64  # since most of us test & deploy on amd64 arch setting that as default
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
@@ -81,7 +79,7 @@ run: manifests generate fmt vet ## Run a controller from your host.
 # More info: https://docs.docker.com/develop/develop-images/build_enhancements/
 .PHONY: docker-build
 docker-build: test ## Build docker image with the manager.
-	$(CONTAINER_TOOL) build -t ${IMG} . --platform linux/${TARGETARCH}
+	$(CONTAINER_TOOL) build -t ${IMG} . --platform linux/$(GOARCH)
 
 .PHONY: docker-push
 docker-push: ## Push docker image with the manager.
