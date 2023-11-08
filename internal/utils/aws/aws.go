@@ -28,14 +28,14 @@ type AwsApi struct {
 }
 
 // NewAwsApi creates an AwsApi object that aggregates AWS service clients
-func NewAwsApi(log logr.Logger, validator *v1alpha1.AwsValidator) (*AwsApi, error) {
-	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithDefaultRegion(validator.Spec.DefaultRegion))
+func NewAwsApi(log logr.Logger, auth v1alpha1.AwsAuth, region string) (*AwsApi, error) {
+	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithDefaultRegion(region))
 	if err != nil {
 		return nil, err
 	}
 
-	if validator.Spec.Auth.StsAuth != nil {
-		awsStsConfig(&cfg, validator.Spec.Auth.StsAuth)
+	if auth.StsAuth != nil {
+		awsStsConfig(&cfg, auth.StsAuth)
 	}
 
 	return &AwsApi{
