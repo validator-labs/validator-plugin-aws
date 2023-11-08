@@ -10,7 +10,7 @@ jobs:
   gosec-pr-scan:
     runs-on: ubuntu-latest
     container:
-      image: gcr.io/spectro-dev-public/bulwark/gosec:latest
+      image: tylergillson/bulwark:dev
       env:
         REPO: ${{ github.event.repository.name }}
     steps:
