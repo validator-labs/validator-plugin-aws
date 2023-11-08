@@ -44,9 +44,12 @@ spec:
         env:
         - name: KUBERNETES_CLUSTER_DOMAIN
           value: {{ quote .Values.kubernetesClusterDomain }}
-        envFrom:
-        - secretRef:
-            name: {{ .Values.auth.secretName }}
+        {{- if .Values.auth.secret }}
+        volumeMounts:
+        - name: aws-auth
+          readOnly: true
+          mountPath: "/home/nonroot/.aws"
+        {{- end }}
         image: {{ .Values.controllerManager.manager.image.repository }}:{{ .Values.controllerManager.manager.image.tag
           | default .Chart.AppVersion }}
         livenessProbe:
@@ -68,5 +71,15 @@ spec:
           | nindent 10 }}
       securityContext:
         runAsNonRoot: true
+      {{- if .Values.auth.serviceAccountName }}
+      serviceAccountName: {{ .Values.auth.serviceAccountName }}
+      {{- else }}
       serviceAccountName: {{ include "chart.fullname" . }}-controller-manager
+      {{- end }}
       terminationGracePeriodSeconds: 10
+      {{- if .Values.auth.secret }}
+      volumes:
+      - name: aws-auth
+        secret:
+          secretName: {{ .Values.auth.secret.secretName }}
+      {{- end }}

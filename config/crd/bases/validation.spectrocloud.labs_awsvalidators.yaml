@@ -36,15 +36,8 @@ spec:
             properties:
               auth:
                 properties:
-                  secretName:
-                    description: 'Option 1: lookup AWS creds from a secret'
-                    type: string
-                  serviceAccountName:
-                    description: 'Option 2: specify a service account (EKS)'
-                    type: string
                   stsAuth:
-                    description: STS authentication properties (optional, to be provided
-                      in conjunction with Option 1 or 2)
+                    description: STS authentication properties (optional)
                     properties:
                       durationSeconds:
                         default: 3600

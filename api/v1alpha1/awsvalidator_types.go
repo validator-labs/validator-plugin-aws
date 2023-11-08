@@ -36,11 +36,7 @@ type AwsValidatorSpec struct {
 }
 
 type AwsAuth struct {
-	// Option 1: lookup AWS creds from a secret
-	SecretName string `json:"secretName,omitempty" yaml:"secretName,omitempty"`
-	// Option 2: specify a service account (EKS)
-	ServiceAccountName string `json:"serviceAccountName,omitempty" yaml:"serviceAccountName,omitempty"`
-	// STS authentication properties (optional, to be provided in conjunction with Option 1 or 2)
+	// STS authentication properties (optional)
 	StsAuth *AwsSTSAuth `json:"stsAuth,omitempty" yaml:"stsAuth,omitempty"`
 }
 
