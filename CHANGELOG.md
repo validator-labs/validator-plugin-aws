@@ -1,5 +1,33 @@
 # Changelog
 
+## [0.0.10](https://github.com/spectrocloud-labs/validator-plugin-aws/compare/v0.0.9...v0.0.10) (2023-11-09)
+
+
+### Features
+
+* use auth volume for dynamic reloads; clarify AwsAuth struct ([#142](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/142)) ([02c9da4](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/02c9da4e7ef470ff8bb17c5643913ba690d3b414))
+
+
+### Bug Fixes
+
+* **deps:** update golang.org/x/exp digest to 2478ac8 ([#145](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/145)) ([2f6b83e](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/2f6b83ecf081056526e169124fa8c5655e95b0ad))
+* **deps:** update module github.com/aws/aws-sdk-go-v2 to v1.22.2 ([#146](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/146)) ([0695221](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/0695221865796725d23b9273ccfe6f560a4c2d8e))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/config to v1.22.1 ([#137](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/137)) ([d18b4de](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/d18b4de36e3bd2e35f13247ac15eee5bc958306e))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/config to v1.22.2 ([#140](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/140)) ([691356b](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/691356b66d546de7355533c266f4aee5081e6a97))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/credentials to v1.15.2 ([#150](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/150)) ([6008a97](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/6008a97380b6cdf4e5a591b44c51b43dd0607737))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/efs to v1.23.1 ([#152](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/152)) ([99c35eb](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/99c35eb26ec1fb4effe4c17770e8dc4d410b27e3))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/iam to v1.27.0 ([#139](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/139)) ([a07d905](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/a07d9059b87b0954fcdcce100437d1a46a502eb0))
+* **deps:** update module github.com/onsi/gomega to v1.30.0 ([#144](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/144)) ([b162292](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/b162292126b31e9dd62483f1347fa58ab89840e0))
+* ensure rule-specific regions are used ([#141](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/141)) ([bdb9eb3](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/bdb9eb3be9ca60a73ab81c577e076802b3668096))
+
+
+### Other
+
+* **deps:** pin dependencies ([#147](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/147)) ([3bad343](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/3bad3437c3e581720c47b6eb9108aac0b1729a0a))
+* **deps:** update google-github-actions/release-please-action digest to db8f2c6 ([#136](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/136)) ([41e149c](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/41e149ccbff95b5a1e3ff517105e5ab0d180c9fb))
+* fix platform specification for manager image ([#149](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/149)) ([3bc2384](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/3bc2384a1d8562f50dd1ed3e4e3e7e90fc27747e))
+* update validator version ([#158](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/158)) ([1a4af25](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/1a4af25651963736624ca3809e7d5d4a398ec65d))
+
 ## [0.0.9](https://github.com/spectrocloud-labs/validator-plugin-aws/compare/v0.0.8...v0.0.9) (2023-11-03)
 
 
