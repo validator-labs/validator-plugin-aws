@@ -71,17 +71,13 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		Namespace: req.Namespace,
 	}
 	if err := r.Get(ctx, nn, vr); err == nil {
-		res, err := vres.HandleExistingValidationResult(nn, vr, r.Log)
-		if res != nil {
-			return *res, err
-		}
+		vres.HandleExistingValidationResult(nn, vr, r.Log)
 	} else {
 		if !apierrs.IsNotFound(err) {
 			r.Log.V(0).Error(err, "unexpected error getting ValidationResult", "name", nn.Name, "namespace", nn.Namespace)
 		}
-		res, err := vres.HandleNewValidationResult(r.Client, constants.PluginCode, nn, vr, r.Log)
-		if res != nil {
-			return *res, err
+		if err := vres.HandleNewValidationResult(r.Client, constants.PluginCode, nn, vr, r.Log); err != nil {
+			return ctrl.Result{}, err
 		}
 	}
 
