@@ -21,7 +21,7 @@ images:
 
 deployments:
   validator-plugin-aws:
-    namespace: validator-plugin-aws-system
+    namespace: validator
     kubectl:
       kustomize: true
       manifests:

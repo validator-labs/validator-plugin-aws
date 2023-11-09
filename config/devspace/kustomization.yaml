@@ -18,7 +18,7 @@ patches:
       labels:
         control-plane: controller-manager
       name: controller-manager
-      namespace: validator-plugin-aws-system
+      namespace: validator
     spec:
       template:
         spec:
@@ -31,6 +31,9 @@ patches:
             - -c
             - --
             imagePullPolicy: IfNotPresent
+            volumeMounts:
+            - name: aws-auth
+              mountPath: /root/.aws
 - target:
     group: apps
     version: v1
