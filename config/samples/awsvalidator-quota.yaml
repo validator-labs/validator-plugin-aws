@@ -3,8 +3,6 @@ kind: AwsValidator
 metadata:
   name: awsvalidator-sample-service-quota
 spec:
-  auth:
-    secretName: aws-creds
   defaultRegion: us-west-1
   serviceQuotaRules:
   - region: us-east-2

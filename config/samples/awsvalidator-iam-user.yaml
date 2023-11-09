@@ -3,8 +3,6 @@ kind: AwsValidator
 metadata:
   name: awsvalidator-sample-iam-user
 spec:
-  auth:
-    secretName: aws-creds
   defaultRegion: us-west-1
   iamUserRules:
   - iamPolicies:
