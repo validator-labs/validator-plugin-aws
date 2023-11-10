@@ -120,43 +120,47 @@ func (s *ServiceQuotaRuleService) ReconcileServiceQuotaRule(rule v1alpha1.Servic
 	// Fetch the quota by service code & name & compare against usage
 	failures := make([]string, 0)
 
-	for _, ruleQuota := range rule.ServiceQuotas {
-		var quota sqtypes.ServiceQuota
-
-	svcQuota:
-		for sqPager.HasMorePages() {
-			page, err := sqPager.NextPage(context.Background())
-			if err != nil {
-				s.log.V(0).Error(err, "failed to get service quota", "region", rule.Region, "serviceCode", rule.ServiceCode, "quotaName", ruleQuota.Name)
-				return validationResult, err
-			}
-			for _, q := range page.Quotas {
-				if q.QuotaName != nil && *q.QuotaName == ruleQuota.Name {
-					quota = q
-					break svcQuota
-				}
+	quotaMap := make(map[string]sqtypes.ServiceQuota, 0)
+	for sqPager.HasMorePages() {
+		page, err := sqPager.NextPage(context.Background())
+		if err != nil {
+			s.log.V(0).Error(err, "failed to get service quotas", "region", rule.Region, "serviceCode", rule.ServiceCode)
+			return validationResult, err
+		}
+		for _, q := range page.Quotas {
+			if q.QuotaName != nil {
+				quotaMap[*q.QuotaName] = q
 			}
 		}
+	}
+
+	for _, ruleQuota := range rule.ServiceQuotas {
 		usageResult, err := s.execQuotaUsageFunc(ruleQuota.Name, rule)
 		if err != nil {
 			s.log.V(0).Error(err, "failed to get usage for service quota", "region", rule.Region, "serviceCode", rule.ServiceCode, "quotaName", ruleQuota.Name)
 			return validationResult, err
 		}
-		if quota.Value != nil {
-			remainder := *quota.Value - usageResult.MaxUsage
-			if remainder < float64(ruleQuota.Buffer) {
-				failureMsg := fmt.Sprintf(
-					"Remaining quota %d, less than buffer %d, for service %s and quota %s",
-					int(remainder), ruleQuota.Buffer, rule.ServiceCode, ruleQuota.Name,
-				)
-				failures = append(failures, failureMsg)
-			}
-			quotaDetail := fmt.Sprintf(
-				"%s: quota: %d, buffer: %d, max. usage: %d, max. usage entity: %s",
-				ruleQuota.Name, int(*quota.Value), ruleQuota.Buffer, int(usageResult.MaxUsage), usageResult.Description,
-			)
-			latestCondition.Details = append(latestCondition.Details, quotaDetail)
+
+		quota, ok := quotaMap[ruleQuota.Name]
+		if !ok {
+			s.log.V(0).Info("failed to get service quota", "region", rule.Region, "serviceCode", rule.ServiceCode, "quotaName", ruleQuota.Name)
+			continue
 		}
+
+		remainder := *quota.Value - usageResult.MaxUsage
+		if remainder < float64(ruleQuota.Buffer) {
+			failureMsg := fmt.Sprintf(
+				"Remaining quota %d, less than buffer %d, for service %s and quota %s",
+				int(remainder), ruleQuota.Buffer, rule.ServiceCode, ruleQuota.Name,
+			)
+			failures = append(failures, failureMsg)
+		}
+
+		quotaDetail := fmt.Sprintf(
+			"%s: quota: %d, buffer: %d, max. usage: %d, max. usage entity: %s",
+			ruleQuota.Name, int(*quota.Value), ruleQuota.Buffer, int(usageResult.MaxUsage), usageResult.Description,
+		)
+		latestCondition.Details = append(latestCondition.Details, quotaDetail)
 	}
 
 	if len(failures) > 0 {
