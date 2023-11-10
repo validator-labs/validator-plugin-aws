@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.0.11](https://github.com/spectrocloud-labs/validator-plugin-aws/compare/v0.0.10...v0.0.11) (2023-11-10)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing to v1.20.1 ([#153](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/153)) ([a659981](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/a659981f47582e13356c8a5e812029622f07b6a0))
+* map all service quotas before exhausting pager ([83be21d](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/83be21d6d1575e3470bfc7610ed0b07f4cec0a89))
+* misc. devspace fixes ([51adc0e](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/51adc0e8a1d3fe9707bf310e39c473fd933064a6))
+* upgrade validator core & set ExpectedResults to prevent duplicate sink emissions ([d0e44bf](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/d0e44bf626e1f40d8a6289da9039f755834be1b4))
+
+
+### Other
+
+* make AWSValidator.Auth optional ([2101998](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/210199834704e827318690d0d03060d1156d05cb))
+* update validator & tidy VR handling ([9e01bbe](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/9e01bbe32d1c9532e8e2670131c5df2811432528))
+
 ## [0.0.10](https://github.com/spectrocloud-labs/validator-plugin-aws/compare/v0.0.9...v0.0.10) (2023-11-09)
 
 
