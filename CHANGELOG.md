@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.13](https://github.com/spectrocloud-labs/validator-plugin-aws/compare/v0.0.12...v0.0.13) (2023-11-10)
+
+
+### Bug Fixes
+
+* upgrade validator to fix status reconciliation bug ([030fe43](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/030fe430af1aa6e28c6491ec1833e1d449f1d182))
+
 ## [0.0.12](https://github.com/spectrocloud-labs/validator-plugin-aws/compare/v0.0.11...v0.0.12) (2023-11-10)
 
 
