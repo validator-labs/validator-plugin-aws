@@ -15,7 +15,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/servicequotas v1.18.1
 	github.com/aws/aws-sdk-go-v2/service/sts v1.25.1
 	github.com/go-logr/logr v1.3.0
-	github.com/onsi/ginkgo/v2 v2.13.0
+	github.com/onsi/ginkgo/v2 v2.13.1
 	github.com/onsi/gomega v1.30.0
 	github.com/spectrocloud-labs/validator v0.0.15
 	golang.org/x/exp v0.0.0-20231108232855-2478ac86f678
