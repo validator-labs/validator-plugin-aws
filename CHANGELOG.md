@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.0.12](https://github.com/spectrocloud-labs/validator-plugin-aws/compare/v0.0.11...v0.0.12) (2023-11-10)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/aws/aws-sdk-go-v2/config to v1.23.0 ([#148](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/148)) ([e121118](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/e12111882b4c8e8a273530ceab7ddccd910bf902))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/ec2 to v1.131.0 ([#151](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/151)) ([483f1e0](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/483f1e0303f87a7d0d2127c56d7b41b0b7b2b789))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 to v1.24.1 ([#154](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/154)) ([3ec1df6](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/3ec1df6b18a3e0feb62aaba071e4db36d9f75746))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/iam to v1.27.1 ([#155](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/155)) ([c3a7927](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/c3a7927ac19cafabc615270e79b5b1dcd259f1af))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/servicequotas to v1.18.1 ([#156](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/156)) ([150bd4e](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/150bd4eb275c65d0a6351759faaf7ee3e8a50b21))
+* **deps:** update module github.com/onsi/ginkgo/v2 to v2.13.1 ([#164](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/164)) ([444c409](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/444c409bc6a97203452c3f2b3247dd7f7355f497))
+* ensure consistent hashing for SQ results ([#163](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/163)) ([cf4162d](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/cf4162da999b6afff404a1e5eb187bf67ad7cd47))
+
+
+### Other
+
+* **deps:** update actions/checkout action to v4 ([#157](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/157)) ([2b5c3fc](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/2b5c3fcabef91cc85f7437ee23b62d627f0e037b))
+
 ## [0.0.11](https://github.com/spectrocloud-labs/validator-plugin-aws/compare/v0.0.10...v0.0.11) (2023-11-10)
 
 
