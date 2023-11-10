@@ -35,6 +35,11 @@ type AwsValidatorSpec struct {
 	TagRules          []TagRule          `json:"tagRules,omitempty" yaml:"tagRules,omitempty"`
 }
 
+func (s AwsValidatorSpec) ResultCount() int {
+	return len(s.IamGroupRules) + len(s.IamPolicyRules) + len(s.IamRoleRules) + len(s.IamUserRules) +
+		len(s.ServiceQuotaRules) + len(s.TagRules)
+}
+
 type AwsAuth struct {
 	// STS authentication properties (optional)
 	StsAuth *AwsSTSAuth `json:"stsAuth,omitempty" yaml:"stsAuth,omitempty"`

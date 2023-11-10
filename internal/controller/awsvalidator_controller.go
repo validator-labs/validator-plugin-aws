@@ -35,7 +35,6 @@ import (
 	"github.com/spectrocloud-labs/validator-plugin-aws/internal/validators/servicequota"
 	"github.com/spectrocloud-labs/validator-plugin-aws/internal/validators/tag"
 	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
-	"github.com/spectrocloud-labs/validator/pkg/types"
 	vres "github.com/spectrocloud-labs/validator/pkg/validationresult"
 )
 
@@ -76,12 +75,10 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		if !apierrs.IsNotFound(err) {
 			r.Log.V(0).Error(err, "unexpected error getting ValidationResult", "name", nn.Name, "namespace", nn.Namespace)
 		}
-		if err := vres.HandleNewValidationResult(r.Client, constants.PluginCode, nn, vr, r.Log); err != nil {
+		if err := vres.HandleNewValidationResult(r.Client, constants.PluginCode, validator.Spec.ResultCount(), nn, r.Log); err != nil {
 			return ctrl.Result{}, err
 		}
 	}
-
-	failed := &types.MonotonicBool{}
 
 	// IAM rules
 	awsApi, err := aws_utils.NewAwsApi(r.Log, validator.Spec.Auth, validator.Spec.DefaultRegion)
@@ -95,28 +92,28 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 			if err != nil {
 				r.Log.V(0).Error(err, "failed to reconcile IAM role rule")
 			}
-			vres.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+			vres.SafeUpdateValidationResult(r.Client, nn, validationResult, err, r.Log)
 		}
 		for _, rule := range validator.Spec.IamUserRules {
 			validationResult, err := iamRuleService.ReconcileIAMUserRule(rule)
 			if err != nil {
 				r.Log.V(0).Error(err, "failed to reconcile IAM user rule")
 			}
-			vres.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+			vres.SafeUpdateValidationResult(r.Client, nn, validationResult, err, r.Log)
 		}
 		for _, rule := range validator.Spec.IamGroupRules {
 			validationResult, err := iamRuleService.ReconcileIAMGroupRule(rule)
 			if err != nil {
 				r.Log.V(0).Error(err, "failed to reconcile IAM group rule")
 			}
-			vres.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+			vres.SafeUpdateValidationResult(r.Client, nn, validationResult, err, r.Log)
 		}
 		for _, rule := range validator.Spec.IamPolicyRules {
 			validationResult, err := iamRuleService.ReconcileIAMPolicyRule(rule)
 			if err != nil {
 				r.Log.V(0).Error(err, "failed to reconcile IAM policy rule")
 			}
-			vres.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+			vres.SafeUpdateValidationResult(r.Client, nn, validationResult, err, r.Log)
 		}
 	}
 
@@ -139,7 +136,7 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile Service Quota rule")
 		}
-		vres.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+		vres.SafeUpdateValidationResult(r.Client, nn, validationResult, err, r.Log)
 	}
 
 	// Tag rules
@@ -154,7 +151,7 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile Tag rule")
 		}
-		vres.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+		vres.SafeUpdateValidationResult(r.Client, nn, validationResult, err, r.Log)
 	}
 
 	r.Log.V(0).Info("Requeuing for re-validation in two minutes.", "name", req.Name, "namespace", req.Namespace)
