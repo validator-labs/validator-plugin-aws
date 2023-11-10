@@ -1,5 +1,7 @@
 package types
 
+import "sort"
+
 // UsageResult describes the maximum usage for an arbitrary category
 type UsageResult struct {
 	Description string
@@ -13,7 +15,15 @@ type UsageMap map[string]float64
 func (u UsageMap) Max() *UsageResult {
 	var maxUsage float64
 	var maxUsageKey string
-	for k, v := range u {
+
+	keys := make([]string, 0, len(u))
+	for k := range u {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	for _, k := range keys {
+		v := u[k]
 		if v > maxUsage {
 			maxUsage = v
 			maxUsageKey = k
