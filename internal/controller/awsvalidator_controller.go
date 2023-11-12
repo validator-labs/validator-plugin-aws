@@ -66,7 +66,7 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	// Get the active validator's validation result
 	vr := &vapi.ValidationResult{}
 	nn := ktypes.NamespacedName{
-		Name:      fmt.Sprintf("validator-plugin-aws-%s", validator.Name),
+		Name:      validationResultName(validator),
 		Namespace: req.Namespace,
 	}
 	if err := r.Get(ctx, nn, vr); err == nil {
@@ -163,4 +163,8 @@ func (r *AwsValidatorReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&v1alpha1.AwsValidator{}).
 		Complete(r)
+}
+
+func validationResultName(validator *v1alpha1.AwsValidator) string {
+	return fmt.Sprintf("validator-plugin-aws-%s", validator.Name)
 }

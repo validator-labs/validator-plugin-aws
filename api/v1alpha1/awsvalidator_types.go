@@ -19,7 +19,6 @@ package v1alpha1
 import (
 	"fmt"
 
-	validatorv1alpha1 "github.com/spectrocloud-labs/validator/api/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -154,12 +153,7 @@ type TagRule struct {
 }
 
 // AwsValidatorStatus defines the observed state of AwsValidator
-type AwsValidatorStatus struct {
-	// +optional
-	// +patchMergeKey=type
-	// +patchStrategy=merge
-	Conditions []validatorv1alpha1.ValidationCondition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type"`
-}
+type AwsValidatorStatus struct{}
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
