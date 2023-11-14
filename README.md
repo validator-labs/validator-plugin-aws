@@ -1,4 +1,5 @@
 [![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/spectrocloud-labs/validator-plugin-aws/issues)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 ![Build](https://github.com/spectrocloud-labs/validator-plugin-aws/actions/workflows/build_container.yaml/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/spectrocloud-labs/validator-plugin-aws)](https://goreportcard.com/report/github.com/spectrocloud-labs/validator-plugin-aws)
 [![codecov](https://codecov.io/gh/spectrocloud-labs/validator-plugin-aws/graph/badge.svg?token=QHR08U8SEQ)](https://codecov.io/gh/spectrocloud-labs/validator-plugin-aws)
