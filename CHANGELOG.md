@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.0.14](https://github.com/spectrocloud-labs/validator-plugin-aws/compare/v0.0.13...v0.0.14) (2023-11-14)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/aws/aws-sdk-go-v2/config to v1.24.0 ([#170](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/170)) ([de071fc](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/de071fc7a24c5ba4f295e5b9f3a9995be614d538))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/ec2 to v1.132.0 ([#166](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/166)) ([50f5af7](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/50f5af7abd50de7309d147c65e18ef727f05603c))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/ec2 to v1.133.0 ([#171](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/171)) ([a7617ef](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/a7617ef498795e7993363f5094c46386d1e0438f))
+
 ## [0.0.13](https://github.com/spectrocloud-labs/validator-plugin-aws/compare/v0.0.12...v0.0.13) (2023-11-10)
 
 
