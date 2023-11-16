@@ -166,7 +166,7 @@ func (r *AwsValidatorReconciler) SetupWithManager(mgr ctrl.Manager) error {
 func buildValidationResult(validator *v1alpha1.AwsValidator) *vapi.ValidationResult {
 	return &vapi.ValidationResult{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      validator.Name,
+			Name:      validationResultName(validator),
 			Namespace: validator.Namespace,
 			OwnerReferences: []metav1.OwnerReference{
 				{
