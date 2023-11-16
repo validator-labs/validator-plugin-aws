@@ -57,7 +57,9 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	validator := &v1alpha1.AwsValidator{}
 	if err := r.Get(ctx, req.NamespacedName, validator); err != nil {
-		r.Log.Error(err, "failed to fetch AwsValidator", "key", req)
+		if !apierrs.IsNotFound(err) {
+			r.Log.Error(err, "failed to fetch AwsValidator", "key", req)
+		}
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
