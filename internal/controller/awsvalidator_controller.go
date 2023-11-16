@@ -23,6 +23,7 @@ import (
 
 	"github.com/go-logr/logr"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ktypes "k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -35,6 +36,7 @@ import (
 	"github.com/spectrocloud-labs/validator-plugin-aws/internal/validators/servicequota"
 	"github.com/spectrocloud-labs/validator-plugin-aws/internal/validators/tag"
 	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
+	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
 	vres "github.com/spectrocloud-labs/validator/pkg/validationresult"
 )
 
@@ -55,11 +57,7 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	validator := &v1alpha1.AwsValidator{}
 	if err := r.Get(ctx, req.NamespacedName, validator); err != nil {
-		// Ignore not-found errors, since they can't be fixed by an immediate requeue
-		if apierrs.IsNotFound(err) {
-			return ctrl.Result{}, nil
-		}
-		r.Log.Error(err, "failed to fetch AwsValidator")
+		r.Log.Error(err, "failed to fetch AwsValidator", "key", req)
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
@@ -75,7 +73,7 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		if !apierrs.IsNotFound(err) {
 			r.Log.V(0).Error(err, "unexpected error getting ValidationResult", "name", nn.Name, "namespace", nn.Namespace)
 		}
-		if err := vres.HandleNewValidationResult(r.Client, constants.PluginCode, validator.Spec.ResultCount(), nn, r.Log); err != nil {
+		if err := vres.HandleNewValidationResult(r.Client, buildValidationResult(validator), r.Log); err != nil {
 			return ctrl.Result{}, err
 		}
 	}
@@ -163,6 +161,28 @@ func (r *AwsValidatorReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&v1alpha1.AwsValidator{}).
 		Complete(r)
+}
+
+func buildValidationResult(validator *v1alpha1.AwsValidator) *vapi.ValidationResult {
+	return &vapi.ValidationResult{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      validator.Name,
+			Namespace: validator.Namespace,
+			OwnerReferences: []metav1.OwnerReference{
+				{
+					APIVersion: validator.APIVersion,
+					Kind:       validator.Kind,
+					Name:       validator.Name,
+					UID:        validator.UID,
+					Controller: ptr.Ptr(true),
+				},
+			},
+		},
+		Spec: vapi.ValidationResultSpec{
+			Plugin:          constants.PluginCode,
+			ExpectedResults: validator.Spec.ResultCount(),
+		},
+	}
 }
 
 func validationResultName(validator *v1alpha1.AwsValidator) string {
