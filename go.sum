@@ -14,8 +14,8 @@ github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.5.3 h1:AplLJCtIaUZDCbr6+gL
 github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.5.3/go.mod h1:ify42Rb7nKeDDPkFjKn7q1bPscVPu/+gmHH8d2c+anU=
 github.com/aws/aws-sdk-go-v2/internal/ini v1.7.0 h1:usgqiJtamuGIBj+OvYmMq89+Z1hIKkMJToz1WpoeNUY=
 github.com/aws/aws-sdk-go-v2/internal/ini v1.7.0/go.mod h1:6fQQgfuGmw8Al/3M2IgIllycxV7ZW7WCdVSqfBeUiCY=
-github.com/aws/aws-sdk-go-v2/service/ec2 v1.133.0 h1:g4qMdFWe9UVMI6PKytU8BBfW7v80dCMdEnLqc8lIDxw=
-github.com/aws/aws-sdk-go-v2/service/ec2 v1.133.0/go.mod h1:NOPsghjhZRkrVvKIxrDrEL7zhVIFYJsHqdeol50Eodk=
+github.com/aws/aws-sdk-go-v2/service/ec2 v1.134.0 h1:ZozGfw2s79TxoqisrkALGCpXokhMkfZRQxPkd8+MK+Y=
+github.com/aws/aws-sdk-go-v2/service/ec2 v1.134.0/go.mod h1:xYJZQIo/YZxEbeBxUYRQJTCJ924EuKtDfrhVx76yzOE=
 github.com/aws/aws-sdk-go-v2/service/efs v1.23.2 h1:+Bal9jUaFSjYjiJkoE0eiqCvmknCboCvSCESznszsrQ=
 github.com/aws/aws-sdk-go-v2/service/efs v1.23.2/go.mod h1:raG1iL/vkJ+4nVtmrc4PgmwH0JgZp5NBOcWFf9GBRJY=
 github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing v1.20.2 h1:TIwCp2MbQ+6uxLK4bjA0eAtfOP307sEK3AJCqsXgofQ=
@@ -28,8 +28,8 @@ github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.10.1 h1:rpkF4n0
 github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.10.1/go.mod h1:l9ymW25HOqymeU2m1gbUQ3rUIsTwKs8gYHXkqDQUhiI=
 github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.10.3 h1:kJOolE8xBAD13xTCgOakByZkyP4D/owNmvEiioeUNAg=
 github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.10.3/go.mod h1:Owv1I59vaghv1Ax8zz8ELY8DN7/Y0rGS+WWAmjgi950=
-github.com/aws/aws-sdk-go-v2/service/servicequotas v1.18.1 h1:3wmpS42JnjQ71EO8HMGqQ4cEosIL3jIG5B0gcJLaEmk=
-github.com/aws/aws-sdk-go-v2/service/servicequotas v1.18.1/go.mod h1:qAbLKCueR4MBxV/s7iLrL8ALTed5hj4tAT2AQEXBnz4=
+github.com/aws/aws-sdk-go-v2/service/servicequotas v1.18.2 h1:VZCExgKV9+kbNnpZhV4kT8yFJtZ2PuSoTCYN0rHWrMk=
+github.com/aws/aws-sdk-go-v2/service/servicequotas v1.18.2/go.mod h1:NRmaaNO+JyYNl+2qpFJuq9lgWcgzPYia1DULpnGY388=
 github.com/aws/aws-sdk-go-v2/service/sso v1.17.2 h1:V47N5eKgVZoRSvx2+RQ0EpAEit/pqOhqeSQFiS4OFEQ=
 github.com/aws/aws-sdk-go-v2/service/sso v1.17.2/go.mod h1:/pE21vno3q1h4bbhUOEi+6Zu/aT26UK2WKkDXd+TssQ=
 github.com/aws/aws-sdk-go-v2/service/ssooidc v1.19.2 h1:sMAcO7VHVw28HTAdZpTULDzFirHOsVm/x25CxhUH0jA=
