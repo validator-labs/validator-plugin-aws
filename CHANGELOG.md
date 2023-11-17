@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.0.16](https://github.com/spectrocloud-labs/validator-plugin-aws/compare/v0.0.15...v0.0.16) (2023-11-17)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/aws/aws-sdk-go-v2/config to v1.25.2 ([#186](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/186)) ([5f45762](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/5f457622ba174f27f20291798858e58970e01d32))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/ec2 to v1.135.0 ([#187](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/187)) ([2d5463f](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/2d5463f5caa54b47607bb7bc83b368a4c351d093))
+* **deps:** update module github.com/spectrocloud-labs/validator to v0.0.21 ([#161](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/161)) ([1c2882c](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/1c2882c156351be2aaa207b0fb7d698c892d953e))
+* update AWSValidator CRD w/ STS fields ([5587491](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/5587491c7fa75876163d00997dcc7fe6c8a50646))
+
+
+### Other
+
+* **deps:** update docker/build-push-action digest to 4a13e50 ([#188](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/188)) ([23fb417](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/23fb41739b609acd2f3fbbb5109b91d76108c2f7))
+
+
+### Refactoring
+
+* standardize get CR in Reconcile ([3384088](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/338408863c913f75c46891fbe241ababbb8b7a35))
+
 ## [0.0.15](https://github.com/spectrocloud-labs/validator-plugin-aws/compare/v0.0.14...v0.0.15) (2023-11-16)
 
 
