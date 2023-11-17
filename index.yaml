@@ -2,6 +2,16 @@ apiVersion: v1
 entries:
   validator-plugin-aws:
   - apiVersion: v2
+    appVersion: 0.0.16
+    created: "2023-11-17T19:28:09.219034882Z"
+    description: Perform various AWS validations (IAM, Service Quotas, Tags)
+    digest: 82fbe1698108bb4133618cfcec37d08c4f28f1ed593fe70345ca1588583a6297
+    name: validator-plugin-aws
+    type: application
+    urls:
+    - https://spectrocloud-labs.github.io/validator-plugin-aws/validator-plugin-aws-0.0.16.tgz
+    version: 0.0.16
+  - apiVersion: v2
     appVersion: 0.0.15
     created: "2023-11-16T19:06:00.447701097Z"
     description: Perform various AWS validations (IAM, Service Quotas, Tags)
@@ -153,4 +163,4 @@ entries:
     urls:
     - https://spectrocloud-labs.github.io/validator-plugin-aws/validator-plugin-aws-0.0.1.tgz
     version: 0.0.1
-generated: "2023-11-16T19:06:00.447022765Z"
+generated: "2023-11-17T19:28:09.21796048Z"
