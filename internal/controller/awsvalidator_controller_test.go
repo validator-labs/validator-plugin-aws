@@ -51,7 +51,6 @@ var _ = Describe("AWSValidator controller", Ordered, func() {
 			},
 		},
 	}
-	// valKey := types.NamespacedName{Name: awsValidatorName, Namespace: validatorNamespace}
 
 	vr := &vapi.ValidationResult{}
 	vrKey := types.NamespacedName{Name: validationResultName(val), Namespace: validatorNamespace}
