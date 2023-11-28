@@ -19,6 +19,30 @@ Each `AwsValidator` CR is (re)-processed every two minutes to continuously ensur
 
 See the [samples](https://github.com/spectrocloud-labs/validator-plugin-aws/tree/main/config/samples) directory for example `AwsValidator` configurations.
 
+## Authn & Authz
+Authentication details for the AWS validator controller are provided within each `AwsValidator` custom resource. AWS authentication can be configured either implicitly or explicitly. All supported options are detailed below:
+* Implicit (`AwsValidator.auth.implicit == true`)
+  * Node instance IAM role
+  * IMDSv2
+* Explicit (`AwsValidator.auth.implicit == false && AwsValidator.auth.secretName != ""`)
+  * Environment variables
+  * Environment variables + role assumption via AWS STS
+
+> [!NOTE]
+> See [values.yaml](https://github.com/spectrocloud-labs/validator-plugin-aws/tree/main/chart/validator-plugin-aws/values.yaml) for additional configuration details for each authentication option.
+
+### Minimal IAM permission policies by validation type
+For validation to succeed, certain AWS-managed permission policies must be attached to the principal used and/or assumed by the AWS validator controller. The minimal required IAM policies, broken out by validation category, are as follows:
+* IAM
+  * `IAMReadOnlyAccess`
+* Service Quotas
+  * `ServiceQuotasReadOnlyAccess`
+* Tags
+  * `AmazonVPCReadOnlyAccess`
+
+> [!NOTE]
+> Validation *can* be successful with custom IAM policies that are even more restrictive than the AWS managed policies listed above, but these will vary on a case-by-case basis and hence are undocumented for the sake of maintainability.
+
 ## Supported Service Quotas by AWS Service
 EC2:
 - EC2-VPC Elastic IPs
@@ -48,7 +72,7 @@ helm repo update
 helm install validator-plugin-aws validator-plugin-aws/validator-plugin-aws -n validator-plugin-aws --create-namespace
 ```
 
-## Getting Started
+## Development
 You’ll need a Kubernetes cluster to run against. You can use [kind](https://sigs.k8s.io/kind) to get a local cluster for testing, or run against a remote cluster.
 **Note:** Your controller will automatically use the current context in your kubeconfig file (i.e. whatever cluster `kubectl cluster-info` shows).
 
@@ -85,18 +109,6 @@ UnDeploy the controller from the cluster:
 make undeploy
 ```
 
-## Contributing
-All contributions are welcome! Feel free to reach out on the [Spectro Cloud community Slack](https://spectrocloudcommunity.slack.com/join/shared_invite/zt-g8gfzrhf-cKavsGD_myOh30K24pImLA#/shared-invite/email).
-
-Make sure `pre-commit` is [installed](https://pre-commit.com#install).
-
-Install the `pre-commit` scripts:
-
-```console
-pre-commit install --hook-type commit-msg
-pre-commit install --hook-type pre-commit
-```
-
 ### How it works
 This project aims to follow the Kubernetes [Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/).
 
@@ -128,6 +140,18 @@ make manifests
 **NOTE:** Run `make --help` for more information on all potential `make` targets
 
 More information can be found via the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html)
+
+## Contributing
+All contributions are welcome! Feel free to reach out on the [Spectro Cloud community Slack](https://spectrocloudcommunity.slack.com/join/shared_invite/zt-g8gfzrhf-cKavsGD_myOh30K24pImLA#/shared-invite/email).
+
+Make sure `pre-commit` is [installed](https://pre-commit.com#install).
+
+Install the `pre-commit` scripts:
+
+```console
+pre-commit install --hook-type commit-msg
+pre-commit install --hook-type pre-commit
+```
 
 ## License
 

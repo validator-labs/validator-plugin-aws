@@ -27,31 +27,21 @@ spec:
         env:
         - name: KUBERNETES_CLUSTER_DOMAIN
           value: {{ quote .Values.kubernetesClusterDomain }}
-        image: {{ .Values.controllerManager.kubeRbacProxy.image.repository }}:{{ .Values.controllerManager.kubeRbacProxy.image.tag
-          | default .Chart.AppVersion }}
+        image: {{ .Values.controllerManager.kubeRbacProxy.image.repository }}:{{ .Values.controllerManager.kubeRbacProxy.image.tag | default .Chart.AppVersion }}
         name: kube-rbac-proxy
         ports:
         - containerPort: 8443
           name: https
           protocol: TCP
-        resources: {{- toYaml .Values.controllerManager.kubeRbacProxy.resources | nindent
-          10 }}
-        securityContext: {{- toYaml .Values.controllerManager.kubeRbacProxy.containerSecurityContext
-          | nindent 10 }}
+        resources: {{- toYaml .Values.controllerManager.kubeRbacProxy.resources | nindent 10 }}
+        securityContext: {{- toYaml .Values.controllerManager.kubeRbacProxy.containerSecurityContext | nindent 10 }}
       - args: {{- toYaml .Values.controllerManager.manager.args | nindent 8 }}
         command:
         - /manager
         env:
         - name: KUBERNETES_CLUSTER_DOMAIN
           value: {{ quote .Values.kubernetesClusterDomain }}
-        {{- if .Values.auth.secret }}
-        volumeMounts:
-        - name: aws-auth
-          readOnly: true
-          mountPath: "/home/nonroot/.aws"
-        {{- end }}
-        image: {{ .Values.controllerManager.manager.image.repository }}:{{ .Values.controllerManager.manager.image.tag
-          | default .Chart.AppVersion }}
+        image: {{ .Values.controllerManager.manager.image.repository }}:{{ .Values.controllerManager.manager.image.tag | default .Chart.AppVersion }}
         livenessProbe:
           httpGet:
             path: /healthz
@@ -65,10 +55,8 @@ spec:
             port: 8081
           initialDelaySeconds: 5
           periodSeconds: 10
-        resources: {{- toYaml .Values.controllerManager.manager.resources | nindent 10
-          }}
-        securityContext: {{- toYaml .Values.controllerManager.manager.containerSecurityContext
-          | nindent 10 }}
+        resources: {{- toYaml .Values.controllerManager.manager.resources | nindent 10 }}
+        securityContext: {{- toYaml .Values.controllerManager.manager.containerSecurityContext | nindent 10 }}
       securityContext:
         runAsNonRoot: true
       {{- if .Values.auth.serviceAccountName }}
@@ -77,9 +65,3 @@ spec:
       serviceAccountName: {{ include "chart.fullname" . }}-controller-manager
       {{- end }}
       terminationGracePeriodSeconds: 10
-      {{- if .Values.auth.secret }}
-      volumes:
-      - name: aws-auth
-        secret:
-          secretName: {{ required ".Values.auth.secret.secretName is required!" .Values.auth.secret.secretName }}
-      {{- end }}

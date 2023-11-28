@@ -33,11 +33,9 @@ func NewAwsApi(log logr.Logger, auth v1alpha1.AwsAuth, region string) (*AwsApi, 
 	if err != nil {
 		return nil, err
 	}
-
 	if auth.StsAuth != nil {
 		awsStsConfig(&cfg, auth.StsAuth)
 	}
-
 	return &AwsApi{
 		IAM:   iam.NewFromConfig(cfg),
 		EC2:   ec2.NewFromConfig(cfg),
@@ -52,12 +50,9 @@ func awsStsConfig(cfg *aws.Config, auth *v1alpha1.AwsSTSAuth) {
 	creds := stscreds.NewAssumeRoleProvider(sts.NewFromConfig(*cfg), auth.RoleArn, func(o *stscreds.AssumeRoleOptions) {
 		o.Duration = time.Duration(auth.DurationSeconds) * time.Second
 		o.RoleSessionName = auth.RoleSessionName
-
 		if auth.ExternalId != "" {
 			o.ExternalID = &auth.ExternalId
 		}
-
 	})
-
 	cfg.Credentials = aws.NewCredentialsCache(creds)
 }
