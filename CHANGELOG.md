@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.0.18](https://github.com/spectrocloud-labs/validator-plugin-aws/compare/v0.0.17...v0.0.18) (2023-11-28)
+
+
+### Bug Fixes
+
+* add yaml tags for AwsAuth ([af67a33](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/af67a338b1ea75467ffd436dd99f3a80f764f153))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/credentials to v1.16.6 ([#205](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/205)) ([2b9bf22](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/2b9bf22d1e3e330b92adc65abb0c23441db2680a))
+
+
+### Other
+
+* update AwsValidator CRD ([dd952fe](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/dd952fe1eeadf61ecbf0511858197f8c9192dfb9))
+
 ## [0.0.17](https://github.com/spectrocloud-labs/validator-plugin-aws/compare/v0.0.16...v0.0.17) (2023-11-28)
 
 
