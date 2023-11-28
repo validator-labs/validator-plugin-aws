@@ -42,11 +42,11 @@ func (s AwsValidatorSpec) ResultCount() int {
 type AwsAuth struct {
 	// If true, the AwsValidator will use the AWS SDK's default credential chain to authenticate.
 	// Set to true if using node instance IAM role or IMDSv2.
-	Implicit bool `json:"implicit"`
+	Implicit bool `json:"implicit" yaml:"implicit"`
 	// Name of a Secret in the same namespace as the AwsValidator that contains AWS credentials.
 	// The secret data's keys and values are expected to align with valid AWS environment variable credentials,
 	// per the options defined in https://aws.github.io/aws-sdk-go-v2/docs/configuring-sdk/#environment-variables.
-	SecretName string `json:"secretName,omitempty"`
+	SecretName string `json:"secretName,omitempty" yaml:"secretName,omitempty"`
 	// STS authentication properties (optional)
 	StsAuth *AwsSTSAuth `json:"stsAuth,omitempty" yaml:"stsAuth,omitempty"`
 }
