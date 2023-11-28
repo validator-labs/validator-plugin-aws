@@ -7,9 +7,9 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.23.1
 	github.com/aws/aws-sdk-go-v2/config v1.25.6
 	github.com/aws/aws-sdk-go-v2/credentials v1.16.5
-	github.com/aws/aws-sdk-go-v2/service/ec2 v1.137.1
+	github.com/aws/aws-sdk-go-v2/service/ec2 v1.137.2
 	github.com/aws/aws-sdk-go-v2/service/efs v1.25.1
-	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing v1.20.3
+	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing v1.20.4
 	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.25.0
 	github.com/aws/aws-sdk-go-v2/service/iam v1.27.3
 	github.com/aws/aws-sdk-go-v2/service/servicequotas v1.18.3
