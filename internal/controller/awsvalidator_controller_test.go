@@ -31,7 +31,9 @@ var _ = Describe("AWSValidator controller", Ordered, func() {
 			Namespace: validatorNamespace,
 		},
 		Spec: v1alpha1.AwsValidatorSpec{
-			Auth:              v1alpha1.AwsAuth{},
+			Auth: v1alpha1.AwsAuth{
+				Implicit: true,
+			},
 			DefaultRegion:     "us-west-1",
 			IamRoleRules:      []v1alpha1.IamRoleRule{},
 			IamGroupRules:     []v1alpha1.IamGroupRule{},

@@ -18,10 +18,13 @@ package controller
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/go-logr/logr"
+	corev1 "k8s.io/api/core/v1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -39,6 +42,8 @@ import (
 	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
 	vres "github.com/spectrocloud-labs/validator/pkg/validationresult"
 )
+
+var ErrSecretNameRequired = errors.New("auth.secretName is required")
 
 // AwsValidatorReconciler reconciles a AwsValidator object
 type AwsValidatorReconciler struct {
@@ -61,6 +66,18 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 			r.Log.Error(err, "failed to fetch AwsValidator", "key", req)
 		}
 		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+
+	// Configure AWS environment variable credentials from a secret, if applicable
+	if !validator.Spec.Auth.Implicit {
+		if validator.Spec.Auth.SecretName == "" {
+			r.Log.Error(ErrSecretNameRequired, "failed to reconcile AwsValidator with empty auth.secretName", "key", req)
+			return ctrl.Result{}, ErrSecretNameRequired
+		}
+		if err := r.envFromSecret(validator.Spec.Auth.SecretName, req.Namespace); err != nil {
+			r.Log.Error(err, "failed to configure environment from secret")
+			return ctrl.Result{}, err
+		}
 	}
 
 	// Get the active validator's validation result
@@ -156,6 +173,25 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	r.Log.V(0).Info("Requeuing for re-validation in two minutes.", "name", req.Name, "namespace", req.Namespace)
 	return ctrl.Result{RequeueAfter: time.Second * 120}, nil
+}
+
+// envFromSecret sets environment variables from a secret to configure AWS credentials
+func (r *AwsValidatorReconciler) envFromSecret(name, namespace string) error {
+	r.Log.Info("Configuring environment from secret", "name", name, "namespace", namespace)
+
+	nn := ktypes.NamespacedName{Name: name, Namespace: namespace}
+	secret := &corev1.Secret{}
+	if err := r.Get(context.Background(), nn, secret); err != nil {
+		return err
+	}
+
+	for k, v := range secret.Data {
+		if err := os.Setenv(k, string(v)); err != nil {
+			return err
+		}
+		r.Log.Info("Set environment variable", "key", k)
+	}
+	return nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
