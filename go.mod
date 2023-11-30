@@ -11,7 +11,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/efs v1.26.1
 	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing v1.21.0
 	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.26.1
-	github.com/aws/aws-sdk-go-v2/service/iam v1.28.0
+	github.com/aws/aws-sdk-go-v2/service/iam v1.28.1
 	github.com/aws/aws-sdk-go-v2/service/servicequotas v1.19.1
 	github.com/aws/aws-sdk-go-v2/service/sts v1.26.1
 	github.com/go-logr/logr v1.3.0
