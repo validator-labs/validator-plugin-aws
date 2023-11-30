@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/L30Bola/aws-policy v0.0.0-20230126045340-5e6118545ac1
-	github.com/aws/aws-sdk-go-v2 v1.23.3
+	github.com/aws/aws-sdk-go-v2 v1.23.4
 	github.com/aws/aws-sdk-go-v2/config v1.25.9
 	github.com/aws/aws-sdk-go-v2/credentials v1.16.7
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.138.0
@@ -34,7 +34,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.10.6 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sso v1.18.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.21.0 // indirect
-	github.com/aws/smithy-go v1.18.0 // indirect
+	github.com/aws/smithy-go v1.18.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect

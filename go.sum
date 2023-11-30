@@ -1,7 +1,7 @@
 github.com/L30Bola/aws-policy v0.0.0-20230126045340-5e6118545ac1 h1:3zcU9Ds6BHD3KnwbspH16kMGzLomnI2SNsCkq0i5avI=
 github.com/L30Bola/aws-policy v0.0.0-20230126045340-5e6118545ac1/go.mod h1:1/KTKMeXQ5X7prRFDpUAiwctY8sfb9z3Zj5q/5i7fKk=
-github.com/aws/aws-sdk-go-v2 v1.23.3 h1:Q98kldotjjQimJumYc7tjJRBWOefARezGhP8nIlnExE=
-github.com/aws/aws-sdk-go-v2 v1.23.3/go.mod h1:6wqGJPusLvL1YYcoxj4vPtACABVl0ydN1sxzBetRcsw=
+github.com/aws/aws-sdk-go-v2 v1.23.4 h1:2P20ZjH0ouSAu/6yZep8oCmTReathLuEu6dwoqEgjts=
+github.com/aws/aws-sdk-go-v2 v1.23.4/go.mod h1:t3szzKfP0NeRU27uBFczDivYJjsmSnqI8kIvKyWb9ds=
 github.com/aws/aws-sdk-go-v2/config v1.25.9 h1:B04q0cjw4nkynqKsKAusTokhlWH2rOt9NsciQuT1UZE=
 github.com/aws/aws-sdk-go-v2/config v1.25.9/go.mod h1:HeYi24CXmvvcFGip8e60q7b0dnrpL6QHn57/eetIW+g=
 github.com/aws/aws-sdk-go-v2/credentials v1.16.7 h1:n07M7lmFiEuyefWXkm7OMSFZLit8BDy2qaw+kMEvycw=
@@ -36,8 +36,8 @@ github.com/aws/aws-sdk-go-v2/service/ssooidc v1.21.0 h1:ffOjyqfqEgqZv5zeXfaLaUKo
 github.com/aws/aws-sdk-go-v2/service/ssooidc v1.21.0/go.mod h1:FTwjnnqupa0CRANldhsnRVgzaPzhAy/XZYddy06JOLU=
 github.com/aws/aws-sdk-go-v2/service/sts v1.26.0 h1:E0i/PbCoOu04ichWZfLoSgidxkHh7HGfC8l9HWdALi8=
 github.com/aws/aws-sdk-go-v2/service/sts v1.26.0/go.mod h1:YHpL2uHCmZtSkDJYc2gG0LSZkeColBGi2TZyCFG8GmE=
-github.com/aws/smithy-go v1.18.0 h1:uWqjOwPEqjzmQXpwm/8cwUWTmFhT9Ypc8tECXrshDsI=
-github.com/aws/smithy-go v1.18.0/go.mod h1:NukqUGpCZIILqqiV0NIjeFh24kd/FAa4beRb6nbIUPE=
+github.com/aws/smithy-go v1.18.1 h1:pOdBTUfXNazOlxLrgeYalVnuTpKreACHtc62xLwIB3c=
+github.com/aws/smithy-go v1.18.1/go.mod h1:NukqUGpCZIILqqiV0NIjeFh24kd/FAa4beRb6nbIUPE=
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
 github.com/benbjohnson/clock v1.3.0 h1:ip6w0uFQkncKQ979AypyG0ER7mqUSBdKLOgAle/AT8A=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
