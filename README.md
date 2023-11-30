@@ -31,11 +31,14 @@ Authentication details for the AWS validator controller are provided within each
 > [!NOTE]
 > See [values.yaml](https://github.com/spectrocloud-labs/validator-plugin-aws/tree/main/chart/validator-plugin-aws/values.yaml) for additional configuration details for each authentication option.
 
-### Minimal IAM permission policies by validation type
-For validation to succeed, certain AWS-managed permission policies must be attached to the principal used and/or assumed by the AWS validator controller. The minimal required IAM policies, broken out by validation category, are as follows:
+### Minimal AWS managed IAM permission policies by validation type
+For validation to succeed, certain AWS managed permission policies must be attached to the principal used and/or assumed by the AWS validator controller. The minimal required IAM policies, broken out by validation category, are as follows:
 * IAM
   * `IAMReadOnlyAccess`
 * Service Quotas
+  * `AmazonEC2ReadOnlyAccess`
+  * `AmazonElasticFileSystemReadOnlyAccess`
+  * `ElasticLoadBalancingReadOnly`
   * `ServiceQuotasReadOnlyAccess`
 * Tags
   * `AmazonVPCReadOnlyAccess`
