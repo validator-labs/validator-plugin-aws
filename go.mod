@@ -12,7 +12,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing v1.21.2
 	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.26.2
 	github.com/aws/aws-sdk-go-v2/service/iam v1.28.2
-	github.com/aws/aws-sdk-go-v2/service/servicequotas v1.19.1
+	github.com/aws/aws-sdk-go-v2/service/servicequotas v1.19.2
 	github.com/aws/aws-sdk-go-v2/service/sts v1.26.2
 	github.com/go-logr/logr v1.3.0
 	github.com/onsi/ginkgo/v2 v2.13.2
