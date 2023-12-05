@@ -41,7 +41,7 @@ func (s AwsValidatorSpec) ResultCount() int {
 
 type AwsAuth struct {
 	// If true, the AwsValidator will use the AWS SDK's default credential chain to authenticate.
-	// Set to true if using node instance IAM role or IMDSv2.
+	// Set to true if using node instance IAM role or IAM roles for Service Accounts.
 	Implicit bool `json:"implicit" yaml:"implicit"`
 	// Name of a Secret in the same namespace as the AwsValidator that contains AWS credentials.
 	// The secret data's keys and values are expected to align with valid AWS environment variable credentials,

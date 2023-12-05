@@ -22,11 +22,12 @@ See the [samples](https://github.com/spectrocloud-labs/validator-plugin-aws/tree
 ## Authn & Authz
 Authentication details for the AWS validator controller are provided within each `AwsValidator` custom resource. AWS authentication can be configured either implicitly or explicitly. All supported options are detailed below:
 * Implicit (`AwsValidator.auth.implicit == true`)
-  * Node instance IAM role
-  * IMDSv2
+  * [IAM roles for Amazon EC2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html)
+  * [IAM roles for Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/create-node-role.html)
+  * [IAM roles for Service Accounts](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html) (OIDC)
 * Explicit (`AwsValidator.auth.implicit == false && AwsValidator.auth.secretName != ""`)
-  * Environment variables
-  * Environment variables + role assumption via AWS STS
+  * [Environment variables](https://aws.github.io/aws-sdk-go-v2/docs/configuring-sdk/#environment-variables)
+  * Environment variables + [role assumption via AWS STS](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/credentials/stscreds#AssumeRoleOptions)
 
 > [!NOTE]
 > See [values.yaml](https://github.com/spectrocloud-labs/validator-plugin-aws/tree/main/chart/validator-plugin-aws/values.yaml) for additional configuration details for each authentication option.

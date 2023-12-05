@@ -39,7 +39,7 @@ spec:
                   implicit:
                     description: If true, the AwsValidator will use the AWS SDK's
                       default credential chain to authenticate. Set to true if using
-                      node instance IAM role or IMDSv2.
+                      node instance IAM role or IAM roles for Service Accounts.
                     type: boolean
                   secretName:
                     description: Name of a Secret in the same namespace as the AwsValidator
