@@ -25,7 +25,7 @@ Authentication details for the AWS validator controller are provided within each
   * [IAM roles for Amazon EC2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html)
   * [IAM roles for Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/create-node-role.html)
   * [IAM roles for Service Accounts](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html) (OIDC)
-    * In this scenario, a valid Service Account must be specified during plugin installation. See [values.yaml](https://github.com/spectrocloud-labs/validator-plugin-aws/blob/main/chart/validator-plugin-aws/values.yaml) for details.
+    * In this scenario, a valid Service Account must be specified during plugin installation.
 * Explicit (`AwsValidator.auth.implicit == false && AwsValidator.auth.secretName != ""`)
   * [Environment variables](https://aws.github.io/aws-sdk-go-v2/docs/configuring-sdk/#environment-variables)
   * Environment variables + [role assumption via AWS STS](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/credentials/stscreds#AssumeRoleOptions)
