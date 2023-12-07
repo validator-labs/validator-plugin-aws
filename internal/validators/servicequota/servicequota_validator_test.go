@@ -216,6 +216,7 @@ func TestQuotaValidation(t *testing.T) {
 		{
 			name: "Fail (insufficient EIPs)",
 			rule: v1alpha1.ServiceQuotaRule{
+				Name:        "ec2",
 				Region:      "us-west-1",
 				ServiceCode: "ec2",
 				ServiceQuotas: []v1alpha1.ServiceQuota{
@@ -246,6 +247,7 @@ func TestQuotaValidation(t *testing.T) {
 		{
 			name: "Pass (sufficient EIPs)",
 			rule: v1alpha1.ServiceQuotaRule{
+				Name:        "ec2",
 				Region:      "us-west-1",
 				ServiceCode: "ec2",
 				ServiceQuotas: []v1alpha1.ServiceQuota{
@@ -276,6 +278,7 @@ func TestQuotaValidation(t *testing.T) {
 		{
 			name: "Fail (insufficient AMIs)",
 			rule: v1alpha1.ServiceQuotaRule{
+				Name:        "ec2",
 				Region:      "us-west-1",
 				ServiceCode: "ec2",
 				ServiceQuotas: []v1alpha1.ServiceQuota{
@@ -306,6 +309,7 @@ func TestQuotaValidation(t *testing.T) {
 		{
 			name: "Pass (sufficient AMIs)",
 			rule: v1alpha1.ServiceQuotaRule{
+				Name:        "ec2",
 				Region:      "us-west-1",
 				ServiceCode: "ec2",
 				ServiceQuotas: []v1alpha1.ServiceQuota{
@@ -336,6 +340,7 @@ func TestQuotaValidation(t *testing.T) {
 		{
 			name: "Fail (insufficient IGs)",
 			rule: v1alpha1.ServiceQuotaRule{
+				Name:        "ec2",
 				Region:      "us-west-1",
 				ServiceCode: "ec2",
 				ServiceQuotas: []v1alpha1.ServiceQuota{
@@ -366,6 +371,7 @@ func TestQuotaValidation(t *testing.T) {
 		{
 			name: "Pass (sufficient IGs)",
 			rule: v1alpha1.ServiceQuotaRule{
+				Name:        "ec2",
 				Region:      "us-west-1",
 				ServiceCode: "ec2",
 				ServiceQuotas: []v1alpha1.ServiceQuota{
@@ -396,6 +402,7 @@ func TestQuotaValidation(t *testing.T) {
 		{
 			name: "Fail (insufficient NICs)",
 			rule: v1alpha1.ServiceQuotaRule{
+				Name:        "ec2",
 				Region:      "us-west-1",
 				ServiceCode: "ec2",
 				ServiceQuotas: []v1alpha1.ServiceQuota{
@@ -426,6 +433,7 @@ func TestQuotaValidation(t *testing.T) {
 		{
 			name: "Pass (sufficient NICs)",
 			rule: v1alpha1.ServiceQuotaRule{
+				Name:        "ec2",
 				Region:      "us-west-1",
 				ServiceCode: "ec2",
 				ServiceQuotas: []v1alpha1.ServiceQuota{
@@ -456,6 +464,7 @@ func TestQuotaValidation(t *testing.T) {
 		{
 			name: "Fail (insufficient VPCs)",
 			rule: v1alpha1.ServiceQuotaRule{
+				Name:        "ec2",
 				Region:      "us-west-1",
 				ServiceCode: "ec2",
 				ServiceQuotas: []v1alpha1.ServiceQuota{
@@ -486,6 +495,7 @@ func TestQuotaValidation(t *testing.T) {
 		{
 			name: "Pass (sufficient VPCs)",
 			rule: v1alpha1.ServiceQuotaRule{
+				Name:        "ec2",
 				Region:      "us-west-1",
 				ServiceCode: "ec2",
 				ServiceQuotas: []v1alpha1.ServiceQuota{
@@ -516,6 +526,7 @@ func TestQuotaValidation(t *testing.T) {
 		{
 			name: "Fail (insufficient Subnets)",
 			rule: v1alpha1.ServiceQuotaRule{
+				Name:        "ec2",
 				Region:      "us-west-1",
 				ServiceCode: "ec2",
 				ServiceQuotas: []v1alpha1.ServiceQuota{
@@ -546,6 +557,7 @@ func TestQuotaValidation(t *testing.T) {
 		{
 			name: "Pass (sufficient Subnets)",
 			rule: v1alpha1.ServiceQuotaRule{
+				Name:        "ec2",
 				Region:      "us-west-1",
 				ServiceCode: "ec2",
 				ServiceQuotas: []v1alpha1.ServiceQuota{
@@ -576,6 +588,7 @@ func TestQuotaValidation(t *testing.T) {
 		{
 			name: "Fail (insufficient NGs)",
 			rule: v1alpha1.ServiceQuotaRule{
+				Name:        "ec2",
 				Region:      "us-west-1",
 				ServiceCode: "ec2",
 				ServiceQuotas: []v1alpha1.ServiceQuota{
@@ -606,6 +619,7 @@ func TestQuotaValidation(t *testing.T) {
 		{
 			name: "Pass (sufficient NGs)",
 			rule: v1alpha1.ServiceQuotaRule{
+				Name:        "ec2",
 				Region:      "us-west-1",
 				ServiceCode: "ec2",
 				ServiceQuotas: []v1alpha1.ServiceQuota{
@@ -636,6 +650,7 @@ func TestQuotaValidation(t *testing.T) {
 		{
 			name: "Fail (insufficient Filesystems)",
 			rule: v1alpha1.ServiceQuotaRule{
+				Name:        "efs",
 				Region:      "us-west-1",
 				ServiceCode: "efs",
 				ServiceQuotas: []v1alpha1.ServiceQuota{
@@ -666,6 +681,7 @@ func TestQuotaValidation(t *testing.T) {
 		{
 			name: "Pass (sufficient Filesystems)",
 			rule: v1alpha1.ServiceQuotaRule{
+				Name:        "efs",
 				Region:      "us-west-1",
 				ServiceCode: "efs",
 				ServiceQuotas: []v1alpha1.ServiceQuota{
@@ -696,6 +712,7 @@ func TestQuotaValidation(t *testing.T) {
 		{
 			name: "Fail (insufficient CLBs)",
 			rule: v1alpha1.ServiceQuotaRule{
+				Name:        "elasticloadbalancing",
 				Region:      "us-west-1",
 				ServiceCode: "elasticloadbalancing",
 				ServiceQuotas: []v1alpha1.ServiceQuota{
@@ -726,6 +743,7 @@ func TestQuotaValidation(t *testing.T) {
 		{
 			name: "Pass (sufficient CLBs)",
 			rule: v1alpha1.ServiceQuotaRule{
+				Name:        "elasticloadbalancing",
 				Region:      "us-west-1",
 				ServiceCode: "elasticloadbalancing",
 				ServiceQuotas: []v1alpha1.ServiceQuota{
@@ -756,6 +774,7 @@ func TestQuotaValidation(t *testing.T) {
 		{
 			name: "Fail (insufficient ALBs)",
 			rule: v1alpha1.ServiceQuotaRule{
+				Name:        "elasticloadbalancing",
 				Region:      "us-west-1",
 				ServiceCode: "elasticloadbalancing",
 				ServiceQuotas: []v1alpha1.ServiceQuota{
@@ -786,6 +805,7 @@ func TestQuotaValidation(t *testing.T) {
 		{
 			name: "Pass (sufficient ALBs)",
 			rule: v1alpha1.ServiceQuotaRule{
+				Name:        "elasticloadbalancing",
 				Region:      "us-west-1",
 				ServiceCode: "elasticloadbalancing",
 				ServiceQuotas: []v1alpha1.ServiceQuota{
@@ -816,6 +836,7 @@ func TestQuotaValidation(t *testing.T) {
 		{
 			name: "Fail (insufficient NLBs)",
 			rule: v1alpha1.ServiceQuotaRule{
+				Name:        "elasticloadbalancing",
 				Region:      "us-west-1",
 				ServiceCode: "elasticloadbalancing",
 				ServiceQuotas: []v1alpha1.ServiceQuota{
@@ -846,6 +867,7 @@ func TestQuotaValidation(t *testing.T) {
 		{
 			name: "Pass (sufficient NLBs)",
 			rule: v1alpha1.ServiceQuotaRule{
+				Name:        "elasticloadbalancing",
 				Region:      "us-west-1",
 				ServiceCode: "elasticloadbalancing",
 				ServiceQuotas: []v1alpha1.ServiceQuota{
