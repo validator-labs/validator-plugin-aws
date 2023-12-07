@@ -5,7 +5,8 @@ metadata:
 spec:
   defaultRegion: us-west-1
   tagRules:
-  - key: "kubernetes.io/role/elb"
+  - name: ELB Enabled
+    key: "kubernetes.io/role/elb"
     expectedValue: "1"
     region: us-east-2
     resourceType: subnet
