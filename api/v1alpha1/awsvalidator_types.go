@@ -24,14 +24,26 @@ import (
 
 // AwsValidatorSpec defines the desired state of AwsValidator
 type AwsValidatorSpec struct {
-	Auth              AwsAuth            `json:"auth,omitempty" yaml:"auth,omitempty"`
-	DefaultRegion     string             `json:"defaultRegion" yaml:"defaultRegion"`
-	IamRoleRules      []IamRoleRule      `json:"iamRoleRules,omitempty" yaml:"iamRoleRules,omitempty"`
-	IamUserRules      []IamUserRule      `json:"iamUserRules,omitempty" yaml:"iamUserRules,omitempty"`
-	IamGroupRules     []IamGroupRule     `json:"iamGroupRules,omitempty" yaml:"iamGroupRules,omitempty"`
-	IamPolicyRules    []IamPolicyRule    `json:"iamPolicyRules,omitempty" yaml:"iamPolicyRules,omitempty"`
+	Auth          AwsAuth `json:"auth,omitempty" yaml:"auth,omitempty"`
+	DefaultRegion string  `json:"defaultRegion" yaml:"defaultRegion"`
+	// +kubebuilder:validation:MaxItems=5
+	// +kubebuilder:validation:XValidation:message="IamRoleRules must have unique IamRoleNames",rule="self.all(e, size(self.filter(x, x.iamRoleName == e.iamRoleName)) == 1)"
+	IamRoleRules []IamRoleRule `json:"iamRoleRules,omitempty" yaml:"iamRoleRules,omitempty"`
+	// +kubebuilder:validation:MaxItems=5
+	// +kubebuilder:validation:XValidation:message="IamUserRules must have unique IamUserNames",rule="self.all(e, size(self.filter(x, x.iamUserName == e.iamUserName)) == 1)"
+	IamUserRules []IamUserRule `json:"iamUserRules,omitempty" yaml:"iamUserRules,omitempty"`
+	// +kubebuilder:validation:MaxItems=5
+	// +kubebuilder:validation:XValidation:message="IamGroupRules must have unique IamGroupNames",rule="self.all(e, size(self.filter(x, x.iamGroupName == e.iamGroupName)) == 1)"
+	IamGroupRules []IamGroupRule `json:"iamGroupRules,omitempty" yaml:"iamGroupRules,omitempty"`
+	// +kubebuilder:validation:MaxItems=5
+	// +kubebuilder:validation:XValidation:message="IamPolicyRules must have unique ARNs",rule="self.all(e, size(self.filter(x, x.iamPolicyArn == e.iamPolicyArn)) == 1)"
+	IamPolicyRules []IamPolicyRule `json:"iamPolicyRules,omitempty" yaml:"iamPolicyRules,omitempty"`
+	// +kubebuilder:validation:MaxItems=5
+	// +kubebuilder:validation:XValidation:message="ServiceQuotaRules must have unique names",rule="self.all(e, size(self.filter(x, x.name == e.name)) == 1)"
 	ServiceQuotaRules []ServiceQuotaRule `json:"serviceQuotaRules,omitempty" yaml:"serviceQuotaRules,omitempty"`
-	TagRules          []TagRule          `json:"tagRules,omitempty" yaml:"tagRules,omitempty"`
+	// +kubebuilder:validation:MaxItems=5
+	// +kubebuilder:validation:XValidation:message="TagRules must have unique names",rule="self.all(e, size(self.filter(x, x.name == e.name)) == 1)"
+	TagRules []TagRule `json:"tagRules,omitempty" yaml:"tagRules,omitempty"`
 }
 
 func (s AwsValidatorSpec) ResultCount() int {
@@ -141,6 +153,7 @@ func (c *Condition) String() string {
 }
 
 type ServiceQuotaRule struct {
+	Name          string         `json:"name" yaml:"name"`
 	Region        string         `json:"region" yaml:"region"`
 	ServiceCode   string         `json:"serviceCode" yaml:"serviceCode"`
 	ServiceQuotas []ServiceQuota `json:"serviceQuotas" yaml:"serviceQuotas"`
@@ -152,6 +165,7 @@ type ServiceQuota struct {
 }
 
 type TagRule struct {
+	Name          string   `json:"name" yaml:"name"`
 	Key           string   `json:"key" yaml:"key"`
 	ExpectedValue string   `json:"expectedValue" yaml:"expectedValue"`
 	Region        string   `json:"region" yaml:"region"`

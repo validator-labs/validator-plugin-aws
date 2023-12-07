@@ -40,7 +40,7 @@ func (s *TagRuleService) ReconcileTagRule(rule v1alpha1.TagRule) (*vapitypes.Val
 	state := vapi.ValidationSucceeded
 	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = "All required subnet tags were found"
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s-%s", vapiconstants.ValidationRulePrefix, rule.ResourceType, rule.Key)
+	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, rule.Name)
 	latestCondition.ValidationType = constants.ValidationTypeTag
 	validationResult := &vapitypes.ValidationResult{Condition: &latestCondition, State: &state}
 
