@@ -74,6 +74,26 @@ const (
 			}
 		]
 	}`
+	policyDocumentOutput3 string = `{
+		"Version": "2012-10-17",
+		"Statement": [
+			{
+				"Condition": {
+					"ForAnyValue:StringLike": {
+						"kms:ResourceAliases": "alias/cluster-api-provider-aws-*"
+					}
+				},
+				"Action": [
+					"kms:CreateGrant",
+					"kms:DescribeKey"
+				],
+				"Resource": [
+					"*"
+				],
+				"Effect": "Allow"
+			}
+		]
+	}`
 )
 
 var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
@@ -104,6 +124,14 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 				},
 			},
 		},
+		"iamRole3": {
+			AttachedPolicies: []iamtypes.AttachedPolicy{
+				{
+					PolicyArn:  ptr.Ptr("iamRoleArn3"),
+					PolicyName: ptr.Ptr("iamPolicy"),
+				},
+			},
+		},
 	},
 	policyArns: map[string]*iam.GetPolicyOutput{
 		"iamRoleArn1": {
@@ -112,6 +140,11 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 			}),
 		},
 		"iamRoleArn2": {
+			Policy: ptr.Ptr(iamtypes.Policy{
+				DefaultVersionId: ptr.Ptr("1"),
+			}),
+		},
+		"iamRoleArn3": {
 			Policy: ptr.Ptr(iamtypes.Policy{
 				DefaultVersionId: ptr.Ptr("1"),
 			}),
@@ -136,6 +169,11 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		"iamRoleArn2": {
 			PolicyVersion: ptr.Ptr(iamtypes.PolicyVersion{
 				Document: ptr.Ptr(url.QueryEscape(policyDocumentOutput2)),
+			}),
+		},
+		"iamRoleArn3": {
+			PolicyVersion: ptr.Ptr(iamtypes.PolicyVersion{
+				Document: ptr.Ptr(url.QueryEscape(policyDocumentOutput3)),
 			}),
 		},
 	},
@@ -305,6 +343,44 @@ func TestIAMRoleValidation(t *testing.T) {
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-role-policy",
 					ValidationRule: "validation-iamRole2",
+					Message:        "All required aws-iam-role-policy permissions were found",
+					Details:        []string{},
+					Failures:       nil,
+					Status:         corev1.ConditionTrue,
+				},
+				State: ptr.Ptr(vapi.ValidationSucceeded),
+			},
+		},
+		{
+			name: "Pass (condition)",
+			rule: v1alpha1.IamRoleRule{
+				IamRoleName: "iamRole3",
+				Policies: []v1alpha1.PolicyDocument{
+					{
+						Name:    "iamPolicy",
+						Version: "1",
+						Statements: []v1alpha1.StatementEntry{
+							{
+								Condition: &v1alpha1.Condition{
+									Type:   "ForAnyValue:StringLike",
+									Key:    "kms:ResourceAliases",
+									Values: []string{"alias/cluster-api-provider-aws-*"},
+								},
+								Effect: "Allow",
+								Actions: []string{
+									"kms:CreateGrant",
+									"kms:DescribeKey",
+								},
+								Resources: []string{"*"},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: types.ValidationResult{
+				Condition: &vapi.ValidationCondition{
+					ValidationType: "aws-iam-role-policy",
+					ValidationRule: "validation-iamRole3",
 					Message:        "All required aws-iam-role-policy permissions were found",
 					Details:        []string{},
 					Failures:       nil,
