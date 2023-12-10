@@ -41,10 +41,12 @@ type missing struct {
 }
 
 type permission struct {
-	Actions    map[iamAction]bool
-	Condition  *v1alpha1.Condition
-	Errors     []string
-	PolicyName string
+	Actions     map[iamAction]bool
+	Condition   *v1alpha1.Condition
+	ConditionOk bool
+	Errors      []string
+	PolicyName  string
+	Resource    string
 }
 
 type iamRule interface {
@@ -186,7 +188,7 @@ func (s *IAMRuleService) ReconcileIAMPolicyRule(rule iamRule) (*types.Validation
 }
 
 // processPolicies updates an IAM permission map for each IAM policy in an array of IAM policies attached to a IAM user / group / role
-func (s *IAMRuleService) processPolicies(policies []iamtypes.AttachedPolicy, permissions map[string]*permission, context []string) error {
+func (s *IAMRuleService) processPolicies(policies []iamtypes.AttachedPolicy, permissions map[string][]*permission, context []string) error {
 	for _, p := range policies {
 		policyDocument, err := s.getPolicyDocument(p.PolicyArn, context)
 		if err != nil {
@@ -247,27 +249,30 @@ func buildValidationResult(rule iamRule, validationType string) *types.Validatio
 }
 
 // buildPermissions builds an IAM permission map from an IAM rule
-func buildPermissions(rule iamRule) map[string]*permission {
-	permissions := make(map[string]*permission)
+func buildPermissions(rule iamRule) map[string][]*permission {
+	permissions := make(map[string][]*permission)
 	for _, p := range rule.IAMPolicies() {
 		for _, s := range p.Statements {
 			if s.Effect != "Allow" {
 				continue
 			}
 			for _, r := range s.Resources {
-				if permissions[r] == nil {
-					permissions[r] = &permission{
-						Actions: make(map[iamAction]bool),
-						Errors:  make([]string, 0),
-					}
+				if _, ok := permissions[r]; !ok {
+					permissions[r] = make([]*permission, 0)
 				}
-				permissions[r].PolicyName = p.Name
+				resourcePerm := &permission{
+					Actions:    make(map[iamAction]bool),
+					Errors:     make([]string, 0),
+					PolicyName: p.Name,
+					Resource:   r,
+				}
 				if s.Condition != nil {
-					permissions[r].Condition = s.Condition
+					resourcePerm.Condition = s.Condition
 				}
 				for _, action := range s.Actions {
-					permissions[r].Actions[toIAMAction(action)] = false
+					resourcePerm.Actions[toIAMAction(action)] = false
 				}
+				permissions[r] = append(permissions[r], resourcePerm)
 			}
 		}
 	}
@@ -289,47 +294,49 @@ func toIAMAction(action string) iamAction {
 }
 
 // updatePermissions updates an IAM permission map based on the content of an IAM policy
-func updatePermissions(policyDocument *awspolicy.Policy, permissions map[string]*permission) {
+func updatePermissions(policyDocument *awspolicy.Policy, permissions map[string][]*permission) {
 	for _, s := range policyDocument.Statements {
 		if s.Effect != "Allow" {
 			continue
 		}
 		for _, resource := range s.Resource {
-			permission, ok := permissions[resource]
+			permissions, ok := permissions[resource]
 			if ok {
-				if permission.Condition != nil {
-					errMsg := fmt.Sprintf("Resource %s missing condition %s", resource, permission.Condition)
-					condition, ok := s.Condition[permission.Condition.Type]
-					if !ok {
-						permission.Errors = append(permission.Errors, errMsg)
-						continue
-					}
-					v, ok := condition[permission.Condition.Key]
-					if !ok {
-						permission.Errors = append(permission.Errors, errMsg)
-						continue
-					}
-					if !slices.Equal(v, permission.Condition.Values) {
-						permission.Errors = append(permission.Errors, errMsg)
-						continue
-					}
-				}
-				for _, action := range s.Action {
-					iamAction := toIAMAction(action)
-					permission.Actions[iamAction] = true
-
-					if iamAction.IsAdmin() {
-						// mark all permissions found & exit early
-						for a := range permission.Actions {
-							permission.Actions[a] = true
+				for _, permission := range permissions {
+					if s.Condition != nil && permission.Condition != nil {
+						condition, ok := s.Condition[permission.Condition.Type]
+						if ok {
+							values, ok := condition[permission.Condition.Key]
+							if ok {
+								allFound := true
+								for _, v := range permission.Condition.Values {
+									if !slices.Contains(values, v) {
+										allFound = false
+									}
+								}
+								if allFound {
+									permission.ConditionOk = true
+								}
+							}
 						}
-						return
 					}
-					if iamAction.Verb == constants.IAMWildcard {
-						// mark all permissions for the relevant service as found
-						for a := range permission.Actions {
-							if a.Service == iamAction.Service {
+					for _, action := range s.Action {
+						iamAction := toIAMAction(action)
+						permission.Actions[iamAction] = true
+
+						if iamAction.IsAdmin() {
+							// mark all permissions found & exit early
+							for a := range permission.Actions {
 								permission.Actions[a] = true
+							}
+							return
+						}
+						if iamAction.Verb == constants.IAMWildcard {
+							// mark all permissions for the relevant service as found
+							for a := range permission.Actions {
+								if a.Service == iamAction.Service {
+									permission.Actions[a] = true
+								}
 							}
 						}
 					}
@@ -340,24 +347,30 @@ func updatePermissions(policyDocument *awspolicy.Policy, permissions map[string]
 }
 
 // computeFailures derives IAM rule failures from an IAM permissions map once it has been fully updated
-func computeFailures(rule iamRule, permissions map[string]*permission, vr *types.ValidationResult) {
+func computeFailures(rule iamRule, permissions map[string][]*permission, vr *types.ValidationResult) {
 	failures := make([]string, 0)
 	missingActions := make(map[string]*missing)
 
-	for resource, permission := range permissions {
-		if len(permission.Errors) > 0 {
-			failures = append(failures, str_utils.DeDupeStrSlice(permission.Errors)...)
-			continue
-		}
-		for action, allowed := range permission.Actions {
-			if !allowed {
-				if missingActions[resource] == nil {
-					missingActions[resource] = &missing{
-						Actions: make([]string, 0),
+	for resource, resourcePermissions := range permissions {
+		for _, permission := range resourcePermissions {
+			if len(permission.Errors) > 0 {
+				failures = append(failures, str_utils.DeDupeStrSlice(permission.Errors)...)
+				continue
+			}
+			if permission.Condition != nil && !permission.ConditionOk {
+				errMsg := fmt.Sprintf("Resource %s missing condition %s", resource, permission.Condition)
+				failures = append(failures, errMsg)
+			}
+			for action, allowed := range permission.Actions {
+				if !allowed {
+					if missingActions[resource] == nil {
+						missingActions[resource] = &missing{
+							Actions: make([]string, 0),
+						}
 					}
+					missingActions[resource].Actions = append(missingActions[resource].Actions, action.String())
+					missingActions[resource].PolicyName = permission.PolicyName
 				}
-				missingActions[resource].Actions = append(missingActions[resource].Actions, action.String())
-				missingActions[resource].PolicyName = permission.PolicyName
 			}
 		}
 	}
