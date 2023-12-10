@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.0.20](https://github.com/spectrocloud-labs/validator-plugin-aws/compare/v0.0.19...v0.0.20) (2023-12-10)
+
+
+### Bug Fixes
+
+* **deps:** update aws-sdk-go-v2 monorepo ([#270](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/270)) ([d9d3d0a](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/d9d3d0a5308282c4998806166d3fe388ce4a263a))
+* **deps:** update aws-sdk-go-v2 monorepo ([#272](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/272)) ([1c6ba8c](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/1c6ba8cde727e9af1499cd7581c4bc5f78c62590))
+* handle multiple statements for the same resource ([#273](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/273)) ([e70f60b](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/e70f60bf5a5200c21c004ce6ecb46e356b536621))
+
+
+### Other
+
+* **deps:** update google-github-actions/release-please-action digest to a2d8d68 ([#269](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/269)) ([8fc5908](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/8fc590820433136f940826d4d5fc24f2b150176e))
+
 ## [0.0.19](https://github.com/spectrocloud-labs/validator-plugin-aws/compare/v0.0.18...v0.0.19) (2023-12-07)
 
 
