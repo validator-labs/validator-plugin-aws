@@ -18,11 +18,15 @@ import (
 )
 
 type iamApiMock struct {
-	attachedGroupPolicies map[string]*iam.ListAttachedGroupPoliciesOutput
-	attachedRolePolicies  map[string]*iam.ListAttachedRolePoliciesOutput
-	attachedUserPolicies  map[string]*iam.ListAttachedUserPoliciesOutput
-	policyArns            map[string]*iam.GetPolicyOutput
-	policyVersions        map[string]*iam.GetPolicyVersionOutput
+	attachedGroupPolicies         map[string]*iam.ListAttachedGroupPoliciesOutput
+	attachedRolePolicies          map[string]*iam.ListAttachedRolePoliciesOutput
+	attachedUserPolicies          map[string]*iam.ListAttachedUserPoliciesOutput
+	policyArns                    map[string]*iam.GetPolicyOutput
+	policyVersions                map[string]*iam.GetPolicyVersionOutput
+	simulatePrincipalPolicyResult map[string]*iam.SimulatePrincipalPolicyOutput
+	user                          map[string]*iam.GetUserOutput
+	group                         map[string]*iam.GetGroupOutput
+	role                          map[string]*iam.GetRoleOutput
 }
 
 func (m iamApiMock) GetPolicy(ctx context.Context, params *iam.GetPolicyInput, optFns ...func(*iam.Options)) (*iam.GetPolicyOutput, error) {
@@ -43,6 +47,22 @@ func (m iamApiMock) ListAttachedRolePolicies(ctx context.Context, params *iam.Li
 
 func (m iamApiMock) ListAttachedUserPolicies(ctx context.Context, params *iam.ListAttachedUserPoliciesInput, optFns ...func(*iam.Options)) (*iam.ListAttachedUserPoliciesOutput, error) {
 	return m.attachedUserPolicies[*params.UserName], nil
+}
+
+func (m iamApiMock) SimulatePrincipalPolicy(ctx context.Context, params *iam.SimulatePrincipalPolicyInput, optFns ...func(*iam.Options)) (*iam.SimulatePrincipalPolicyOutput, error) {
+	return m.simulatePrincipalPolicyResult[*params.PolicySourceArn], nil
+}
+
+func (m iamApiMock) GetUser(ctx context.Context, params *iam.GetUserInput, optFns ...func(*iam.Options)) (*iam.GetUserOutput, error) {
+	return m.user[*params.UserName], nil
+}
+
+func (m iamApiMock) GetGroup(ctx context.Context, params *iam.GetGroupInput, optFns ...func(*iam.Options)) (*iam.GetGroupOutput, error) {
+	return m.group[*params.GroupName], nil
+}
+
+func (m iamApiMock) GetRole(ctx context.Context, params *iam.GetRoleInput, optFns ...func(*iam.Options)) (*iam.GetRoleOutput, error) {
+	return m.role[*params.RoleName], nil
 }
 
 const (
@@ -105,6 +125,16 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 			},
 		},
 	},
+	attachedUserPolicies: map[string]*iam.ListAttachedUserPoliciesOutput{
+		"iamUser": {
+			AttachedPolicies: []iamtypes.AttachedPolicy{
+				{
+					PolicyArn:  ptr.Ptr("iamRoleArn1"),
+					PolicyName: ptr.Ptr("iamPolicy"),
+				},
+			},
+		},
+	},
 	policyArns: map[string]*iam.GetPolicyOutput{
 		"iamRoleArn1": {
 			Policy: ptr.Ptr(iamtypes.Policy{
@@ -117,16 +147,6 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 			}),
 		},
 	},
-	attachedUserPolicies: map[string]*iam.ListAttachedUserPoliciesOutput{
-		"iamUser": {
-			AttachedPolicies: []iamtypes.AttachedPolicy{
-				{
-					PolicyArn:  ptr.Ptr("iamRoleArn1"),
-					PolicyName: ptr.Ptr("iamPolicy"),
-				},
-			},
-		},
-	},
 	policyVersions: map[string]*iam.GetPolicyVersionOutput{
 		"iamRoleArn1": {
 			PolicyVersion: ptr.Ptr(iamtypes.PolicyVersion{
@@ -137,6 +157,124 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 			PolicyVersion: ptr.Ptr(iamtypes.PolicyVersion{
 				Document: ptr.Ptr(url.QueryEscape(policyDocumentOutput2)),
 			}),
+		},
+	},
+	simulatePrincipalPolicyResult: map[string]*iam.SimulatePrincipalPolicyOutput{
+		"iamGroupArn1": {
+			EvaluationResults: []iamtypes.EvaluationResult{
+				{
+					EvalActionName:              ptr.Ptr("s3:CreateBucket"),
+					EvalDecision:                "allowed",
+					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: true},
+				},
+			},
+		},
+		"iamGroupArn2": {
+			EvaluationResults: []iamtypes.EvaluationResult{
+				{
+					EvalActionName:              ptr.Ptr("s3:CreateBucket"),
+					EvalDecision:                "implicitDeny",
+					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: false},
+				},
+				{
+					EvalActionName:              ptr.Ptr("s3:DeleteBucket"),
+					EvalDecision:                "allowed",
+					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: true},
+				},
+			},
+		},
+		"iamRoleArn1": {
+			EvaluationResults: []iamtypes.EvaluationResult{
+				{
+					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
+					EvalDecision:                "allowed",
+					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: true},
+				},
+			},
+		},
+		"iamRoleArn2": {
+			EvaluationResults: []iamtypes.EvaluationResult{
+				{
+					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
+					EvalDecision:                "allowed",
+					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: true},
+				},
+			},
+		},
+		"iamRoleArn3": {
+			EvaluationResults: []iamtypes.EvaluationResult{
+				{
+					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
+					EvalDecision:                "implicitDeny",
+					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: false},
+				},
+			},
+		},
+		"iamUserArn1": {
+			EvaluationResults: []iamtypes.EvaluationResult{
+				{
+					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
+					EvalDecision:                "allowed",
+					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: true},
+				},
+			},
+		},
+		"iamUserArn2": {
+			EvaluationResults: []iamtypes.EvaluationResult{
+				{
+					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
+					EvalDecision:                "implicitDeny",
+					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: false},
+				},
+			},
+		},
+	},
+	user: map[string]*iam.GetUserOutput{
+		"iamUser": {
+			User: &iamtypes.User{
+				Arn:      ptr.Ptr("iamUserArn1"),
+				UserName: ptr.Ptr("iamUser"),
+			},
+		},
+		"iamUser2": {
+			User: &iamtypes.User{
+				Arn:      ptr.Ptr("iamUserArn2"),
+				UserName: ptr.Ptr("iamUser2"),
+			},
+		},
+	},
+	group: map[string]*iam.GetGroupOutput{
+		"iamGroup": {
+			Group: &iamtypes.Group{
+				Arn:       ptr.Ptr("iamGroupArn1"),
+				GroupName: ptr.Ptr("iamGroup"),
+			},
+		},
+		"iamGroup2": {
+			Group: &iamtypes.Group{
+				Arn:       ptr.Ptr("iamGroupArn2"),
+				GroupName: ptr.Ptr("iamGroup2"),
+			},
+		},
+	},
+	role: map[string]*iam.GetRoleOutput{
+		"iamRole1": {
+			Role: &iamtypes.Role{
+				Arn:      ptr.Ptr("iamRoleArn1"),
+				RoleName: ptr.Ptr("iamRole1"),
+			},
+		},
+		"iamRole2": {
+			Role: &iamtypes.Role{
+				Arn:      ptr.Ptr("iamRoleArn2"),
+				RoleName: ptr.Ptr("iamRole2"),
+			},
+		},
+		"iamRole3": {
+			Role: &iamtypes.Role{
+				Arn:      ptr.Ptr("iamRoleArn3"),
+				RoleName: ptr.Ptr("iamRole3"),
+			},
 		},
 	},
 })
@@ -212,6 +350,36 @@ func TestIAMGroupValidation(t *testing.T) {
 				State: ptr.Ptr(vapi.ValidationSucceeded),
 			},
 		},
+		{
+			name: "Fail (basic) - SCP Denied action s3:CreateBucket",
+			rule: v1alpha1.IamGroupRule{
+				IamGroupName: "iamGroup2",
+				Policies: []v1alpha1.PolicyDocument{
+					{
+						Name:    "iamPolicy",
+						Version: "1",
+						Statements: []v1alpha1.StatementEntry{
+							{
+								Effect:    "Allow",
+								Actions:   []string{"s3:CreateBucket"},
+								Resources: []string{"*"},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: types.ValidationResult{
+				Condition: &vapi.ValidationCondition{
+					ValidationType: "aws-iam-group-policy",
+					ValidationRule: "validation-iamGroup2",
+					Message:        "One or more required SCP permissions was not found, or a condition was not met",
+					Details:        []string{},
+					Failures:       []string{"Action: s3:CreateBucket is denied due to an Organization level SCP policy for group: iamGroup2"},
+					Status:         corev1.ConditionFalse,
+				},
+				State: ptr.Ptr(vapi.ValidationFailed),
+			},
+		},
 	}
 	for _, c := range cs {
 		result, err := iamService.ReconcileIAMGroupRule(c.rule)
@@ -281,6 +449,36 @@ func TestIAMRoleValidation(t *testing.T) {
 					Status:         corev1.ConditionTrue,
 				},
 				State: ptr.Ptr(vapi.ValidationSucceeded),
+			},
+		},
+		{
+			name: "Fail (basic) - SCP",
+			rule: v1alpha1.IamRoleRule{
+				IamRoleName: "iamRole3",
+				Policies: []v1alpha1.PolicyDocument{
+					{
+						Name:    "iamPolicy",
+						Version: "1",
+						Statements: []v1alpha1.StatementEntry{
+							{
+								Effect:    "Allow",
+								Actions:   []string{"ec2:DescribeInstances"},
+								Resources: []string{"*"},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: types.ValidationResult{
+				Condition: &vapi.ValidationCondition{
+					ValidationType: "aws-iam-role-policy",
+					ValidationRule: "validation-iamRole3",
+					Message:        "One or more required SCP permissions was not found, or a condition was not met",
+					Details:        []string{},
+					Failures:       []string{"Action: ec2:DescribeInstances is denied due to an Organization level SCP policy for role: iamRole3"},
+					Status:         corev1.ConditionFalse,
+				},
+				State: ptr.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -382,6 +580,36 @@ func TestIAMUserValidation(t *testing.T) {
 					Status:         corev1.ConditionTrue,
 				},
 				State: ptr.Ptr(vapi.ValidationSucceeded),
+			},
+		},
+		{
+			name: "Fail (basic) - SCP Deny action",
+			rule: v1alpha1.IamUserRule{
+				IamUserName: "iamUser2",
+				Policies: []v1alpha1.PolicyDocument{
+					{
+						Name:    "iamPolicy",
+						Version: "1",
+						Statements: []v1alpha1.StatementEntry{
+							{
+								Effect:    "Allow",
+								Actions:   []string{"ec2:DescribeInstances"},
+								Resources: []string{"*"},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: types.ValidationResult{
+				Condition: &vapi.ValidationCondition{
+					ValidationType: "aws-iam-user-policy",
+					ValidationRule: "validation-iamUser2",
+					Message:        "One or more required SCP permissions was not found, or a condition was not met",
+					Details:        []string{},
+					Failures:       []string{"Action: ec2:DescribeInstances is denied due to an Organization level SCP policy for user: iamUser2"},
+					Status:         corev1.ConditionFalse,
+				},
+				State: ptr.Ptr(vapi.ValidationFailed),
 			},
 		},
 	}

@@ -3,11 +3,11 @@ package iam
 import (
 	"context"
 	"fmt"
+	"github.com/aws/aws-sdk-go-v2/service/iam"
 	"net/url"
 	"strings"
 
 	awspolicy "github.com/L30Bola/aws-policy"
-	"github.com/aws/aws-sdk-go-v2/service/iam"
 	iamtypes "github.com/aws/aws-sdk-go-v2/service/iam/types"
 	"github.com/go-logr/logr"
 	"golang.org/x/exp/slices"
@@ -58,6 +58,10 @@ type iamApi interface {
 	ListAttachedGroupPolicies(ctx context.Context, params *iam.ListAttachedGroupPoliciesInput, optFns ...func(*iam.Options)) (*iam.ListAttachedGroupPoliciesOutput, error)
 	ListAttachedRolePolicies(ctx context.Context, params *iam.ListAttachedRolePoliciesInput, optFns ...func(*iam.Options)) (*iam.ListAttachedRolePoliciesOutput, error)
 	ListAttachedUserPolicies(ctx context.Context, params *iam.ListAttachedUserPoliciesInput, optFns ...func(*iam.Options)) (*iam.ListAttachedUserPoliciesOutput, error)
+	GetUser(ctx context.Context, params *iam.GetUserInput, optFns ...func(*iam.Options)) (*iam.GetUserOutput, error)
+	GetGroup(ctx context.Context, params *iam.GetGroupInput, optFns ...func(*iam.Options)) (*iam.GetGroupOutput, error)
+	GetRole(ctx context.Context, params *iam.GetRoleInput, optFns ...func(*iam.Options)) (*iam.GetRoleOutput, error)
+	SimulatePrincipalPolicy(ctx context.Context, params *iam.SimulatePrincipalPolicyInput, optFns ...func(*iam.Options)) (*iam.SimulatePrincipalPolicyOutput, error)
 }
 
 type IAMRuleService struct {
@@ -74,9 +78,24 @@ func NewIAMRuleService(log logr.Logger, iamSvc iamApi) *IAMRuleService {
 
 // ReconcileIAMRoleRule reconciles an IAM role validation rule from an AWSValidator config
 func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationResult, error) {
-
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMRolePolicy)
+
+	role, err := s.iamSvc.GetRole(context.Background(), &iam.GetRoleInput{
+		RoleName: ptr.Ptr(rule.Name()),
+	})
+
+	policyDocs := rule.IAMPolicies()
+
+	scpFailures, err := checkSCP(s.iamSvc, policyDocs, *role.Role.Arn, "role", *role.Role.RoleName)
+	if err != nil {
+		return vr, err
+	}
+
+	// SCP related failures found. Exit early
+	if len(scpFailures) > 0 {
+		return getSCPFailedValidationResult(vr, scpFailures), nil
+	}
 
 	// Retrieve all IAM policies attached to the IAM role
 	policies, err := s.iamSvc.ListAttachedRolePolicies(context.Background(), &iam.ListAttachedRolePoliciesInput{
@@ -104,9 +123,24 @@ func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationRe
 
 // ReconcileIAMUserRule reconciles an IAM user validation rule from an AWSValidator config
 func (s *IAMRuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationResult, error) {
-
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMUserPolicy)
+
+	user, err := s.iamSvc.GetUser(context.Background(), &iam.GetUserInput{
+		UserName: ptr.Ptr(rule.Name()),
+	})
+
+	policyDocs := rule.IAMPolicies()
+
+	scpFailures, err := checkSCP(s.iamSvc, policyDocs, *user.User.Arn, "user", *user.User.UserName)
+	if err != nil {
+		return vr, err
+	}
+
+	// SCP related failures found. Exit early
+	if len(scpFailures) > 0 {
+		return getSCPFailedValidationResult(vr, scpFailures), nil
+	}
 
 	// Retrieve all IAM policies attached to the IAM user
 	policies, err := s.iamSvc.ListAttachedUserPolicies(context.Background(), &iam.ListAttachedUserPoliciesInput{
@@ -134,9 +168,24 @@ func (s *IAMRuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationRe
 
 // ReconcileIAMGroupRule reconciles an IAM group validation rule from an AWSValidator config
 func (s *IAMRuleService) ReconcileIAMGroupRule(rule iamRule) (*types.ValidationResult, error) {
-
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMGroupPolicy)
+
+	group, err := s.iamSvc.GetGroup(context.Background(), &iam.GetGroupInput{
+		GroupName: ptr.Ptr(rule.Name()),
+	})
+
+	policyDocs := rule.IAMPolicies()
+
+	scpFailures, err := checkSCP(s.iamSvc, policyDocs, *group.Group.Arn, "group", *group.Group.GroupName)
+	if err != nil {
+		return vr, err
+	}
+
+	// SCP related failures found. Exit early
+	if len(scpFailures) > 0 {
+		return getSCPFailedValidationResult(vr, scpFailures), nil
+	}
 
 	// Retrieve all IAM policies attached to the IAM user
 	policies, err := s.iamSvc.ListAttachedGroupPolicies(context.Background(), &iam.ListAttachedGroupPoliciesInput{
@@ -162,6 +211,15 @@ func (s *IAMRuleService) ReconcileIAMGroupRule(rule iamRule) (*types.ValidationR
 	return vr, nil
 }
 
+func getSCPFailedValidationResult(vr *types.ValidationResult, failures []string) *types.ValidationResult {
+	vr.State = ptr.Ptr(vapi.ValidationFailed)
+	vr.Condition.Failures = failures
+	vr.Condition.Message = "One or more required SCP permissions was not found, or a condition was not met"
+	vr.Condition.Status = corev1.ConditionFalse
+
+	return vr
+}
+
 // ReconcileIAMPolicyRule reconciles an IAM policy validation rule from an AWSValidator config
 func (s *IAMRuleService) ReconcileIAMPolicyRule(rule iamRule) (*types.ValidationResult, error) {
 
@@ -183,6 +241,51 @@ func (s *IAMRuleService) ReconcileIAMPolicyRule(rule iamRule) (*types.Validation
 	computeFailures(rule, permissions, vr)
 
 	return vr, nil
+}
+
+func checkSCP(iamSvc iamApi, policyDocs []v1alpha1.PolicyDocument, policySourceArn string, policySourceType string, policySourceName string) ([]string, error) {
+	var scpFailures []string
+	var ctxEntry []iamtypes.ContextEntry
+
+	// check GetContextKeysForPrincipal to do this
+	if policySourceType == "user" {
+		ctxEntry = []iamtypes.ContextEntry{
+			{
+				ContextKeyName:   ptr.Ptr("aws:username"),
+				ContextKeyType:   "string",
+				ContextKeyValues: []string{policySourceName},
+			},
+		}
+	}
+
+	for _, doc := range policyDocs {
+		for _, statement := range doc.Statements {
+
+			simulationInput := &iam.SimulatePrincipalPolicyInput{
+				ActionNames:     statement.Actions,
+				PolicySourceArn: ptr.Ptr(policySourceArn),
+				ResourceArns:    statement.Resources,
+				ContextEntries:  ctxEntry,
+			}
+
+			sim, err := iamSvc.SimulatePrincipalPolicy(context.Background(), simulationInput)
+			if err != nil {
+				return nil, err
+			}
+
+			fmt.Println("Sim eval results", sim.EvaluationResults)
+
+			for _, result := range sim.EvaluationResults {
+				if result.EvalDecision == "implicitDeny" {
+					if !result.OrganizationsDecisionDetail.AllowedByOrganizations {
+						scpFailures = append(scpFailures, fmt.Sprintf("Action: %s is denied due to an Organization level SCP policy for %s: %s", *result.EvalActionName, policySourceType, policySourceName))
+					}
+				}
+			}
+		}
+	}
+
+	return scpFailures, nil
 }
 
 // processPolicies updates an IAM permission map for each IAM policy in an array of IAM policies attached to a IAM user / group / role
@@ -291,11 +394,16 @@ func toIAMAction(action string) iamAction {
 // updatePermissions updates an IAM permission map based on the content of an IAM policy
 func updatePermissions(policyDocument *awspolicy.Policy, permissions map[string]*permission) {
 	for _, s := range policyDocument.Statements {
+		// proceed only if access is allowed to resources
 		if s.Effect != "Allow" {
 			continue
 		}
+
 		for _, resource := range s.Resource {
+			// for resource, check if the resource already exists in the permission map
 			permission, ok := permissions[resource]
+
+			// if the resource already exists in the permission map
 			if ok {
 				if permission.Condition != nil {
 					errMsg := fmt.Sprintf("Resource %s missing condition %s", resource, permission.Condition)
@@ -314,10 +422,14 @@ func updatePermissions(policyDocument *awspolicy.Policy, permissions map[string]
 						continue
 					}
 				}
+
+				// iterate over the actions
 				for _, action := range s.Action {
+					// iamAction is a service-verb struct
 					iamAction := toIAMAction(action)
 					permission.Actions[iamAction] = true
 
+					// if both service and verb are '*'
 					if iamAction.IsAdmin() {
 						// mark all permissions found & exit early
 						for a := range permission.Actions {
@@ -325,6 +437,8 @@ func updatePermissions(policyDocument *awspolicy.Policy, permissions map[string]
 						}
 						return
 					}
+
+					// if verb for that service is '*'
 					if iamAction.Verb == constants.IAMWildcard {
 						// mark all permissions for the relevant service as found
 						for a := range permission.Actions {
