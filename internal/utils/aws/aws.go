@@ -2,7 +2,6 @@ package aws
 
 import (
 	"context"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -26,7 +25,6 @@ type AwsApi struct {
 	ELB   *elasticloadbalancing.Client
 	ELBV2 *elasticloadbalancingv2.Client
 	SQ    *servicequotas.Client
-	S3    *s3.Client
 }
 
 // NewAwsApi creates an AwsApi object that aggregates AWS service clients
@@ -45,7 +43,6 @@ func NewAwsApi(log logr.Logger, auth v1alpha1.AwsAuth, region string) (*AwsApi, 
 		ELB:   elasticloadbalancing.NewFromConfig(cfg),
 		ELBV2: elasticloadbalancingv2.NewFromConfig(cfg),
 		SQ:    servicequotas.NewFromConfig(cfg),
-		S3:    s3.NewFromConfig(cfg),
 	}, nil
 }
 
