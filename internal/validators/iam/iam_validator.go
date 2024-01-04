@@ -3,11 +3,11 @@ package iam
 import (
 	"context"
 	"fmt"
-	"github.com/aws/aws-sdk-go-v2/service/iam"
 	"net/url"
 	"strings"
 
 	awspolicy "github.com/L30Bola/aws-policy"
+	"github.com/aws/aws-sdk-go-v2/service/iam"
 	iamtypes "github.com/aws/aws-sdk-go-v2/service/iam/types"
 	"github.com/go-logr/logr"
 	"golang.org/x/exp/slices"
