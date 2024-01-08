@@ -368,7 +368,14 @@ func computeFailures(rule iamRule, permissions map[string][]*permission, vr *typ
 				continue
 			}
 			if permission.Condition != nil && !permission.ConditionOk {
-				errMsg := fmt.Sprintf("Resource %s missing condition %s", resource, permission.Condition)
+				actionNames := make([]string, len(permission.Actions))
+				for k := range permission.Actions {
+					actionNames = append(actionNames, k.String())
+				}
+				errMsg := fmt.Sprintf(
+					"Condition %s not applied to action(s) %s for resource %s from policy %s",
+					permission.Condition, actionNames, resource, permission.PolicyName,
+				)
 				failures = append(failures, errMsg)
 			}
 			for action, allowed := range permission.Actions {
