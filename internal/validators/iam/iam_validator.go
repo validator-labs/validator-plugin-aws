@@ -295,26 +295,35 @@ func toIAMAction(action string) iamAction {
 
 // applyPolicy updates an IAM permission map based on the content of an IAM policy
 func applyPolicy(policyDocument *awspolicy.Policy, permissions map[string][]*permission) {
+	// mark all actions as allowed per the explicit allows in the policy document
+	updateResourcePermissions(policyDocument, permissions, "Allow")
+	// override explicit allows with any explicit denies
+	updateResourcePermissions(policyDocument, permissions, "Deny")
+}
+
+func updateResourcePermissions(policyDocument *awspolicy.Policy, permissions map[string][]*permission, effect string) {
+	actionAllowed := effect == "Allow"
+
 	for _, s := range policyDocument.Statements {
-		if s.Effect != "Allow" {
+		if s.Effect != effect {
 			continue
 		}
 		for _, resource := range s.Resource {
 			if resource == constants.IAMWildcard {
 				for _, ps := range permissions {
-					updatePermissions(s, ps)
+					updatePermissions(s, ps, actionAllowed)
 				}
 			} else {
 				ps, ok := permissions[resource]
 				if ok {
-					updatePermissions(s, ps)
+					updatePermissions(s, ps, actionAllowed)
 				}
 			}
 		}
 	}
 }
 
-func updatePermissions(s awspolicy.Statement, permissions []*permission) {
+func updatePermissions(s awspolicy.Statement, permissions []*permission, actionAllowed bool) {
 	for _, permission := range permissions {
 		if s.Condition != nil && permission.Condition != nil {
 			condition, ok := s.Condition[permission.Condition.Type]
@@ -335,24 +344,52 @@ func updatePermissions(s awspolicy.Statement, permissions []*permission) {
 		}
 		for _, action := range s.Action {
 			iamAction := toIAMAction(action)
-			permission.Actions[iamAction] = true
+			updatePermissionAction(permission, iamAction, actionAllowed)
 
 			if iamAction.IsAdmin() {
-				// mark all permissions found & exit early
+				// update all permissions & exit early
 				for a := range permission.Actions {
-					permission.Actions[a] = true
+					updatePermissionAction(permission, a, actionAllowed)
 				}
 				return
-			}
-			if iamAction.Verb == constants.IAMWildcard {
-				// mark all permissions for the relevant service as found
+			} else if iamAction.Verb == constants.IAMWildcard {
+				// update all permissions for the relevant service
 				for a := range permission.Actions {
 					if a.Service == iamAction.Service {
-						permission.Actions[a] = true
+						updatePermissionAction(permission, a, actionAllowed)
+					}
+				}
+			} else if strings.HasPrefix(iamAction.Verb, constants.IAMWildcard) {
+				if strings.HasSuffix(iamAction.Verb, constants.IAMWildcard) {
+					// handle actions with a wildcard prefix & suffix, e.g. iam:*Group*
+					for a := range permission.Actions {
+						if a.Service == iamAction.Service && strings.Contains(a.Verb, iamAction.Verb[1:len(iamAction.Verb)-1]) {
+							updatePermissionAction(permission, a, actionAllowed)
+						}
+					}
+				} else {
+					// handle actions with a wildcard prefix, e.g. s3:*Buckets
+					for a := range permission.Actions {
+						if a.Service == iamAction.Service && strings.HasSuffix(a.Verb, iamAction.Verb[1:]) {
+							updatePermissionAction(permission, a, actionAllowed)
+						}
+					}
+				}
+			} else if strings.HasSuffix(iamAction.Verb, constants.IAMWildcard) {
+				// handle actions with a wildcard suffix, e.g. s3:List*
+				for a := range permission.Actions {
+					if a.Service == iamAction.Service && strings.HasPrefix(a.Verb, iamAction.Verb[:len(iamAction.Verb)-1]) {
+						updatePermissionAction(permission, a, actionAllowed)
 					}
 				}
 			}
 		}
+	}
+}
+
+func updatePermissionAction(permission *permission, a iamAction, actionAllowed bool) {
+	if _, ok := permission.Actions[a]; ok {
+		permission.Actions[a] = actionAllowed
 	}
 }
 
@@ -368,10 +405,11 @@ func computeFailures(rule iamRule, permissions map[string][]*permission, vr *typ
 				continue
 			}
 			if permission.Condition != nil && !permission.ConditionOk {
-				actionNames := make([]string, len(permission.Actions))
+				actionNames := make([]string, 0, len(permission.Actions))
 				for k := range permission.Actions {
 					actionNames = append(actionNames, k.String())
 				}
+				slices.Sort(actionNames)
 				errMsg := fmt.Sprintf(
 					"Condition %s not applied to action(s) %s for resource %s from policy %s",
 					permission.Condition, actionNames, resource, permission.PolicyName,
