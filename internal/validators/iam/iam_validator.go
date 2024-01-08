@@ -87,6 +87,8 @@ func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationRe
 	if err != nil {
 		s.log.V(0).Error(err, "failed to list policies for IAM role", "role", rule.Name())
 		return vr, err
+	} else if policies == nil {
+		return vr, fmt.Errorf("no policies found for IAM role %s", rule.Name())
 	}
 
 	// Build map of required permissions
@@ -117,6 +119,8 @@ func (s *IAMRuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationRe
 	if err != nil {
 		s.log.V(0).Error(err, "failed to list policies for IAM user", "name", rule.Name())
 		return vr, err
+	} else if policies == nil {
+		return vr, fmt.Errorf("no policies found for IAM user %s", rule.Name())
 	}
 
 	// Build map of required permissions
@@ -147,6 +151,8 @@ func (s *IAMRuleService) ReconcileIAMGroupRule(rule iamRule) (*types.ValidationR
 	if err != nil {
 		s.log.V(0).Error(err, "failed to list policies for IAM group", "name", rule.Name())
 		return vr, err
+	} else if policies == nil {
+		return vr, fmt.Errorf("no policies found for IAM group %s", rule.Name())
 	}
 
 	// Build map of required permissions
@@ -179,7 +185,7 @@ func (s *IAMRuleService) ReconcileIAMPolicyRule(rule iamRule) (*types.Validation
 	if err != nil {
 		return vr, err
 	}
-	updatePermissions(policyDocument, permissions)
+	applyPolicy(policyDocument, permissions)
 
 	// Compute failures and update the latest condition accordingly
 	computeFailures(rule, permissions, vr)
@@ -196,7 +202,7 @@ func (s *IAMRuleService) processPolicies(policies []iamtypes.AttachedPolicy, per
 		} else if policyDocument == nil {
 			continue
 		}
-		updatePermissions(policyDocument, permissions)
+		applyPolicy(policyDocument, permissions)
 	}
 	return nil
 }
@@ -293,56 +299,103 @@ func toIAMAction(action string) iamAction {
 	}
 }
 
-// updatePermissions updates an IAM permission map based on the content of an IAM policy
-func updatePermissions(policyDocument *awspolicy.Policy, permissions map[string][]*permission) {
+// applyPolicy updates an IAM permission map based on the content of an IAM policy
+func applyPolicy(policyDocument *awspolicy.Policy, permissions map[string][]*permission) {
+	// mark all actions as allowed per the explicit allows in the policy document
+	updateResourcePermissions(policyDocument, permissions, "Allow")
+	// override explicit allows with any explicit denies
+	updateResourcePermissions(policyDocument, permissions, "Deny")
+}
+
+func updateResourcePermissions(policyDocument *awspolicy.Policy, permissions map[string][]*permission, effect string) {
+	actionAllowed := effect == "Allow"
+
 	for _, s := range policyDocument.Statements {
-		if s.Effect != "Allow" {
+		if s.Effect != effect {
 			continue
 		}
 		for _, resource := range s.Resource {
-			permissions, ok := permissions[resource]
+			if resource == constants.IAMWildcard {
+				for _, ps := range permissions {
+					updatePermissions(s, ps, actionAllowed)
+				}
+			} else {
+				ps, ok := permissions[resource]
+				if ok {
+					updatePermissions(s, ps, actionAllowed)
+				}
+			}
+		}
+	}
+}
+
+func updatePermissions(s awspolicy.Statement, permissions []*permission, actionAllowed bool) {
+	for _, permission := range permissions {
+		if s.Condition != nil && permission.Condition != nil {
+			condition, ok := s.Condition[permission.Condition.Type]
 			if ok {
-				for _, permission := range permissions {
-					if s.Condition != nil && permission.Condition != nil {
-						condition, ok := s.Condition[permission.Condition.Type]
-						if ok {
-							values, ok := condition[permission.Condition.Key]
-							if ok {
-								allFound := true
-								for _, v := range permission.Condition.Values {
-									if !slices.Contains(values, v) {
-										allFound = false
-									}
-								}
-								if allFound {
-									permission.ConditionOk = true
-								}
-							}
+				values, ok := condition[permission.Condition.Key]
+				if ok {
+					allFound := true
+					for _, v := range permission.Condition.Values {
+						if !slices.Contains(values, v) {
+							allFound = false
 						}
 					}
-					for _, action := range s.Action {
-						iamAction := toIAMAction(action)
-						permission.Actions[iamAction] = true
-
-						if iamAction.IsAdmin() {
-							// mark all permissions found & exit early
-							for a := range permission.Actions {
-								permission.Actions[a] = true
-							}
-							return
-						}
-						if iamAction.Verb == constants.IAMWildcard {
-							// mark all permissions for the relevant service as found
-							for a := range permission.Actions {
-								if a.Service == iamAction.Service {
-									permission.Actions[a] = true
-								}
-							}
-						}
+					if allFound {
+						permission.ConditionOk = true
 					}
 				}
 			}
 		}
+		for _, action := range s.Action {
+			iamAction := toIAMAction(action)
+			updatePermissionAction(permission, iamAction, actionAllowed)
+
+			if iamAction.IsAdmin() {
+				// update all permissions & exit early
+				for a := range permission.Actions {
+					updatePermissionAction(permission, a, actionAllowed)
+				}
+				return
+			} else if iamAction.Verb == constants.IAMWildcard {
+				// update all permissions for the relevant service
+				for a := range permission.Actions {
+					if a.Service == iamAction.Service {
+						updatePermissionAction(permission, a, actionAllowed)
+					}
+				}
+			} else if strings.HasPrefix(iamAction.Verb, constants.IAMWildcard) {
+				if strings.HasSuffix(iamAction.Verb, constants.IAMWildcard) {
+					// handle actions with a wildcard prefix & suffix, e.g. iam:*Group*
+					for a := range permission.Actions {
+						if a.Service == iamAction.Service && strings.Contains(a.Verb, iamAction.Verb[1:len(iamAction.Verb)-1]) {
+							updatePermissionAction(permission, a, actionAllowed)
+						}
+					}
+				} else {
+					// handle actions with a wildcard prefix, e.g. s3:*Buckets
+					for a := range permission.Actions {
+						if a.Service == iamAction.Service && strings.HasSuffix(a.Verb, iamAction.Verb[1:]) {
+							updatePermissionAction(permission, a, actionAllowed)
+						}
+					}
+				}
+			} else if strings.HasSuffix(iamAction.Verb, constants.IAMWildcard) {
+				// handle actions with a wildcard suffix, e.g. s3:List*
+				for a := range permission.Actions {
+					if a.Service == iamAction.Service && strings.HasPrefix(a.Verb, iamAction.Verb[:len(iamAction.Verb)-1]) {
+						updatePermissionAction(permission, a, actionAllowed)
+					}
+				}
+			}
+		}
+	}
+}
+
+func updatePermissionAction(permission *permission, a iamAction, actionAllowed bool) {
+	if _, ok := permission.Actions[a]; ok {
+		permission.Actions[a] = actionAllowed
 	}
 }
 
@@ -358,7 +411,15 @@ func computeFailures(rule iamRule, permissions map[string][]*permission, vr *typ
 				continue
 			}
 			if permission.Condition != nil && !permission.ConditionOk {
-				errMsg := fmt.Sprintf("Resource %s missing condition %s", resource, permission.Condition)
+				actionNames := make([]string, 0, len(permission.Actions))
+				for k := range permission.Actions {
+					actionNames = append(actionNames, k.String())
+				}
+				slices.Sort(actionNames)
+				errMsg := fmt.Sprintf(
+					"Condition %s not applied to action(s) %s for resource %s from policy %s",
+					permission.Condition, actionNames, resource, permission.PolicyName,
+				)
 				failures = append(failures, errMsg)
 			}
 			for action, allowed := range permission.Actions {
@@ -383,6 +444,7 @@ func computeFailures(rule iamRule, permissions map[string][]*permission, vr *typ
 		failures = append(failures, failureMsg)
 	}
 	if len(failures) > 0 {
+		slices.Sort(failures)
 		vr.State = ptr.Ptr(vapi.ValidationFailed)
 		vr.Condition.Failures = failures
 		vr.Condition.Message = "One or more required IAM permissions was not found, or a condition was not met"
