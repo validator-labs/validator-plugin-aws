@@ -94,6 +94,31 @@ const (
 			}
 		]
 	}`
+	policyDocumentOutput4 string = `{
+		"Version": "2012-10-17",
+		"Statement": [
+			{
+				"Effect": "Allow",
+				"Action": [
+					"eks:AssociateIdentityProviderConfig",
+					"eks:ListIdentityProviderConfigs"
+				],
+				"Resource": [
+					"arn:*:eks:*:*:cluster/*"
+				]
+			},
+			{
+				"Effect": "Allow",
+				"Action": [
+					"eks:DisassociateIdentityProviderConfig",
+					"eks:DescribeIdentityProviderConfig"
+				],
+				"Resource": [
+					"*"
+				]
+			}
+		]
+	}`
 )
 
 var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
@@ -132,6 +157,14 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 				},
 			},
 		},
+		"iamRole4": {
+			AttachedPolicies: []iamtypes.AttachedPolicy{
+				{
+					PolicyArn:  ptr.Ptr("iamRoleArn4"),
+					PolicyName: ptr.Ptr("iamPolicy"),
+				},
+			},
+		},
 	},
 	policyArns: map[string]*iam.GetPolicyOutput{
 		"iamRoleArn1": {
@@ -145,6 +178,11 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 			}),
 		},
 		"iamRoleArn3": {
+			Policy: ptr.Ptr(iamtypes.Policy{
+				DefaultVersionId: ptr.Ptr("1"),
+			}),
+		},
+		"iamRoleArn4": {
 			Policy: ptr.Ptr(iamtypes.Policy{
 				DefaultVersionId: ptr.Ptr("1"),
 			}),
@@ -174,6 +212,11 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		"iamRoleArn3": {
 			PolicyVersion: ptr.Ptr(iamtypes.PolicyVersion{
 				Document: ptr.Ptr(url.QueryEscape(policyDocumentOutput3)),
+			}),
+		},
+		"iamRoleArn4": {
+			PolicyVersion: ptr.Ptr(iamtypes.PolicyVersion{
+				Document: ptr.Ptr(url.QueryEscape(policyDocumentOutput4)),
 			}),
 		},
 	},
@@ -529,6 +572,46 @@ func TestIAMPolicyValidation(t *testing.T) {
 					Status:         corev1.ConditionTrue,
 				},
 				State: ptr.Ptr(vapi.ValidationSucceeded),
+			},
+		},
+		{
+			name: "Fail (multi-resource w/ wildcard)",
+			rule: v1alpha1.IamPolicyRule{
+				IamPolicyARN: "iamRoleArn4",
+				Policies: []v1alpha1.PolicyDocument{
+					{
+						Name:    "iamPolicy",
+						Version: "1",
+						Statements: []v1alpha1.StatementEntry{
+							{
+								Effect: "Allow",
+								Actions: []string{
+									"eks:AssociateIdentityProviderConfig",
+									"eks:ListIdentityProviderConfigs",
+									"eks:DisassociateIdentityProviderConfig",
+									"eks:DescribeIdentityProviderConfig",
+								},
+								Resources: []string{
+									"arn:*:eks:*:*:cluster/*",
+									"arn:*:eks:*:*:nodegroup/*/*/*",
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: types.ValidationResult{
+				Condition: &vapi.ValidationCondition{
+					ValidationType: "aws-iam-policy",
+					ValidationRule: "validation-iamRoleArn4",
+					Message:        "One or more required IAM permissions was not found, or a condition was not met",
+					Details:        []string{},
+					Failures: []string{
+						"v1alpha1.IamPolicyRule iamRoleArn4 missing action(s): [eks:AssociateIdentityProviderConfig eks:ListIdentityProviderConfigs] for resource arn:*:eks:*:*:nodegroup/*/*/* from policy iamPolicy",
+					},
+					Status: corev1.ConditionFalse,
+				},
+				State: ptr.Ptr(vapi.ValidationFailed),
 			},
 		},
 	}

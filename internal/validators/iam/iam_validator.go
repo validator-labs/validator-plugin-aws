@@ -179,7 +179,7 @@ func (s *IAMRuleService) ReconcileIAMPolicyRule(rule iamRule) (*types.Validation
 	if err != nil {
 		return vr, err
 	}
-	updatePermissions(policyDocument, permissions)
+	applyPolicy(policyDocument, permissions)
 
 	// Compute failures and update the latest condition accordingly
 	computeFailures(rule, permissions, vr)
@@ -196,7 +196,7 @@ func (s *IAMRuleService) processPolicies(policies []iamtypes.AttachedPolicy, per
 		} else if policyDocument == nil {
 			continue
 		}
-		updatePermissions(policyDocument, permissions)
+		applyPolicy(policyDocument, permissions)
 	}
 	return nil
 }
@@ -293,52 +293,62 @@ func toIAMAction(action string) iamAction {
 	}
 }
 
-// updatePermissions updates an IAM permission map based on the content of an IAM policy
-func updatePermissions(policyDocument *awspolicy.Policy, permissions map[string][]*permission) {
+// applyPolicy updates an IAM permission map based on the content of an IAM policy
+func applyPolicy(policyDocument *awspolicy.Policy, permissions map[string][]*permission) {
 	for _, s := range policyDocument.Statements {
 		if s.Effect != "Allow" {
 			continue
 		}
 		for _, resource := range s.Resource {
-			permissions, ok := permissions[resource]
+			if resource == constants.IAMWildcard {
+				for _, ps := range permissions {
+					updatePermissions(s, ps)
+				}
+			} else {
+				ps, ok := permissions[resource]
+				if ok {
+					updatePermissions(s, ps)
+				}
+			}
+		}
+	}
+}
+
+func updatePermissions(s awspolicy.Statement, permissions []*permission) {
+	for _, permission := range permissions {
+		if s.Condition != nil && permission.Condition != nil {
+			condition, ok := s.Condition[permission.Condition.Type]
 			if ok {
-				for _, permission := range permissions {
-					if s.Condition != nil && permission.Condition != nil {
-						condition, ok := s.Condition[permission.Condition.Type]
-						if ok {
-							values, ok := condition[permission.Condition.Key]
-							if ok {
-								allFound := true
-								for _, v := range permission.Condition.Values {
-									if !slices.Contains(values, v) {
-										allFound = false
-									}
-								}
-								if allFound {
-									permission.ConditionOk = true
-								}
-							}
+				values, ok := condition[permission.Condition.Key]
+				if ok {
+					allFound := true
+					for _, v := range permission.Condition.Values {
+						if !slices.Contains(values, v) {
+							allFound = false
 						}
 					}
-					for _, action := range s.Action {
-						iamAction := toIAMAction(action)
-						permission.Actions[iamAction] = true
+					if allFound {
+						permission.ConditionOk = true
+					}
+				}
+			}
+		}
+		for _, action := range s.Action {
+			iamAction := toIAMAction(action)
+			permission.Actions[iamAction] = true
 
-						if iamAction.IsAdmin() {
-							// mark all permissions found & exit early
-							for a := range permission.Actions {
-								permission.Actions[a] = true
-							}
-							return
-						}
-						if iamAction.Verb == constants.IAMWildcard {
-							// mark all permissions for the relevant service as found
-							for a := range permission.Actions {
-								if a.Service == iamAction.Service {
-									permission.Actions[a] = true
-								}
-							}
-						}
+			if iamAction.IsAdmin() {
+				// mark all permissions found & exit early
+				for a := range permission.Actions {
+					permission.Actions[a] = true
+				}
+				return
+			}
+			if iamAction.Verb == constants.IAMWildcard {
+				// mark all permissions for the relevant service as found
+				for a := range permission.Actions {
+					if a.Service == iamAction.Service {
+						permission.Actions[a] = true
 					}
 				}
 			}
