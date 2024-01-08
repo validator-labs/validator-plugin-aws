@@ -2,5 +2,5 @@ apiVersion: v2
 name: validator-plugin-aws
 description: Perform various AWS validations (IAM, Service Quotas, Tags)
 type: application
-version: 0.0.20
+version: 0.0.21
 appVersion: 0.0.18
