@@ -2,6 +2,7 @@ package iam
 
 import (
 	"context"
+	"errors"
 	"net/url"
 	"testing"
 
@@ -477,7 +478,50 @@ func TestIAMRoleValidation(t *testing.T) {
 			},
 		},
 		{
-			name: "Fail (condition)",
+			name: "Fail (condition, missing value)",
+			rule: v1alpha1.IamRoleRule{
+				IamRoleName: "iamRole3",
+				Policies: []v1alpha1.PolicyDocument{
+					{
+						Name:    "iamPolicy",
+						Version: "1",
+						Statements: []v1alpha1.StatementEntry{
+							{
+								Condition: &v1alpha1.Condition{
+									Type: "ForAnyValue:StringLike",
+									Key:  "kms:ResourceAliases",
+									Values: []string{
+										"alias/cluster-api-provider-aws-*",
+										"alias/another-value",
+									},
+								},
+								Effect: "Allow",
+								Actions: []string{
+									"kms:CreateGrant",
+									"kms:DescribeKey",
+								},
+								Resources: []string{"*"},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: types.ValidationResult{
+				Condition: &vapi.ValidationCondition{
+					ValidationType: "aws-iam-role-policy",
+					ValidationRule: "validation-iamRole3",
+					Message:        "One or more required IAM permissions was not found, or a condition was not met",
+					Details:        []string{},
+					Failures: []string{
+						"Condition ForAnyValue:StringLike: kms:ResourceAliases=[alias/cluster-api-provider-aws-* alias/another-value] not applied to action(s) [kms:CreateGrant kms:DescribeKey] for resource * from policy iamPolicy",
+					},
+					Status: corev1.ConditionFalse,
+				},
+				State: ptr.Ptr(vapi.ValidationFailed),
+			},
+		},
+		{
+			name: "Fail (condition, total miss)",
 			rule: v1alpha1.IamRoleRule{
 				IamRoleName: "iamRole2",
 				Policies: []v1alpha1.PolicyDocument{
@@ -515,6 +559,39 @@ func TestIAMRoleValidation(t *testing.T) {
 				},
 				State: ptr.Ptr(vapi.ValidationFailed),
 			},
+		},
+		{
+			name: "Fail (error)",
+			rule: v1alpha1.IamRoleRule{
+				IamRoleName: "iamRoleZanzibar",
+				Policies: []v1alpha1.PolicyDocument{
+					{
+						Name:    "iamPolicy",
+						Version: "1",
+						Statements: []v1alpha1.StatementEntry{
+							{
+								Effect: "Allow",
+								Actions: []string{
+									"kms:CreateGrant",
+								},
+								Resources: []string{"*"},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: types.ValidationResult{
+				Condition: &vapi.ValidationCondition{
+					ValidationType: "aws-iam-role-policy",
+					ValidationRule: "validation-iamRoleZanzibar",
+					Message:        "All required aws-iam-role-policy permissions were found",
+					Details:        []string{},
+					Failures:       nil,
+					Status:         corev1.ConditionTrue,
+				},
+				State: ptr.Ptr(vapi.ValidationSucceeded),
+			},
+			expectedError: errors.New("no policies found for IAM role iamRoleZanzibar"),
 		},
 	}
 	for _, c := range cs {

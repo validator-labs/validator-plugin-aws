@@ -87,6 +87,8 @@ func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationRe
 	if err != nil {
 		s.log.V(0).Error(err, "failed to list policies for IAM role", "role", rule.Name())
 		return vr, err
+	} else if policies == nil {
+		return vr, fmt.Errorf("no policies found for IAM role %s", rule.Name())
 	}
 
 	// Build map of required permissions
@@ -117,6 +119,8 @@ func (s *IAMRuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationRe
 	if err != nil {
 		s.log.V(0).Error(err, "failed to list policies for IAM user", "name", rule.Name())
 		return vr, err
+	} else if policies == nil {
+		return vr, fmt.Errorf("no policies found for IAM user %s", rule.Name())
 	}
 
 	// Build map of required permissions
@@ -147,6 +151,8 @@ func (s *IAMRuleService) ReconcileIAMGroupRule(rule iamRule) (*types.ValidationR
 	if err != nil {
 		s.log.V(0).Error(err, "failed to list policies for IAM group", "name", rule.Name())
 		return vr, err
+	} else if policies == nil {
+		return vr, fmt.Errorf("no policies found for IAM group %s", rule.Name())
 	}
 
 	// Build map of required permissions
@@ -438,6 +444,7 @@ func computeFailures(rule iamRule, permissions map[string][]*permission, vr *typ
 		failures = append(failures, failureMsg)
 	}
 	if len(failures) > 0 {
+		slices.Sort(failures)
 		vr.State = ptr.Ptr(vapi.ValidationFailed)
 		vr.Condition.Failures = failures
 		vr.Condition.Message = "One or more required IAM permissions was not found, or a condition was not met"
