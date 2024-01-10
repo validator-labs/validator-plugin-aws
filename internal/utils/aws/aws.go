@@ -15,7 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/servicequotas"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/go-logr/logr"
-	
+
 	"github.com/spectrocloud-labs/validator-plugin-aws/api/v1alpha1"
 )
 

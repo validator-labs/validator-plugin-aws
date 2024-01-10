@@ -2,16 +2,19 @@ package iam
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"net/url"
-	"strings"
-
 	awspolicy "github.com/L30Bola/aws-policy"
 	"github.com/aws/aws-sdk-go-v2/service/iam"
 	iamtypes "github.com/aws/aws-sdk-go-v2/service/iam/types"
 	"github.com/go-logr/logr"
 	"golang.org/x/exp/slices"
 	corev1 "k8s.io/api/core/v1"
+	"net/url"
+	"regexp"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/spectrocloud-labs/validator-plugin-aws/api/v1alpha1"
 	"github.com/spectrocloud-labs/validator-plugin-aws/internal/constants"
@@ -21,6 +24,8 @@ import (
 	"github.com/spectrocloud-labs/validator/pkg/types"
 	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
 )
+
+const AccountIDFromARNRegex = "arn:[a-z]*:[a-z]*::([?<AccountID>\\d{12}$]*):[0-9A-Za-z]*\\/[0-9A-Za-z]*"
 
 type iamAction struct {
 	Service string
@@ -62,6 +67,8 @@ type iamApi interface {
 	GetGroup(ctx context.Context, params *iam.GetGroupInput, optFns ...func(*iam.Options)) (*iam.GetGroupOutput, error)
 	GetRole(ctx context.Context, params *iam.GetRoleInput, optFns ...func(*iam.Options)) (*iam.GetRoleOutput, error)
 	SimulatePrincipalPolicy(ctx context.Context, params *iam.SimulatePrincipalPolicyInput, optFns ...func(*iam.Options)) (*iam.SimulatePrincipalPolicyOutput, error)
+	GetContextKeysForPrincipalPolicy(ctx context.Context, params *iam.GetContextKeysForPrincipalPolicyInput, optFns ...func(*iam.Options)) (*iam.GetContextKeysForPrincipalPolicyOutput, error)
+	ListAccountAliases(ctx context.Context, params *iam.ListAccountAliasesInput, optFns ...func(*iam.Options)) (*iam.ListAccountAliasesOutput, error)
 }
 
 type IAMRuleService struct {
@@ -87,7 +94,19 @@ func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationRe
 
 	policyDocs := rule.IAMPolicies()
 
-	scpFailures, err := checkSCP(s.iamSvc, policyDocs, *role.Role.Arn, "role", *role.Role.RoleName)
+	ctxKeys, err := s.iamSvc.GetContextKeysForPrincipalPolicy(context.Background(), &iam.GetContextKeysForPrincipalPolicyInput{
+		PolicySourceArn: ptr.Ptr(*role.Role.Arn),
+	})
+	fmt.Println("CtxKeys: ", ctxKeys, err)
+
+	ctxEntries, err := getContextEntries(s.log, *role.Role.RoleName, *role.Role.RoleId, *role.Role.Arn, ctxKeys.ContextKeyNames)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println("CtxEntries: ", ctxEntries)
+
+	scpFailures, err := checkSCP(s.iamSvc, policyDocs, *role.Role.Arn, "role", *role.Role.RoleName, nil)
 	if err != nil {
 		return vr, err
 	}
@@ -123,6 +142,8 @@ func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationRe
 
 // ReconcileIAMUserRule reconciles an IAM user validation rule from an AWSValidator config
 func (s *IAMRuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationResult, error) {
+	//var ctxEntries []iamtypes.ContextEntry
+
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMUserPolicy)
 
@@ -132,7 +153,19 @@ func (s *IAMRuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationRe
 
 	policyDocs := rule.IAMPolicies()
 
-	scpFailures, err := checkSCP(s.iamSvc, policyDocs, *user.User.Arn, "user", *user.User.UserName)
+	ctxKeys, err := s.iamSvc.GetContextKeysForPrincipalPolicy(context.Background(), &iam.GetContextKeysForPrincipalPolicyInput{
+		PolicySourceArn: ptr.Ptr(*user.User.Arn),
+	})
+	fmt.Println("CtxKeys: ", ctxKeys, err)
+
+	ctxEntries, err := getContextEntries(s.log, *user.User.UserName, *user.User.UserId, *user.User.Arn, ctxKeys.ContextKeyNames)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println("CtxEntries: ", ctxEntries)
+
+	scpFailures, err := checkSCP(s.iamSvc, policyDocs, *user.User.Arn, "user", *user.User.UserName, ctxEntries)
 	if err != nil {
 		return vr, err
 	}
@@ -166,6 +199,78 @@ func (s *IAMRuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationRe
 	return vr, nil
 }
 
+func getAccountIDFromARN(arn string) (string, error) {
+	re := regexp.MustCompile(AccountIDFromARNRegex)
+	matches := re.FindStringSubmatch(arn)
+
+	if matches == nil || len(matches) < 2 {
+		return "", errors.New("error getting org ID from Account ARN")
+	}
+
+	//return first captured group - Account ID
+	return matches[1], nil
+}
+
+func getContextEntries(log logr.Logger, entityName, entityID, entityARN string, contextKeys []string) ([]iamtypes.ContextEntry, error) {
+	var ctxEntries []iamtypes.ContextEntry
+
+	for _, ctxKey := range contextKeys {
+		switch ctxKey {
+		case "aws:username":
+			ctxEntries = append(ctxEntries, iamtypes.ContextEntry{
+				ContextKeyName:   ptr.Ptr("aws:username"),
+				ContextKeyType:   "string",
+				ContextKeyValues: []string{entityName},
+			})
+		case "aws:userid":
+			ctxEntries = append(ctxEntries, iamtypes.ContextEntry{
+				ContextKeyName:   ptr.Ptr("aws:userid"),
+				ContextKeyType:   "string",
+				ContextKeyValues: []string{entityID},
+			})
+		case "aws:PrincipalArn":
+			ctxEntries = append(ctxEntries, iamtypes.ContextEntry{
+				ContextKeyName:   ptr.Ptr("aws:PrincipalArn"),
+				ContextKeyType:   "string",
+				ContextKeyValues: []string{entityARN},
+			})
+		case "aws:PrincipalAccount":
+			accID, err := getAccountIDFromARN(entityARN)
+			if err != nil {
+				log.V(0).Info("error getting account ID from ARN")
+			}
+			if accID == "" {
+				log.V(0).Info("Account ID is empty. Skip getting context key value for: aws:PrincipalAccount")
+				break
+			}
+			ctxEntries = append(ctxEntries, iamtypes.ContextEntry{
+				ContextKeyName:   ptr.Ptr("aws:PrincipalAccount"),
+				ContextKeyType:   "string",
+				ContextKeyValues: []string{accID},
+			})
+		// TODO: Check a way to get aws:PrincipalOrgID on behalf of the user that is being validated
+		case "aws:CurrentTime":
+			currentTime := time.Now().UTC().Format(time.RFC3339)
+			ctxEntries = append(ctxEntries, iamtypes.ContextEntry{
+				ContextKeyName:   ptr.Ptr("aws:CurrentTime"),
+				ContextKeyType:   "string",
+				ContextKeyValues: []string{currentTime},
+			})
+		case "aws:EpochTime":
+			epochTime := strconv.Itoa(int(time.Now().UTC().Unix()))
+			ctxEntries = append(ctxEntries, iamtypes.ContextEntry{
+				ContextKeyName:   ptr.Ptr("aws:EpochTime"),
+				ContextKeyType:   "string",
+				ContextKeyValues: []string{epochTime},
+			})
+		default:
+			log.V(0).Info("Value for context key not fetched. SCP simulation results might be inaccurate", ctxKey, "")
+		}
+	}
+
+	return ctxEntries, nil
+}
+
 // ReconcileIAMGroupRule reconciles an IAM group validation rule from an AWSValidator config
 func (s *IAMRuleService) ReconcileIAMGroupRule(rule iamRule) (*types.ValidationResult, error) {
 	// Build the default ValidationResult for this IAM rule
@@ -177,7 +282,7 @@ func (s *IAMRuleService) ReconcileIAMGroupRule(rule iamRule) (*types.ValidationR
 
 	policyDocs := rule.IAMPolicies()
 
-	scpFailures, err := checkSCP(s.iamSvc, policyDocs, *group.Group.Arn, "group", *group.Group.GroupName)
+	scpFailures, err := checkSCP(s.iamSvc, policyDocs, *group.Group.Arn, "group", *group.Group.GroupName, nil)
 	if err != nil {
 		return vr, err
 	}
@@ -243,43 +348,43 @@ func (s *IAMRuleService) ReconcileIAMPolicyRule(rule iamRule) (*types.Validation
 	return vr, nil
 }
 
-func checkSCP(iamSvc iamApi, policyDocs []v1alpha1.PolicyDocument, policySourceArn string, policySourceType string, policySourceName string) ([]string, error) {
+func checkSCP(iamSvc iamApi, policyDocs []v1alpha1.PolicyDocument, policySourceArn string, policySourceType string, policySourceName string, ctxEntries []iamtypes.ContextEntry) ([]string, error) {
 	var scpFailures []string
-	var ctxEntry []iamtypes.ContextEntry
-
-	// check GetContextKeysForPrincipal to do this
-	if policySourceType == "user" {
-		ctxEntry = []iamtypes.ContextEntry{
-			{
-				ContextKeyName:   ptr.Ptr("aws:username"),
-				ContextKeyType:   "string",
-				ContextKeyValues: []string{policySourceName},
-			},
-		}
-	}
 
 	for _, doc := range policyDocs {
 		for _, statement := range doc.Statements {
-
 			simulationInput := &iam.SimulatePrincipalPolicyInput{
 				ActionNames:     statement.Actions,
 				PolicySourceArn: ptr.Ptr(policySourceArn),
 				ResourceArns:    statement.Resources,
-				ContextEntries:  ctxEntry,
+				ContextEntries:  ctxEntries,
 			}
 
-			sim, err := iamSvc.SimulatePrincipalPolicy(context.Background(), simulationInput)
-			if err != nil {
-				return nil, err
+			var marker *string
+			var simResults []iamtypes.EvaluationResult
+			for {
+				simulationInput.Marker = marker
+
+				simOutput, err := iamSvc.SimulatePrincipalPolicy(context.Background(), simulationInput)
+				if err != nil {
+					return nil, err
+				}
+
+				simResults = append(simResults, simOutput.EvaluationResults...)
+
+				if simOutput.IsTruncated {
+					marker = simOutput.Marker
+					continue
+				}
+				break
 			}
 
-			fmt.Println("Sim eval results", sim.EvaluationResults)
+			fmt.Println("Sim eval results", simResults)
 
-			for _, result := range sim.EvaluationResults {
-				if result.EvalDecision == "implicitDeny" {
-					if !result.OrganizationsDecisionDetail.AllowedByOrganizations {
-						scpFailures = append(scpFailures, fmt.Sprintf("Action: %s is denied due to an Organization level SCP policy for %s: %s", *result.EvalActionName, policySourceType, policySourceName))
-					}
+			for _, result := range simResults {
+				if !result.OrganizationsDecisionDetail.AllowedByOrganizations && result.EvalDecision != "allowed" {
+					// append SCP failure
+					scpFailures = append(scpFailures, fmt.Sprintf("Action: %s is denied due to an Organization level SCP policy for %s: %s", *result.EvalActionName, policySourceType, policySourceName))
 				}
 			}
 		}
