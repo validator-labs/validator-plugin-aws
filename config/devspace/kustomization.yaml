@@ -31,9 +31,6 @@ patches:
             - -c
             - --
             imagePullPolicy: IfNotPresent
-            volumeMounts:
-            - name: aws-auth
-              mountPath: /root/.aws
 - target:
     group: apps
     version: v1

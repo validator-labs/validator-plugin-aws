@@ -133,7 +133,12 @@ spec:
                   - iamGroupName
                   - iamPolicies
                   type: object
+                maxItems: 5
                 type: array
+                x-kubernetes-validations:
+                - message: IamGroupRules must have unique IamGroupNames
+                  rule: self.all(e, size(self.filter(x, x.iamGroupName == e.iamGroupName))
+                    == 1)
               iamPolicyRules:
                 items:
                   properties:
@@ -190,7 +195,12 @@ spec:
                   - iamPolicies
                   - iamPolicyArn
                   type: object
+                maxItems: 5
                 type: array
+                x-kubernetes-validations:
+                - message: IamPolicyRules must have unique ARNs
+                  rule: self.all(e, size(self.filter(x, x.iamPolicyArn == e.iamPolicyArn))
+                    == 1)
               iamRoleRules:
                 items:
                   properties:
@@ -247,7 +257,12 @@ spec:
                   - iamPolicies
                   - iamRoleName
                   type: object
+                maxItems: 5
                 type: array
+                x-kubernetes-validations:
+                - message: IamRoleRules must have unique IamRoleNames
+                  rule: self.all(e, size(self.filter(x, x.iamRoleName == e.iamRoleName))
+                    == 1)
               iamUserRules:
                 items:
                   properties:
@@ -304,10 +319,17 @@ spec:
                   - iamPolicies
                   - iamUserName
                   type: object
+                maxItems: 5
                 type: array
+                x-kubernetes-validations:
+                - message: IamUserRules must have unique IamUserNames
+                  rule: self.all(e, size(self.filter(x, x.iamUserName == e.iamUserName))
+                    == 1)
               serviceQuotaRules:
                 items:
                   properties:
+                    name:
+                      type: string
                     region:
                       type: string
                     serviceCode:
@@ -325,11 +347,16 @@ spec:
                         type: object
                       type: array
                   required:
+                  - name
                   - region
                   - serviceCode
                   - serviceQuotas
                   type: object
+                maxItems: 5
                 type: array
+                x-kubernetes-validations:
+                - message: ServiceQuotaRules must have unique names
+                  rule: self.all(e, size(self.filter(x, x.name == e.name)) == 1)
               tagRules:
                 items:
                   properties:
@@ -341,6 +368,8 @@ spec:
                       type: string
                     key:
                       type: string
+                    name:
+                      type: string
                     region:
                       type: string
                     resourceType:
@@ -349,10 +378,15 @@ spec:
                   - arns
                   - expectedValue
                   - key
+                  - name
                   - region
                   - resourceType
                   type: object
+                maxItems: 5
                 type: array
+                x-kubernetes-validations:
+                - message: TagRules must have unique names
+                  rule: self.all(e, size(self.filter(x, x.name == e.name)) == 1)
             required:
             - defaultRegion
             type: object
