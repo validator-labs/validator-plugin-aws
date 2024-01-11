@@ -27,6 +27,7 @@ type iamApiMock struct {
 	user                          map[string]*iam.GetUserOutput
 	group                         map[string]*iam.GetGroupOutput
 	role                          map[string]*iam.GetRoleOutput
+	contextKeys                   map[string]*iam.GetContextKeysForPrincipalPolicyOutput
 }
 
 func (m iamApiMock) GetPolicy(ctx context.Context, params *iam.GetPolicyInput, optFns ...func(*iam.Options)) (*iam.GetPolicyOutput, error) {
@@ -65,6 +66,10 @@ func (m iamApiMock) GetRole(ctx context.Context, params *iam.GetRoleInput, optFn
 	return m.role[*params.RoleName], nil
 }
 
+func (m iamApiMock) GetContextKeysForPrincipalPolicy(ctx context.Context, params *iam.GetContextKeysForPrincipalPolicyInput, optFns ...func(*iam.Options)) (*iam.GetContextKeysForPrincipalPolicyOutput, error) {
+	return m.contextKeys[*params.PolicySourceArn], nil
+}
+
 const (
 	policyDocumentOutput1 string = `{
 		"Version": "2012-10-17",
@@ -101,7 +106,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		"iamGroup": {
 			AttachedPolicies: []iamtypes.AttachedPolicy{
 				{
-					PolicyArn:  ptr.Ptr("iamRoleArn1"),
+					PolicyArn:  ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn1"),
 					PolicyName: ptr.Ptr("iamPolicy"),
 				},
 			},
@@ -111,7 +116,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		"iamRole1": {
 			AttachedPolicies: []iamtypes.AttachedPolicy{
 				{
-					PolicyArn:  ptr.Ptr("iamRoleArn1"),
+					PolicyArn:  ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn1"),
 					PolicyName: ptr.Ptr("iamPolicy"),
 				},
 			},
@@ -119,7 +124,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		"iamRole2": {
 			AttachedPolicies: []iamtypes.AttachedPolicy{
 				{
-					PolicyArn:  ptr.Ptr("iamRoleArn2"),
+					PolicyArn:  ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn2"),
 					PolicyName: ptr.Ptr("iamPolicy"),
 				},
 			},
@@ -129,38 +134,38 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		"iamUser": {
 			AttachedPolicies: []iamtypes.AttachedPolicy{
 				{
-					PolicyArn:  ptr.Ptr("iamRoleArn1"),
+					PolicyArn:  ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn1"),
 					PolicyName: ptr.Ptr("iamPolicy"),
 				},
 			},
 		},
 	},
 	policyArns: map[string]*iam.GetPolicyOutput{
-		"iamRoleArn1": {
+		"arn:aws:iam::123456789012:role/iamRoleArn1": {
 			Policy: ptr.Ptr(iamtypes.Policy{
 				DefaultVersionId: ptr.Ptr("1"),
 			}),
 		},
-		"iamRoleArn2": {
+		"arn:aws:iam::123456789012:role/iamRoleArn2": {
 			Policy: ptr.Ptr(iamtypes.Policy{
 				DefaultVersionId: ptr.Ptr("1"),
 			}),
 		},
 	},
 	policyVersions: map[string]*iam.GetPolicyVersionOutput{
-		"iamRoleArn1": {
+		"arn:aws:iam::123456789012:role/iamRoleArn1": {
 			PolicyVersion: ptr.Ptr(iamtypes.PolicyVersion{
 				Document: ptr.Ptr(url.QueryEscape(policyDocumentOutput1)),
 			}),
 		},
-		"iamRoleArn2": {
+		"arn:aws:iam::123456789012:role/iamRoleArn2": {
 			PolicyVersion: ptr.Ptr(iamtypes.PolicyVersion{
 				Document: ptr.Ptr(url.QueryEscape(policyDocumentOutput2)),
 			}),
 		},
 	},
 	simulatePrincipalPolicyResult: map[string]*iam.SimulatePrincipalPolicyOutput{
-		"iamGroupArn1": {
+		"arn:aws:iam::123456789012:group/iamGroupArn1": {
 			EvaluationResults: []iamtypes.EvaluationResult{
 				{
 					EvalActionName:              ptr.Ptr("s3:CreateBucket"),
@@ -169,7 +174,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 				},
 			},
 		},
-		"iamGroupArn2": {
+		"arn:aws:iam::123456789012:group/iamGroupArn2": {
 			EvaluationResults: []iamtypes.EvaluationResult{
 				{
 					EvalActionName:              ptr.Ptr("s3:CreateBucket"),
@@ -183,7 +188,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 				},
 			},
 		},
-		"iamRoleArn1": {
+		"arn:aws:iam::123456789012:role/iamRoleArn1": {
 			EvaluationResults: []iamtypes.EvaluationResult{
 				{
 					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
@@ -192,7 +197,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 				},
 			},
 		},
-		"iamRoleArn2": {
+		"arn:aws:iam::123456789012:role/iamRoleArn2": {
 			EvaluationResults: []iamtypes.EvaluationResult{
 				{
 					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
@@ -201,7 +206,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 				},
 			},
 		},
-		"iamRoleArn3": {
+		"arn:aws:iam::123456789012:role/iamRoleArn3": {
 			EvaluationResults: []iamtypes.EvaluationResult{
 				{
 					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
@@ -210,7 +215,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 				},
 			},
 		},
-		"iamUserArn1": {
+		"arn:aws:iam::123456789012:user/iamUserArn1": {
 			EvaluationResults: []iamtypes.EvaluationResult{
 				{
 					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
@@ -219,7 +224,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 				},
 			},
 		},
-		"iamUserArn2": {
+		"arn:aws:iam::123456789012:user/iamUserArn2": {
 			EvaluationResults: []iamtypes.EvaluationResult{
 				{
 					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
@@ -232,27 +237,29 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 	user: map[string]*iam.GetUserOutput{
 		"iamUser": {
 			User: &iamtypes.User{
-				Arn:      ptr.Ptr("iamUserArn1"),
+				Arn:      ptr.Ptr("arn:aws:iam::123456789012:user/iamUserArn1"),
 				UserName: ptr.Ptr("iamUser"),
+				UserId:   ptr.Ptr("iamUserID1"),
 			},
 		},
 		"iamUser2": {
 			User: &iamtypes.User{
-				Arn:      ptr.Ptr("iamUserArn2"),
+				Arn:      ptr.Ptr("arn:aws:iam::123456789012:user/iamUserArn2"),
 				UserName: ptr.Ptr("iamUser2"),
+				UserId:   ptr.Ptr("iamUserID2"),
 			},
 		},
 	},
 	group: map[string]*iam.GetGroupOutput{
 		"iamGroup": {
 			Group: &iamtypes.Group{
-				Arn:       ptr.Ptr("iamGroupArn1"),
+				Arn:       ptr.Ptr("arn:aws:iam::123456789012:group/iamGroupArn1"),
 				GroupName: ptr.Ptr("iamGroup"),
 			},
 		},
 		"iamGroup2": {
 			Group: &iamtypes.Group{
-				Arn:       ptr.Ptr("iamGroupArn2"),
+				Arn:       ptr.Ptr("arn:aws:iam::123456789012:group/iamGroupArn2"),
 				GroupName: ptr.Ptr("iamGroup2"),
 			},
 		},
@@ -260,21 +267,32 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 	role: map[string]*iam.GetRoleOutput{
 		"iamRole1": {
 			Role: &iamtypes.Role{
-				Arn:      ptr.Ptr("iamRoleArn1"),
+				Arn:      ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn1"),
 				RoleName: ptr.Ptr("iamRole1"),
+				RoleId:   ptr.Ptr("iamRoleID1"),
 			},
 		},
 		"iamRole2": {
 			Role: &iamtypes.Role{
-				Arn:      ptr.Ptr("iamRoleArn2"),
+				Arn:      ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn2"),
 				RoleName: ptr.Ptr("iamRole2"),
+				RoleId:   ptr.Ptr("iamRoleID2"),
 			},
 		},
 		"iamRole3": {
 			Role: &iamtypes.Role{
-				Arn:      ptr.Ptr("iamRoleArn3"),
+				Arn:      ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn3"),
 				RoleName: ptr.Ptr("iamRole3"),
+				RoleId:   ptr.Ptr("iamRoleID3"),
 			},
+		},
+	},
+	contextKeys: map[string]*iam.GetContextKeysForPrincipalPolicyOutput{
+		"arn:aws:iam::123456789012:user/iamUserArn1": {
+			ContextKeyNames: []string{"aws:username", "aws:PrincipalArn", "aws:PrincipalAccount"},
+		},
+		"arn:aws:iam::123456789012:role/iamRoleArn1": {
+			ContextKeyNames: []string{"aws:PrincipalAccount", "aws:PrincipalArn"},
 		},
 	},
 })
@@ -624,7 +642,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 		{
 			name: "Fail (missing permission)",
 			rule: v1alpha1.IamPolicyRule{
-				IamPolicyARN: "iamRoleArn1",
+				IamPolicyARN: "arn:aws:iam::123456789012:role/iamRoleArn1",
 				Policies: []v1alpha1.PolicyDocument{
 					{
 						Name:    "iamPolicy",
@@ -656,7 +674,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 		{
 			name: "Pass (basic)",
 			rule: v1alpha1.IamPolicyRule{
-				IamPolicyARN: "iamRoleArn1",
+				IamPolicyARN: "arn:aws:iam::123456789012:role/iamRoleArn1",
 				Policies: []v1alpha1.PolicyDocument{
 					{
 						Name:    "iamPolicy",

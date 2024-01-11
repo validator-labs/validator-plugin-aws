@@ -68,7 +68,6 @@ type iamApi interface {
 	GetRole(ctx context.Context, params *iam.GetRoleInput, optFns ...func(*iam.Options)) (*iam.GetRoleOutput, error)
 	SimulatePrincipalPolicy(ctx context.Context, params *iam.SimulatePrincipalPolicyInput, optFns ...func(*iam.Options)) (*iam.SimulatePrincipalPolicyOutput, error)
 	GetContextKeysForPrincipalPolicy(ctx context.Context, params *iam.GetContextKeysForPrincipalPolicyInput, optFns ...func(*iam.Options)) (*iam.GetContextKeysForPrincipalPolicyOutput, error)
-	ListAccountAliases(ctx context.Context, params *iam.ListAccountAliasesInput, optFns ...func(*iam.Options)) (*iam.ListAccountAliasesOutput, error)
 }
 
 type IAMRuleService struct {
@@ -85,6 +84,8 @@ func NewIAMRuleService(log logr.Logger, iamSvc iamApi) *IAMRuleService {
 
 // ReconcileIAMRoleRule reconciles an IAM role validation rule from an AWSValidator config
 func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationResult, error) {
+	var ctxEntries []iamtypes.ContextEntry
+
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMRolePolicy)
 
@@ -97,16 +98,14 @@ func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationRe
 	ctxKeys, err := s.iamSvc.GetContextKeysForPrincipalPolicy(context.Background(), &iam.GetContextKeysForPrincipalPolicyInput{
 		PolicySourceArn: ptr.Ptr(*role.Role.Arn),
 	})
-	fmt.Println("CtxKeys: ", ctxKeys, err)
-
-	ctxEntries, err := getContextEntries(s.log, *role.Role.RoleName, *role.Role.RoleId, *role.Role.Arn, ctxKeys.ContextKeyNames)
-	if err != nil {
-		return nil, err
+	if ctxKeys != nil {
+		ctxEntries, err = getContextEntries(s.log, *role.Role.RoleName, *role.Role.RoleId, *role.Role.Arn, ctxKeys.ContextKeyNames)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	fmt.Println("CtxEntries: ", ctxEntries)
-
-	scpFailures, err := checkSCP(s.iamSvc, policyDocs, *role.Role.Arn, "role", *role.Role.RoleName, nil)
+	scpFailures, err := checkSCP(s.iamSvc, policyDocs, *role.Role.Arn, "role", *role.Role.RoleName, ctxEntries)
 	if err != nil {
 		return vr, err
 	}
@@ -142,7 +141,7 @@ func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationRe
 
 // ReconcileIAMUserRule reconciles an IAM user validation rule from an AWSValidator config
 func (s *IAMRuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationResult, error) {
-	//var ctxEntries []iamtypes.ContextEntry
+	var ctxEntries []iamtypes.ContextEntry
 
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMUserPolicy)
@@ -156,14 +155,12 @@ func (s *IAMRuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationRe
 	ctxKeys, err := s.iamSvc.GetContextKeysForPrincipalPolicy(context.Background(), &iam.GetContextKeysForPrincipalPolicyInput{
 		PolicySourceArn: ptr.Ptr(*user.User.Arn),
 	})
-	fmt.Println("CtxKeys: ", ctxKeys, err)
-
-	ctxEntries, err := getContextEntries(s.log, *user.User.UserName, *user.User.UserId, *user.User.Arn, ctxKeys.ContextKeyNames)
-	if err != nil {
-		return nil, err
+	if ctxKeys != nil {
+		ctxEntries, err = getContextEntries(s.log, *user.User.UserName, *user.User.UserId, *user.User.Arn, ctxKeys.ContextKeyNames)
+		if err != nil {
+			return nil, err
+		}
 	}
-
-	fmt.Println("CtxEntries: ", ctxEntries)
 
 	scpFailures, err := checkSCP(s.iamSvc, policyDocs, *user.User.Arn, "user", *user.User.UserName, ctxEntries)
 	if err != nil {
@@ -378,8 +375,6 @@ func checkSCP(iamSvc iamApi, policyDocs []v1alpha1.PolicyDocument, policySourceA
 				}
 				break
 			}
-
-			fmt.Println("Sim eval results", simResults)
 
 			for _, result := range simResults {
 				if !result.OrganizationsDecisionDetail.AllowedByOrganizations && result.EvalDecision != "allowed" {
