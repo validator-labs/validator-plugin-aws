@@ -27,6 +27,8 @@ import (
 
 const AccountIDFromARNRegex = "arn:[a-z]*:[a-z]*::([?<AccountID>\\d{12}$]*):[0-9A-Za-z]*\\/[0-9A-Za-z]*"
 
+var re = regexp.MustCompile(AccountIDFromARNRegex)
+
 type iamAction struct {
 	Service string
 	Verb    string
@@ -97,11 +99,6 @@ func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationRe
 
 	policyDocs := rule.IAMPolicies()
 
-	if *role.Role.RoleName == "iamRole6" {
-		fmt.Println("IamRole6")
-	}
-
-	fmt.Println("role: ", *role.Role.RoleName, *role.Role.RoleId)
 	ctxKeys, err := s.iamSvc.GetContextKeysForPrincipalPolicy(context.Background(), &iam.GetContextKeysForPrincipalPolicyInput{
 		PolicySourceArn: ptr.Ptr(*role.Role.Arn),
 	})
@@ -208,7 +205,6 @@ func (s *IAMRuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationRe
 }
 
 func getAccountIDFromARN(arn string) (string, error) {
-	re := regexp.MustCompile(AccountIDFromARNRegex)
 	matches := re.FindStringSubmatch(arn)
 
 	if matches == nil || len(matches) < 2 {
