@@ -644,16 +644,16 @@ func computeFailures(rule iamRule, permissions map[string][]*permission, vr *typ
 	}
 
 	// sort the missing actions list
-	var missingActionKeys []string
+	var resources []string
 	for key := range missingActions {
-		missingActionKeys = append(missingActionKeys, key)
+		resources = append(resources, key)
 	}
-	sort.Strings(missingActionKeys)
+	sort.Strings(resources)
 
-	for _, key := range missingActionKeys {
+	for _, resource := range resources {
 		failureMsg := fmt.Sprintf(
 			"%T %s missing action(s): %s for resource %s from policy %s",
-			rule, rule.Name(), missingActions[key].Actions, key, missingActions[key].PolicyName,
+			rule, rule.Name(), missingActions[resource].Actions, resource, missingActions[resource].PolicyName,
 		)
 		failures = append(failures, failureMsg)
 	}
