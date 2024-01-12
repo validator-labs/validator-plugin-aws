@@ -1072,7 +1072,6 @@ func TestIAMPolicyValidation(t *testing.T) {
 					ValidationRule: "validation-arn:aws:iam::123456789012:role/iamRoleArn4",
 					Message:        "One or more required IAM permissions was not found, or a condition was not met",
 					Details:        []string{},
-					// TODO: fix this flaky test as the missing actions list can sometimes be jumbled: [eks:ListIdentityProviderConfigs eks:AssociateIdentityProviderConfig]
 					Failures: []string{
 						"v1alpha1.IamPolicyRule arn:aws:iam::123456789012:role/iamRoleArn4 missing action(s): [eks:AssociateIdentityProviderConfig eks:ListIdentityProviderConfigs] for resource arn:*:eks:*:*:nodegroup/*/*/* from policy iamPolicy",
 					},
