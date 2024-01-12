@@ -474,7 +474,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 	},
 	contextKeys: map[string]*iam.GetContextKeysForPrincipalPolicyOutput{
 		"arn:aws:iam::123456789012:user/iamUserArn1": {
-			ContextKeyNames: []string{"aws:username", "aws:PrincipalArn", "aws:PrincipalAccount"},
+			ContextKeyNames: []string{"aws:username", "aws:userid", "aws:PrincipalArn", "aws:PrincipalAccount", "aws:CurrentTime", "aws:EpochTime", "aws:PrincipalOrgID"},
 		},
 		"arn:aws:iam::123456789012:role/iamRoleArn1": {
 			ContextKeyNames: []string{"aws:PrincipalAccount", "aws:PrincipalArn"},
