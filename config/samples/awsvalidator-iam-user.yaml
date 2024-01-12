@@ -2,16 +2,20 @@ apiVersion: validation.spectrocloud.labs/v1alpha1
 kind: AwsValidator
 metadata:
   name: awsvalidator-sample-iam-user
+  namespace: validator
 spec:
+  auth:
+    implicit: false
+    secretName: aws-secret
   defaultRegion: us-west-1
   iamUserRules:
   - iamPolicies:
     - name: User Policy
       statements:
       - actions:
-        - "cognito-sync:ListDatasets"
+        - "s3:CreateBucket"
         effect: Allow
         resources:
         - "*"
       version: "2012-10-17"
-    iamUserName: tyler
+    iamUserName: prakash

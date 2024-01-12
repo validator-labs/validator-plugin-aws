@@ -2,7 +2,11 @@ apiVersion: validation.spectrocloud.labs/v1alpha1
 kind: AwsValidator
 metadata:
   name: awsvalidator-sample-iam-group
+  namespace: validator
 spec:
+  auth:
+    implicit: false
+    secretName: aws-secret
   defaultRegion: us-west-1
   iamGroupRules:
   - iamPolicies:
@@ -14,4 +18,4 @@ spec:
         resources:
         - "*"
       version: "2012-10-17"
-    iamGroupName: PaletteClusterAdministrators
+    iamGroupName: admingroup

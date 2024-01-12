@@ -19,11 +19,16 @@ import (
 )
 
 type iamApiMock struct {
-	attachedGroupPolicies map[string]*iam.ListAttachedGroupPoliciesOutput
-	attachedRolePolicies  map[string]*iam.ListAttachedRolePoliciesOutput
-	attachedUserPolicies  map[string]*iam.ListAttachedUserPoliciesOutput
-	policyArns            map[string]*iam.GetPolicyOutput
-	policyVersions        map[string]*iam.GetPolicyVersionOutput
+	attachedGroupPolicies         map[string]*iam.ListAttachedGroupPoliciesOutput
+	attachedRolePolicies          map[string]*iam.ListAttachedRolePoliciesOutput
+	attachedUserPolicies          map[string]*iam.ListAttachedUserPoliciesOutput
+	policyArns                    map[string]*iam.GetPolicyOutput
+	policyVersions                map[string]*iam.GetPolicyVersionOutput
+	simulatePrincipalPolicyResult map[string]*iam.SimulatePrincipalPolicyOutput
+	user                          map[string]*iam.GetUserOutput
+	group                         map[string]*iam.GetGroupOutput
+	role                          map[string]*iam.GetRoleOutput
+	contextKeys                   map[string]*iam.GetContextKeysForPrincipalPolicyOutput
 }
 
 func (m iamApiMock) GetPolicy(ctx context.Context, params *iam.GetPolicyInput, optFns ...func(*iam.Options)) (*iam.GetPolicyOutput, error) {
@@ -44,6 +49,26 @@ func (m iamApiMock) ListAttachedRolePolicies(ctx context.Context, params *iam.Li
 
 func (m iamApiMock) ListAttachedUserPolicies(ctx context.Context, params *iam.ListAttachedUserPoliciesInput, optFns ...func(*iam.Options)) (*iam.ListAttachedUserPoliciesOutput, error) {
 	return m.attachedUserPolicies[*params.UserName], nil
+}
+
+func (m iamApiMock) SimulatePrincipalPolicy(ctx context.Context, params *iam.SimulatePrincipalPolicyInput, optFns ...func(*iam.Options)) (*iam.SimulatePrincipalPolicyOutput, error) {
+	return m.simulatePrincipalPolicyResult[*params.PolicySourceArn], nil
+}
+
+func (m iamApiMock) GetUser(ctx context.Context, params *iam.GetUserInput, optFns ...func(*iam.Options)) (*iam.GetUserOutput, error) {
+	return m.user[*params.UserName], nil
+}
+
+func (m iamApiMock) GetGroup(ctx context.Context, params *iam.GetGroupInput, optFns ...func(*iam.Options)) (*iam.GetGroupOutput, error) {
+	return m.group[*params.GroupName], nil
+}
+
+func (m iamApiMock) GetRole(ctx context.Context, params *iam.GetRoleInput, optFns ...func(*iam.Options)) (*iam.GetRoleOutput, error) {
+	return m.role[*params.RoleName], nil
+}
+
+func (m iamApiMock) GetContextKeysForPrincipalPolicy(ctx context.Context, params *iam.GetContextKeysForPrincipalPolicyInput, optFns ...func(*iam.Options)) (*iam.GetContextKeysForPrincipalPolicyOutput, error) {
+	return m.contextKeys[*params.PolicySourceArn], nil
 }
 
 const (
@@ -153,7 +178,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		"iamGroup": {
 			AttachedPolicies: []iamtypes.AttachedPolicy{
 				{
-					PolicyArn:  ptr.Ptr("iamRoleArn1"),
+					PolicyArn:  ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn1"),
 					PolicyName: ptr.Ptr("iamPolicy"),
 				},
 			},
@@ -163,7 +188,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		"iamRole1": {
 			AttachedPolicies: []iamtypes.AttachedPolicy{
 				{
-					PolicyArn:  ptr.Ptr("iamRoleArn1"),
+					PolicyArn:  ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn1"),
 					PolicyName: ptr.Ptr("iamPolicy"),
 				},
 			},
@@ -171,7 +196,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		"iamRole2": {
 			AttachedPolicies: []iamtypes.AttachedPolicy{
 				{
-					PolicyArn:  ptr.Ptr("iamRoleArn2"),
+					PolicyArn:  ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn2"),
 					PolicyName: ptr.Ptr("iamPolicy"),
 				},
 			},
@@ -179,7 +204,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		"iamRole3": {
 			AttachedPolicies: []iamtypes.AttachedPolicy{
 				{
-					PolicyArn:  ptr.Ptr("iamRoleArn3"),
+					PolicyArn:  ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn3"),
 					PolicyName: ptr.Ptr("iamPolicy"),
 				},
 			},
@@ -187,7 +212,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		"iamRole4": {
 			AttachedPolicies: []iamtypes.AttachedPolicy{
 				{
-					PolicyArn:  ptr.Ptr("iamRoleArn4"),
+					PolicyArn:  ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn4"),
 					PolicyName: ptr.Ptr("iamPolicy"),
 				},
 			},
@@ -195,34 +220,34 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		"iamRole5": {
 			AttachedPolicies: []iamtypes.AttachedPolicy{
 				{
-					PolicyArn:  ptr.Ptr("iamRoleArn5"),
+					PolicyArn:  ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn5"),
 					PolicyName: ptr.Ptr("iamPolicy"),
 				},
 			},
 		},
 	},
 	policyArns: map[string]*iam.GetPolicyOutput{
-		"iamRoleArn1": {
+		"arn:aws:iam::123456789012:role/iamRoleArn1": {
 			Policy: ptr.Ptr(iamtypes.Policy{
 				DefaultVersionId: ptr.Ptr("1"),
 			}),
 		},
-		"iamRoleArn2": {
+		"arn:aws:iam::123456789012:role/iamRoleArn2": {
 			Policy: ptr.Ptr(iamtypes.Policy{
 				DefaultVersionId: ptr.Ptr("1"),
 			}),
 		},
-		"iamRoleArn3": {
+		"arn:aws:iam::123456789012:role/iamRoleArn3": {
 			Policy: ptr.Ptr(iamtypes.Policy{
 				DefaultVersionId: ptr.Ptr("1"),
 			}),
 		},
-		"iamRoleArn4": {
+		"arn:aws:iam::123456789012:role/iamRoleArn4": {
 			Policy: ptr.Ptr(iamtypes.Policy{
 				DefaultVersionId: ptr.Ptr("1"),
 			}),
 		},
-		"iamRoleArn5": {
+		"arn:aws:iam::123456789012:role/iamRoleArn5": {
 			Policy: ptr.Ptr(iamtypes.Policy{
 				DefaultVersionId: ptr.Ptr("1"),
 			}),
@@ -232,37 +257,227 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		"iamUser": {
 			AttachedPolicies: []iamtypes.AttachedPolicy{
 				{
-					PolicyArn:  ptr.Ptr("iamRoleArn1"),
+					PolicyArn:  ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn1"),
 					PolicyName: ptr.Ptr("iamPolicy"),
 				},
 			},
 		},
 	},
 	policyVersions: map[string]*iam.GetPolicyVersionOutput{
-		"iamRoleArn1": {
+		"arn:aws:iam::123456789012:role/iamRoleArn1": {
 			PolicyVersion: ptr.Ptr(iamtypes.PolicyVersion{
 				Document: ptr.Ptr(url.QueryEscape(policyDocumentOutput1)),
 			}),
 		},
-		"iamRoleArn2": {
+		"arn:aws:iam::123456789012:role/iamRoleArn2": {
 			PolicyVersion: ptr.Ptr(iamtypes.PolicyVersion{
 				Document: ptr.Ptr(url.QueryEscape(policyDocumentOutput2)),
 			}),
 		},
-		"iamRoleArn3": {
+		"arn:aws:iam::123456789012:role/iamRoleArn3": {
 			PolicyVersion: ptr.Ptr(iamtypes.PolicyVersion{
 				Document: ptr.Ptr(url.QueryEscape(policyDocumentOutput3)),
 			}),
 		},
-		"iamRoleArn4": {
+		"arn:aws:iam::123456789012:role/iamRoleArn4": {
 			PolicyVersion: ptr.Ptr(iamtypes.PolicyVersion{
 				Document: ptr.Ptr(url.QueryEscape(policyDocumentOutput4)),
 			}),
 		},
-		"iamRoleArn5": {
+		"arn:aws:iam::123456789012:role/iamRoleArn5": {
 			PolicyVersion: ptr.Ptr(iamtypes.PolicyVersion{
 				Document: ptr.Ptr(url.QueryEscape(policyDocumentOutput5)),
 			}),
+		},
+	},
+	simulatePrincipalPolicyResult: map[string]*iam.SimulatePrincipalPolicyOutput{
+		"arn:aws:iam::123456789012:group/iamGroupArn1": {
+			EvaluationResults: []iamtypes.EvaluationResult{
+				{
+					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
+					EvalDecision:                "allowed",
+					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: true},
+				},
+			},
+		},
+		"arn:aws:iam::123456789012:group/iamGroupArn2": {
+			EvaluationResults: []iamtypes.EvaluationResult{
+				{
+					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
+					EvalDecision:                "implicitDeny",
+					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: false},
+				},
+			},
+		},
+		"arn:aws:iam::123456789012:user/iamUserArn1": {
+			EvaluationResults: []iamtypes.EvaluationResult{
+				{
+					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
+					EvalDecision:                "allowed",
+					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: true},
+				},
+			},
+		},
+		"arn:aws:iam::123456789012:user/iamUserArn2": {
+			EvaluationResults: []iamtypes.EvaluationResult{
+				{
+					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
+					EvalDecision:                "implicitDeny",
+					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: false},
+				},
+			},
+		},
+		"arn:aws:iam::123456789012:role/iamRoleArn1": {
+			EvaluationResults: []iamtypes.EvaluationResult{
+				{
+					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
+					EvalDecision:                "allowed",
+					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: true},
+				},
+			},
+		},
+		"arn:aws:iam::123456789012:role/iamRoleArn2": {
+			EvaluationResults: []iamtypes.EvaluationResult{
+				{
+					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
+					EvalDecision:                "allowed",
+					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: true},
+				},
+			},
+		},
+		"arn:aws:iam::123456789012:role/iamRoleArn3": {
+			EvaluationResults: []iamtypes.EvaluationResult{
+				{
+					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
+					EvalDecision:                "allowed",
+					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: true},
+				},
+			},
+		},
+		"arn:aws:iam::123456789012:role/iamRoleArn4": {
+			EvaluationResults: []iamtypes.EvaluationResult{
+				{
+					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
+					EvalDecision:                "allowed",
+					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: true},
+				},
+			},
+		},
+		"arn:aws:iam::123456789012:role/iamRoleArn5": {
+			EvaluationResults: []iamtypes.EvaluationResult{
+				{
+					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
+					EvalDecision:                "allowed",
+					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: true},
+				},
+			},
+		},
+		"arn:aws:iam::123456789012:role/iamRoleArn6": {
+			EvaluationResults: []iamtypes.EvaluationResult{
+				{
+					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
+					EvalDecision:                "implicitDeny",
+					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: false},
+				},
+			},
+		},
+		"arn:aws:iam::123456789012:role/iamRoleZanzibar": {
+			EvaluationResults: []iamtypes.EvaluationResult{
+				{
+					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
+					EvalDecision:                "allowed",
+					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: true},
+				},
+			},
+		},
+	},
+	group: map[string]*iam.GetGroupOutput{
+		"iamGroup": {
+			Group: &iamtypes.Group{
+				Arn:       ptr.Ptr("arn:aws:iam::123456789012:group/iamGroupArn1"),
+				GroupName: ptr.Ptr("iamGroup"),
+			},
+		},
+		"iamGroup2": {
+			Group: &iamtypes.Group{
+				Arn:       ptr.Ptr("arn:aws:iam::123456789012:group/iamGroupArn2"),
+				GroupName: ptr.Ptr("iamGroup2"),
+			},
+		},
+	},
+	role: map[string]*iam.GetRoleOutput{
+		"iamRole1": {
+			Role: &iamtypes.Role{
+				Arn:      ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn1"),
+				RoleName: ptr.Ptr("iamRole1"),
+				RoleId:   ptr.Ptr("iamRoleID1"),
+			},
+		},
+		"iamRole2": {
+			Role: &iamtypes.Role{
+				Arn:      ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn2"),
+				RoleName: ptr.Ptr("iamRole2"),
+				RoleId:   ptr.Ptr("iamRoleID2"),
+			},
+		},
+		"iamRole3": {
+			Role: &iamtypes.Role{
+				Arn:      ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn3"),
+				RoleName: ptr.Ptr("iamRole3"),
+				RoleId:   ptr.Ptr("iamRoleID3"),
+			},
+		},
+		"iamRole4": {
+			Role: &iamtypes.Role{
+				Arn:      ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn4"),
+				RoleName: ptr.Ptr("iamRole4"),
+				RoleId:   ptr.Ptr("iamRoleID4"),
+			},
+		},
+		"iamRole5": {
+			Role: &iamtypes.Role{
+				Arn:      ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn5"),
+				RoleName: ptr.Ptr("iamRole5"),
+				RoleId:   ptr.Ptr("iamRoleID5"),
+			},
+		},
+		"iamRole6": {
+			Role: &iamtypes.Role{
+				Arn:      ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn6"),
+				RoleName: ptr.Ptr("iamRole6"),
+				RoleId:   ptr.Ptr("iamRoleID6"),
+			},
+		},
+		"iamRoleZanzibar": {
+			Role: &iamtypes.Role{
+				Arn:      ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleZanzibar"),
+				RoleName: ptr.Ptr("iamRoleZanzibar"),
+				RoleId:   ptr.Ptr("iamRoleIDZanzibar"),
+			},
+		},
+	},
+	user: map[string]*iam.GetUserOutput{
+		"iamUser": {
+			User: &iamtypes.User{
+				Arn:      ptr.Ptr("arn:aws:iam::123456789012:user/iamUserArn1"),
+				UserName: ptr.Ptr("iamUser"),
+				UserId:   ptr.Ptr("iamUserID1"),
+			},
+		},
+		"iamUser2": {
+			User: &iamtypes.User{
+				Arn:      ptr.Ptr("arn:aws:iam::123456789012:user/iamUserArn2"),
+				UserName: ptr.Ptr("iamUser2"),
+				UserId:   ptr.Ptr("iamUserID2"),
+			},
+		},
+	},
+	contextKeys: map[string]*iam.GetContextKeysForPrincipalPolicyOutput{
+		"arn:aws:iam::123456789012:user/iamUserArn1": {
+			ContextKeyNames: []string{"aws:username", "aws:userid", "aws:PrincipalArn", "aws:PrincipalAccount", "aws:CurrentTime", "aws:EpochTime", "aws:PrincipalOrgID"},
+		},
+		"arn:aws:iam::123456789012:role/iamRoleArn1": {
+			ContextKeyNames: []string{"aws:PrincipalAccount", "aws:PrincipalArn"},
 		},
 	},
 })
@@ -336,6 +551,36 @@ func TestIAMGroupValidation(t *testing.T) {
 					Status:         corev1.ConditionTrue,
 				},
 				State: ptr.Ptr(vapi.ValidationSucceeded),
+			},
+		},
+		{
+			name: "Fail (basic) - SCP",
+			rule: v1alpha1.IamGroupRule{
+				IamGroupName: "iamGroup2",
+				Policies: []v1alpha1.PolicyDocument{
+					{
+						Name:    "iamPolicy",
+						Version: "1",
+						Statements: []v1alpha1.StatementEntry{
+							{
+								Effect:    "Allow",
+								Actions:   []string{"ec2:DescribeInstances"},
+								Resources: []string{"*"},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: types.ValidationResult{
+				Condition: &vapi.ValidationCondition{
+					ValidationType: "aws-iam-group-policy",
+					ValidationRule: "validation-iamGroup2",
+					Message:        "One or more required SCP permissions was not found, or a condition was not met",
+					Details:        []string{},
+					Failures:       []string{"Action: ec2:DescribeInstances is denied due to an Organization level SCP policy for group: iamGroup2"},
+					Status:         corev1.ConditionFalse,
+				},
+				State: ptr.Ptr(vapi.ValidationFailed),
 			},
 		},
 	}
@@ -593,6 +838,36 @@ func TestIAMRoleValidation(t *testing.T) {
 			},
 			expectedError: errors.New("no policies found for IAM role iamRoleZanzibar"),
 		},
+		{
+			name: "Fail (basic) - SCP",
+			rule: v1alpha1.IamRoleRule{
+				IamRoleName: "iamRole6",
+				Policies: []v1alpha1.PolicyDocument{
+					{
+						Name:    "iamPolicy",
+						Version: "1",
+						Statements: []v1alpha1.StatementEntry{
+							{
+								Effect:    "Allow",
+								Actions:   []string{"ec2:DescribeInstances"},
+								Resources: []string{"*"},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: types.ValidationResult{
+				Condition: &vapi.ValidationCondition{
+					ValidationType: "aws-iam-role-policy",
+					ValidationRule: "validation-iamRole6",
+					Message:        "One or more required SCP permissions was not found, or a condition was not met",
+					Details:        []string{},
+					Failures:       []string{"Action: ec2:DescribeInstances is denied due to an Organization level SCP policy for role: iamRole6"},
+					Status:         corev1.ConditionFalse,
+				},
+				State: ptr.Ptr(vapi.ValidationFailed),
+			},
+		},
 	}
 	for _, c := range cs {
 		result, err := iamService.ReconcileIAMRoleRule(c.rule)
@@ -664,6 +939,36 @@ func TestIAMUserValidation(t *testing.T) {
 				State: ptr.Ptr(vapi.ValidationSucceeded),
 			},
 		},
+		{
+			name: "Fail (basic) - SCP",
+			rule: v1alpha1.IamUserRule{
+				IamUserName: "iamUser2",
+				Policies: []v1alpha1.PolicyDocument{
+					{
+						Name:    "iamPolicy",
+						Version: "1",
+						Statements: []v1alpha1.StatementEntry{
+							{
+								Effect:    "Allow",
+								Actions:   []string{"ec2:DescribeInstances"},
+								Resources: []string{"*"},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: types.ValidationResult{
+				Condition: &vapi.ValidationCondition{
+					ValidationType: "aws-iam-user-policy",
+					ValidationRule: "validation-iamUser2",
+					Message:        "One or more required SCP permissions was not found, or a condition was not met",
+					Details:        []string{},
+					Failures:       []string{"Action: ec2:DescribeInstances is denied due to an Organization level SCP policy for user: iamUser2"},
+					Status:         corev1.ConditionFalse,
+				},
+				State: ptr.Ptr(vapi.ValidationFailed),
+			},
+		},
 	}
 	for _, c := range cs {
 		result, err := iamService.ReconcileIAMUserRule(c.rule)
@@ -676,7 +981,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 		{
 			name: "Fail (missing permission)",
 			rule: v1alpha1.IamPolicyRule{
-				IamPolicyARN: "iamRoleArn1",
+				IamPolicyARN: "arn:aws:iam::123456789012:role/iamRoleArn1",
 				Policies: []v1alpha1.PolicyDocument{
 					{
 						Name:    "iamPolicy",
@@ -694,11 +999,11 @@ func TestIAMPolicyValidation(t *testing.T) {
 			expectedResult: types.ValidationResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-policy",
-					ValidationRule: "validation-iamRoleArn1",
+					ValidationRule: "validation-arn:aws:iam::123456789012:role/iamRoleArn1",
 					Message:        "One or more required IAM permissions was not found, or a condition was not met",
 					Details:        []string{},
 					Failures: []string{
-						"v1alpha1.IamPolicyRule iamRoleArn1 missing action(s): [s3:GetBuckets] for resource * from policy iamPolicy",
+						"v1alpha1.IamPolicyRule arn:aws:iam::123456789012:role/iamRoleArn1 missing action(s): [s3:GetBuckets] for resource * from policy iamPolicy",
 					},
 					Status: corev1.ConditionFalse,
 				},
@@ -708,7 +1013,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 		{
 			name: "Pass (basic)",
 			rule: v1alpha1.IamPolicyRule{
-				IamPolicyARN: "iamRoleArn1",
+				IamPolicyARN: "arn:aws:iam::123456789012:role/iamRoleArn1",
 				Policies: []v1alpha1.PolicyDocument{
 					{
 						Name:    "iamPolicy",
@@ -726,7 +1031,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 			expectedResult: types.ValidationResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-policy",
-					ValidationRule: "validation-iamRoleArn1",
+					ValidationRule: "validation-arn:aws:iam::123456789012:role/iamRoleArn1",
 					Message:        "All required aws-iam-policy permissions were found",
 					Details:        []string{},
 					Failures:       nil,
@@ -738,7 +1043,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 		{
 			name: "Fail (multi-resource w/ wildcard)",
 			rule: v1alpha1.IamPolicyRule{
-				IamPolicyARN: "iamRoleArn4",
+				IamPolicyARN: "arn:aws:iam::123456789012:role/iamRoleArn4",
 				Policies: []v1alpha1.PolicyDocument{
 					{
 						Name:    "iamPolicy",
@@ -764,11 +1069,11 @@ func TestIAMPolicyValidation(t *testing.T) {
 			expectedResult: types.ValidationResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-policy",
-					ValidationRule: "validation-iamRoleArn4",
+					ValidationRule: "validation-arn:aws:iam::123456789012:role/iamRoleArn4",
 					Message:        "One or more required IAM permissions was not found, or a condition was not met",
 					Details:        []string{},
 					Failures: []string{
-						"v1alpha1.IamPolicyRule iamRoleArn4 missing action(s): [eks:AssociateIdentityProviderConfig eks:ListIdentityProviderConfigs] for resource arn:*:eks:*:*:nodegroup/*/*/* from policy iamPolicy",
+						"v1alpha1.IamPolicyRule arn:aws:iam::123456789012:role/iamRoleArn4 missing action(s): [eks:AssociateIdentityProviderConfig eks:ListIdentityProviderConfigs] for resource arn:*:eks:*:*:nodegroup/*/*/* from policy iamPolicy",
 					},
 					Status: corev1.ConditionFalse,
 				},
@@ -778,7 +1083,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 		{
 			name: "Fail (explicit deny override)",
 			rule: v1alpha1.IamPolicyRule{
-				IamPolicyARN: "iamRoleArn5",
+				IamPolicyARN: "arn:aws:iam::123456789012:role/iamRoleArn5",
 				Policies: []v1alpha1.PolicyDocument{
 					{
 						Name:    "iamPolicy",
@@ -800,11 +1105,11 @@ func TestIAMPolicyValidation(t *testing.T) {
 			expectedResult: types.ValidationResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-policy",
-					ValidationRule: "validation-iamRoleArn5",
+					ValidationRule: "validation-arn:aws:iam::123456789012:role/iamRoleArn5",
 					Message:        "One or more required IAM permissions was not found, or a condition was not met",
 					Details:        []string{},
 					Failures: []string{
-						"v1alpha1.IamPolicyRule iamRoleArn5 missing action(s): [ec2:DescribeInstances] for resource * from policy iamPolicy",
+						"v1alpha1.IamPolicyRule arn:aws:iam::123456789012:role/iamRoleArn5 missing action(s): [ec2:DescribeInstances] for resource * from policy iamPolicy",
 					},
 					Status: corev1.ConditionFalse,
 				},
@@ -814,7 +1119,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 		{
 			name: "Pass (explicit allow with irrelevant explicit deny)",
 			rule: v1alpha1.IamPolicyRule{
-				IamPolicyARN: "iamRoleArn5",
+				IamPolicyARN: "arn:aws:iam::123456789012:role/iamRoleArn5",
 				Policies: []v1alpha1.PolicyDocument{
 					{
 						Name:    "iamPolicy",
@@ -836,7 +1141,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 			expectedResult: types.ValidationResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-policy",
-					ValidationRule: "validation-iamRoleArn5",
+					ValidationRule: "validation-arn:aws:iam::123456789012:role/iamRoleArn5",
 					Message:        "All required aws-iam-policy permissions were found",
 					Details:        []string{},
 					Failures:       nil,
@@ -848,7 +1153,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 		{
 			name: "Pass (action with wildcard suffix)",
 			rule: v1alpha1.IamPolicyRule{
-				IamPolicyARN: "iamRoleArn5",
+				IamPolicyARN: "arn:aws:iam::123456789012:role/iamRoleArn5",
 				Policies: []v1alpha1.PolicyDocument{
 					{
 						Name:    "iamPolicy",
@@ -870,7 +1175,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 			expectedResult: types.ValidationResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-policy",
-					ValidationRule: "validation-iamRoleArn5",
+					ValidationRule: "validation-arn:aws:iam::123456789012:role/iamRoleArn5",
 					Message:        "All required aws-iam-policy permissions were found",
 					Details:        []string{},
 					Failures:       nil,
@@ -882,7 +1187,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 		{
 			name: "Pass (action with wildcard prefix)",
 			rule: v1alpha1.IamPolicyRule{
-				IamPolicyARN: "iamRoleArn5",
+				IamPolicyARN: "arn:aws:iam::123456789012:role/iamRoleArn5",
 				Policies: []v1alpha1.PolicyDocument{
 					{
 						Name:    "iamPolicy",
@@ -904,7 +1209,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 			expectedResult: types.ValidationResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-policy",
-					ValidationRule: "validation-iamRoleArn5",
+					ValidationRule: "validation-arn:aws:iam::123456789012:role/iamRoleArn5",
 					Message:        "All required aws-iam-policy permissions were found",
 					Details:        []string{},
 					Failures:       nil,
@@ -916,7 +1221,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 		{
 			name: "Pass (action with wildcard prefix and suffix)",
 			rule: v1alpha1.IamPolicyRule{
-				IamPolicyARN: "iamRoleArn5",
+				IamPolicyARN: "arn:aws:iam::123456789012:role/iamRoleArn5",
 				Policies: []v1alpha1.PolicyDocument{
 					{
 						Name:    "iamPolicy",
@@ -938,7 +1243,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 			expectedResult: types.ValidationResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-policy",
-					ValidationRule: "validation-iamRoleArn5",
+					ValidationRule: "validation-arn:aws:iam::123456789012:role/iamRoleArn5",
 					Message:        "All required aws-iam-policy permissions were found",
 					Details:        []string{},
 					Failures:       nil,

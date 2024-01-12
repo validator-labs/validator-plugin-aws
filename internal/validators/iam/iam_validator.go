@@ -2,9 +2,14 @@ package iam
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/url"
+	"regexp"
+	"sort"
+	"strconv"
 	"strings"
+	"time"
 
 	awspolicy "github.com/L30Bola/aws-policy"
 	"github.com/aws/aws-sdk-go-v2/service/iam"
@@ -21,6 +26,10 @@ import (
 	"github.com/spectrocloud-labs/validator/pkg/types"
 	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
 )
+
+const AccountIDFromARNRegex = "arn:[a-z]*:[a-z]*::([?<AccountID>\\d{12}$]*):[0-9A-Za-z]*\\/[0-9A-Za-z]*"
+
+var re = regexp.MustCompile(AccountIDFromARNRegex)
 
 type iamAction struct {
 	Service string
@@ -60,6 +69,11 @@ type iamApi interface {
 	ListAttachedGroupPolicies(ctx context.Context, params *iam.ListAttachedGroupPoliciesInput, optFns ...func(*iam.Options)) (*iam.ListAttachedGroupPoliciesOutput, error)
 	ListAttachedRolePolicies(ctx context.Context, params *iam.ListAttachedRolePoliciesInput, optFns ...func(*iam.Options)) (*iam.ListAttachedRolePoliciesOutput, error)
 	ListAttachedUserPolicies(ctx context.Context, params *iam.ListAttachedUserPoliciesInput, optFns ...func(*iam.Options)) (*iam.ListAttachedUserPoliciesOutput, error)
+	GetUser(ctx context.Context, params *iam.GetUserInput, optFns ...func(*iam.Options)) (*iam.GetUserOutput, error)
+	GetGroup(ctx context.Context, params *iam.GetGroupInput, optFns ...func(*iam.Options)) (*iam.GetGroupOutput, error)
+	GetRole(ctx context.Context, params *iam.GetRoleInput, optFns ...func(*iam.Options)) (*iam.GetRoleOutput, error)
+	SimulatePrincipalPolicy(ctx context.Context, params *iam.SimulatePrincipalPolicyInput, optFns ...func(*iam.Options)) (*iam.SimulatePrincipalPolicyOutput, error)
+	GetContextKeysForPrincipalPolicy(ctx context.Context, params *iam.GetContextKeysForPrincipalPolicyInput, optFns ...func(*iam.Options)) (*iam.GetContextKeysForPrincipalPolicyOutput, error)
 }
 
 type IAMRuleService struct {
@@ -76,9 +90,36 @@ func NewIAMRuleService(log logr.Logger, iamSvc iamApi) *IAMRuleService {
 
 // ReconcileIAMRoleRule reconciles an IAM role validation rule from an AWSValidator config
 func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationResult, error) {
+	var ctxEntries []iamtypes.ContextEntry
 
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMRolePolicy)
+
+	role, err := s.iamSvc.GetRole(context.Background(), &iam.GetRoleInput{
+		RoleName: ptr.Ptr(rule.Name()),
+	})
+
+	policyDocs := rule.IAMPolicies()
+
+	ctxKeys, err := s.iamSvc.GetContextKeysForPrincipalPolicy(context.Background(), &iam.GetContextKeysForPrincipalPolicyInput{
+		PolicySourceArn: ptr.Ptr(*role.Role.Arn),
+	})
+	if ctxKeys != nil {
+		ctxEntries, err = getContextEntries(s.log, *role.Role.RoleName, *role.Role.RoleId, *role.Role.Arn, ctxKeys.ContextKeyNames)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	scpFailures, err := checkSCP(s.iamSvc, policyDocs, *role.Role.Arn, "role", *role.Role.RoleName, ctxEntries)
+	if err != nil {
+		return vr, err
+	}
+
+	// SCP related failures found. Exit early
+	if len(scpFailures) > 0 {
+		return getSCPFailedValidationResult(vr, scpFailures), nil
+	}
 
 	// Retrieve all IAM policies attached to the IAM role
 	policies, err := s.iamSvc.ListAttachedRolePolicies(context.Background(), &iam.ListAttachedRolePoliciesInput{
@@ -108,9 +149,36 @@ func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationRe
 
 // ReconcileIAMUserRule reconciles an IAM user validation rule from an AWSValidator config
 func (s *IAMRuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationResult, error) {
+	var ctxEntries []iamtypes.ContextEntry
 
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMUserPolicy)
+
+	user, err := s.iamSvc.GetUser(context.Background(), &iam.GetUserInput{
+		UserName: ptr.Ptr(rule.Name()),
+	})
+
+	policyDocs := rule.IAMPolicies()
+
+	ctxKeys, err := s.iamSvc.GetContextKeysForPrincipalPolicy(context.Background(), &iam.GetContextKeysForPrincipalPolicyInput{
+		PolicySourceArn: ptr.Ptr(*user.User.Arn),
+	})
+	if ctxKeys != nil {
+		ctxEntries, err = getContextEntries(s.log, *user.User.UserName, *user.User.UserId, *user.User.Arn, ctxKeys.ContextKeyNames)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	scpFailures, err := checkSCP(s.iamSvc, policyDocs, *user.User.Arn, "user", *user.User.UserName, ctxEntries)
+	if err != nil {
+		return vr, err
+	}
+
+	// SCP related failures found. Exit early
+	if len(scpFailures) > 0 {
+		return getSCPFailedValidationResult(vr, scpFailures), nil
+	}
 
 	// Retrieve all IAM policies attached to the IAM user
 	policies, err := s.iamSvc.ListAttachedUserPolicies(context.Background(), &iam.ListAttachedUserPoliciesInput{
@@ -138,11 +206,97 @@ func (s *IAMRuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationRe
 	return vr, nil
 }
 
+func getAccountIDFromARN(arn string) (string, error) {
+	matches := re.FindStringSubmatch(arn)
+
+	if matches == nil || len(matches) < 2 {
+		return "", errors.New("error getting org ID from Account ARN")
+	}
+
+	//return first captured group - Account ID
+	return matches[1], nil
+}
+
+func getContextEntries(log logr.Logger, entityName, entityID, entityARN string, contextKeys []string) ([]iamtypes.ContextEntry, error) {
+	var ctxEntries []iamtypes.ContextEntry
+
+	for _, ctxKey := range contextKeys {
+		switch ctxKey {
+		case "aws:username":
+			ctxEntries = append(ctxEntries, iamtypes.ContextEntry{
+				ContextKeyName:   ptr.Ptr("aws:username"),
+				ContextKeyType:   "string",
+				ContextKeyValues: []string{entityName},
+			})
+		case "aws:userid":
+			ctxEntries = append(ctxEntries, iamtypes.ContextEntry{
+				ContextKeyName:   ptr.Ptr("aws:userid"),
+				ContextKeyType:   "string",
+				ContextKeyValues: []string{entityID},
+			})
+		case "aws:PrincipalArn":
+			ctxEntries = append(ctxEntries, iamtypes.ContextEntry{
+				ContextKeyName:   ptr.Ptr("aws:PrincipalArn"),
+				ContextKeyType:   "string",
+				ContextKeyValues: []string{entityARN},
+			})
+		case "aws:PrincipalAccount":
+			accID, err := getAccountIDFromARN(entityARN)
+			if err != nil {
+				log.V(0).Info("error getting account ID from ARN")
+			}
+			if accID == "" {
+				log.V(0).Info("Account ID is empty. Skip getting context key value for: aws:PrincipalAccount")
+				break
+			}
+			ctxEntries = append(ctxEntries, iamtypes.ContextEntry{
+				ContextKeyName:   ptr.Ptr("aws:PrincipalAccount"),
+				ContextKeyType:   "string",
+				ContextKeyValues: []string{accID},
+			})
+		// TODO: Check a way to get aws:PrincipalOrgID on behalf of the user that is being validated
+		case "aws:CurrentTime":
+			currentTime := time.Now().UTC().Format(time.RFC3339)
+			ctxEntries = append(ctxEntries, iamtypes.ContextEntry{
+				ContextKeyName:   ptr.Ptr("aws:CurrentTime"),
+				ContextKeyType:   "string",
+				ContextKeyValues: []string{currentTime},
+			})
+		case "aws:EpochTime":
+			epochTime := strconv.Itoa(int(time.Now().UTC().Unix()))
+			ctxEntries = append(ctxEntries, iamtypes.ContextEntry{
+				ContextKeyName:   ptr.Ptr("aws:EpochTime"),
+				ContextKeyType:   "string",
+				ContextKeyValues: []string{epochTime},
+			})
+		default:
+			log.V(0).Info("Value for context key not fetched. SCP simulation results might be inaccurate", ctxKey, "")
+		}
+	}
+
+	return ctxEntries, nil
+}
+
 // ReconcileIAMGroupRule reconciles an IAM group validation rule from an AWSValidator config
 func (s *IAMRuleService) ReconcileIAMGroupRule(rule iamRule) (*types.ValidationResult, error) {
-
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMGroupPolicy)
+
+	group, err := s.iamSvc.GetGroup(context.Background(), &iam.GetGroupInput{
+		GroupName: ptr.Ptr(rule.Name()),
+	})
+
+	policyDocs := rule.IAMPolicies()
+
+	scpFailures, err := checkSCP(s.iamSvc, policyDocs, *group.Group.Arn, "group", *group.Group.GroupName, nil)
+	if err != nil {
+		return vr, err
+	}
+
+	// SCP related failures found. Exit early
+	if len(scpFailures) > 0 {
+		return getSCPFailedValidationResult(vr, scpFailures), nil
+	}
 
 	// Retrieve all IAM policies attached to the IAM user
 	policies, err := s.iamSvc.ListAttachedGroupPolicies(context.Background(), &iam.ListAttachedGroupPoliciesInput{
@@ -170,6 +324,15 @@ func (s *IAMRuleService) ReconcileIAMGroupRule(rule iamRule) (*types.ValidationR
 	return vr, nil
 }
 
+func getSCPFailedValidationResult(vr *types.ValidationResult, failures []string) *types.ValidationResult {
+	vr.State = ptr.Ptr(vapi.ValidationFailed)
+	vr.Condition.Failures = failures
+	vr.Condition.Message = "One or more required SCP permissions was not found, or a condition was not met"
+	vr.Condition.Status = corev1.ConditionFalse
+
+	return vr
+}
+
 // ReconcileIAMPolicyRule reconciles an IAM policy validation rule from an AWSValidator config
 func (s *IAMRuleService) ReconcileIAMPolicyRule(rule iamRule) (*types.ValidationResult, error) {
 
@@ -191,6 +354,49 @@ func (s *IAMRuleService) ReconcileIAMPolicyRule(rule iamRule) (*types.Validation
 	computeFailures(rule, permissions, vr)
 
 	return vr, nil
+}
+
+func checkSCP(iamSvc iamApi, policyDocs []v1alpha1.PolicyDocument, policySourceArn string, policySourceType string, policySourceName string, ctxEntries []iamtypes.ContextEntry) ([]string, error) {
+	var scpFailures []string
+
+	for _, doc := range policyDocs {
+		for _, statement := range doc.Statements {
+			simulationInput := &iam.SimulatePrincipalPolicyInput{
+				ActionNames:     statement.Actions,
+				PolicySourceArn: ptr.Ptr(policySourceArn),
+				ResourceArns:    statement.Resources,
+				ContextEntries:  ctxEntries,
+			}
+
+			var marker *string
+			var simResults []iamtypes.EvaluationResult
+			for {
+				simulationInput.Marker = marker
+
+				simOutput, err := iamSvc.SimulatePrincipalPolicy(context.Background(), simulationInput)
+				if err != nil {
+					return nil, err
+				}
+
+				simResults = append(simResults, simOutput.EvaluationResults...)
+
+				if simOutput.IsTruncated {
+					marker = simOutput.Marker
+					continue
+				}
+				break
+			}
+
+			for _, result := range simResults {
+				if !result.OrganizationsDecisionDetail.AllowedByOrganizations && result.EvalDecision != "allowed" {
+					// append SCP failure
+					scpFailures = append(scpFailures, fmt.Sprintf("Action: %s is denied due to an Organization level SCP policy for %s: %s", *result.EvalActionName, policySourceType, policySourceName))
+				}
+			}
+		}
+	}
+
+	return scpFailures, nil
 }
 
 // processPolicies updates an IAM permission map for each IAM policy in an array of IAM policies attached to a IAM user / group / role
@@ -314,6 +520,7 @@ func updateResourcePermissions(policyDocument *awspolicy.Policy, permissions map
 		if s.Effect != effect {
 			continue
 		}
+
 		for _, resource := range s.Resource {
 			if resource == constants.IAMWildcard {
 				for _, ps := range permissions {
@@ -436,10 +643,17 @@ func computeFailures(rule iamRule, permissions map[string][]*permission, vr *typ
 		}
 	}
 
-	for resource, missing := range missingActions {
+	// sort the missing actions list
+	var resources []string
+	for key := range missingActions {
+		resources = append(resources, key)
+	}
+	sort.Strings(resources)
+
+	for _, resource := range resources {
 		failureMsg := fmt.Sprintf(
 			"%T %s missing action(s): %s for resource %s from policy %s",
-			rule, rule.Name(), missing.Actions, resource, missing.PolicyName,
+			rule, rule.Name(), missingActions[resource].Actions, resource, missingActions[resource].PolicyName,
 		)
 		failures = append(failures, failureMsg)
 	}

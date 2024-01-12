@@ -2,7 +2,11 @@ apiVersion: validation.spectrocloud.labs/v1alpha1
 kind: AwsValidator
 metadata:
   name: awsvalidator-spectro-cloud-eks
+  namespace: validator
 spec:
+  auth:
+    implicit: false
+    secretName: aws-secret
   defaultRegion: us-west-1
   iamRoleRules:
   - iamPolicies:
@@ -129,4 +133,4 @@ spec:
         resources:
         - "*"
       version: "2012-10-17"
-    iamRoleName: SpectroCloudRole
+    iamRoleName: s3AccessRole
