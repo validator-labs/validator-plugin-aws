@@ -7,7 +7,7 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.24.1
 	github.com/aws/aws-sdk-go-v2/config v1.26.3
 	github.com/aws/aws-sdk-go-v2/credentials v1.16.14
-	github.com/aws/aws-sdk-go-v2/service/ec2 v1.143.0
+	github.com/aws/aws-sdk-go-v2/service/ec2 v1.144.0
 	github.com/aws/aws-sdk-go-v2/service/efs v1.26.6
 	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing v1.21.7
 	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.26.7
@@ -15,10 +15,10 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/servicequotas v1.19.7
 	github.com/aws/aws-sdk-go-v2/service/sts v1.26.7
 	github.com/go-logr/logr v1.4.1
-	github.com/onsi/ginkgo/v2 v2.13.2
+	github.com/onsi/ginkgo/v2 v2.14.0
 	github.com/onsi/gomega v1.30.0
 	github.com/spectrocloud-labs/validator v0.0.32
-	golang.org/x/exp v0.0.0-20240103183307-be819d1f06fc
+	golang.org/x/exp v0.0.0-20240110193028-0dcbfd608b1e
 	k8s.io/api v0.28.4
 	k8s.io/apimachinery v0.28.4
 	k8s.io/client-go v0.28.4
@@ -81,7 +81,7 @@ require (
 	golang.org/x/term v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
-	golang.org/x/tools v0.16.0 // indirect
+	golang.org/x/tools v0.16.1 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.32.0 // indirect
