@@ -97,6 +97,11 @@ func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationRe
 
 	policyDocs := rule.IAMPolicies()
 
+	if *role.Role.RoleName == "iamRole6" {
+		fmt.Println("IamRole6")
+	}
+
+	fmt.Println("role: ", *role.Role.RoleName, *role.Role.RoleId)
 	ctxKeys, err := s.iamSvc.GetContextKeysForPrincipalPolicy(context.Background(), &iam.GetContextKeysForPrincipalPolicyInput{
 		PolicySourceArn: ptr.Ptr(*role.Role.Arn),
 	})
