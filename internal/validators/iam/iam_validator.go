@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/url"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -642,10 +643,17 @@ func computeFailures(rule iamRule, permissions map[string][]*permission, vr *typ
 		}
 	}
 
-	for resource, missing := range missingActions {
+	// sort the missing actions list
+	var missingActionKeys []string
+	for key := range missingActions {
+		missingActionKeys = append(missingActionKeys, key)
+	}
+	sort.Strings(missingActionKeys)
+
+	for _, key := range missingActionKeys {
 		failureMsg := fmt.Sprintf(
 			"%T %s missing action(s): %s for resource %s from policy %s",
-			rule, rule.Name(), missing.Actions, resource, missing.PolicyName,
+			rule, rule.Name(), missingActions[key].Actions, key, missingActions[key].PolicyName,
 		)
 		failures = append(failures, failureMsg)
 	}
