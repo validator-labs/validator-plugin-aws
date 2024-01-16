@@ -36,7 +36,26 @@ Authentication details for the AWS validator controller are provided within each
 ### Minimal AWS managed IAM permission policies by validation type
 For validation to succeed, certain AWS managed permission policies must be attached to the principal used and/or assumed by the AWS validator controller. The minimal required IAM policies, broken out by validation category, are as follows:
 * IAM
-  * `IAMReadOnlyAccess`
+  * User Validation
+    * `iam:GetUser`
+    * `iam:GetPolicy`
+    * `iam:GetPolicyVersion`
+    * `iam:SimulatePrincipalPolicy`
+    * `iam:ListAttachedUserPolicies`
+    * `iam:GetContextKeysForPrincipalPolicy`
+  * Role Validation
+    * `iam:GetRole`
+    * `iam:GetPolicy`
+    * `iam:GetPolicyVersion`
+    * `iam:SimulatePrincipalPolicy`
+    * `iam:ListAttachedRolePolicies`
+    * `iam:GetContextKeysForPrincipalPolicy`
+  * Group Validation
+    * `iam:GetGroup`
+    * `iam:GetPolicy`
+    * `iam:GetPolicyVersion`
+    * `iam:SimulatePrincipalPolicy`
+    * `iam:ListAttachedGroupPolicies`
 * Service Quotas
   * `AmazonEC2ReadOnlyAccess`
   * `AmazonElasticFileSystemReadOnlyAccess`
