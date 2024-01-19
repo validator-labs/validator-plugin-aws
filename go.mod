@@ -18,7 +18,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.15.0
 	github.com/onsi/gomega v1.31.0
 	github.com/spectrocloud-labs/validator v0.0.32
-	golang.org/x/exp v0.0.0-20240112132812-db7319d0e0e3
+	golang.org/x/exp v0.0.0-20240119083558-1b970713d09a
 	k8s.io/api v0.28.4
 	k8s.io/apimachinery v0.28.4
 	k8s.io/client-go v0.28.4
