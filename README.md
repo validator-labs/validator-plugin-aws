@@ -37,32 +37,165 @@ Authentication details for the AWS validator controller are provided within each
 For validation to succeed, certain AWS managed permission policies must be attached to the principal used and/or assumed by the AWS validator controller. The minimal required IAM policies, broken out by validation category, are as follows:
 * IAM
   * User Validation
-    * `iam:GetUser`
-    * `iam:GetPolicy`
-    * `iam:GetPolicyVersion`
-    * `iam:SimulatePrincipalPolicy`
-    * `iam:ListAttachedUserPolicies`
-    * `iam:GetContextKeysForPrincipalPolicy`
+    ```json
+    {
+    	"Version": "2012-10-17",
+    	"Statement": [
+    		{
+    			"Sid": "VisualEditor0",
+    			"Effect": "Allow",
+    			"Action": [
+    				"iam:ListAttachedUserPolicies",
+    				"iam:GetContextKeysForPrincipalPolicy",
+    				"iam:GetPolicy",
+    				"iam:GetPolicyVersion",
+    				"iam:GetUser",
+    				"iam:SimulatePrincipalPolicy"
+    			],
+    			"Resource": "arn:aws:iam::<ACCOUNT_ID>:user/*"
+    		}
+    	]
+    }
+    ```
   * Role Validation
-    * `iam:GetRole`
-    * `iam:GetPolicy`
-    * `iam:GetPolicyVersion`
-    * `iam:SimulatePrincipalPolicy`
-    * `iam:ListAttachedRolePolicies`
-    * `iam:GetContextKeysForPrincipalPolicy`
+    ```json
+    {
+    	"Version": "2012-10-17",
+    	"Statement": [
+    		{
+    			"Sid": "VisualEditor0",
+    			"Effect": "Allow",
+    			"Action": [
+    				"iam:ListAttachedRolePolicies",
+    				"iam:GetContextKeysForPrincipalPolicy",
+    				"iam:GetPolicy",
+    				"iam:GetPolicyVersion",
+    				"iam:GetRole",
+    				"iam:SimulatePrincipalPolicy"
+    			],
+    			"Resource": "arn:aws:iam::<ACCOUNT_ID>:role/*"
+    		}
+    	]
+    }
+    ```
   * Group Validation
-    * `iam:GetGroup`
-    * `iam:GetPolicy`
-    * `iam:GetPolicyVersion`
-    * `iam:SimulatePrincipalPolicy`
-    * `iam:ListAttachedGroupPolicies`
+    ```json
+    {
+    	"Version": "2012-10-17",
+    	"Statement": [
+    		{
+    			"Sid": "VisualEditor0",
+    			"Effect": "Allow",
+    			"Action": [
+    				"iam:ListAttachedGroupPolicies",
+    				"iam:GetGroup",
+    				"iam:GetPolicy",
+    				"iam:GetPolicyVersion",
+    				"iam:SimulatePrincipalPolicy"
+    			],
+    			"Resource": "arn:aws:iam::<ACCOUNT_ID>:group/*"
+    		}
+    	]
+    }
+    ```
 * Service Quotas
-  * `AmazonEC2ReadOnlyAccess`
-  * `AmazonElasticFileSystemReadOnlyAccess`
-  * `ElasticLoadBalancingReadOnly`
-  * `ServiceQuotasReadOnlyAccess`
+  * Requires the following IAM policies:
+    * `AmazonEC2ReadOnlyAccess`
+    * `AmazonElasticFileSystemReadOnlyAccess`
+    * `ElasticLoadBalancingReadOnly`
+    * `ServiceQuotasReadOnlyAccess`
+  * Combined JSON policy:
+    ```json
+    {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Sid": "AmazonEC2ReadOnlyAccess1",
+                "Effect": "Allow",
+                "Action": "ec2:Describe*",
+                "Resource": "*"
+            },
+            {
+                "Sid": "AmazonEC2ReadOnlyAccess2",
+                "Effect": "Allow",
+                "Action": [
+                    "elasticloadbalancing:Describe*",
+                    "elasticloadbalancing:Get*"
+                ],
+                "Resource": "*"
+            },
+            {
+                "Sid": "AmazonEC2ReadOnlyAccess3",
+                "Effect": "Allow",
+                "Action": [
+                    "cloudwatch:ListMetrics",
+                    "cloudwatch:GetMetricData",
+                    "cloudwatch:GetMetricStatistics",
+                    "cloudwatch:Describe*",
+                    "cloudwatch:DescribeAlarmsForMetric"
+                ],
+                "Resource": "*"
+            },
+            {
+                "Sid": "AmazonEC2ReadOnlyAccess4",
+                "Effect": "Allow",
+                "Action": "autoscaling:Describe*",
+                "Resource": "*"
+            },
+            {
+                "Sid": "AmazonElasticFileSystemReadOnlyAccess",
+                "Effect": "Allow",
+                "Action": [
+                    "elasticfilesystem:DescribeAccountPreferences",
+                    "elasticfilesystem:DescribeBackupPolicy",
+                    "elasticfilesystem:DescribeFileSystems",
+                    "elasticfilesystem:DescribeFileSystemPolicy",
+                    "elasticfilesystem:DescribeLifecycleConfiguration",
+                    "elasticfilesystem:DescribeMountTargets",
+                    "elasticfilesystem:DescribeMountTargetSecurityGroups",
+                    "elasticfilesystem:DescribeTags",
+                    "elasticfilesystem:DescribeAccessPoints",
+                    "elasticfilesystem:DescribeReplicationConfigurations",
+                    "elasticfilesystem:ListTagsForResource",
+                    "kms:ListAliases"
+                ],
+                "Resource": "*"
+            },
+            {
+                "Sid": "ServiceQuotasReadOnlyAccess",
+                "Effect": "Allow",
+                "Action": [
+                    "cloudformation:DescribeAccountLimits",
+                    "dynamodb:DescribeLimits",
+                    "iam:GetAccountSummary",
+                    "kinesis:DescribeLimits",
+                    "organizations:DescribeAccount",
+                    "organizations:DescribeOrganization",
+                    "organizations:ListAWSServiceAccessForOrganization",
+                    "rds:DescribeAccountAttributes",
+                    "route53:GetAccountLimit",
+                    "tag:GetTagKeys",
+                    "tag:GetTagValues",
+                    "servicequotas:GetAssociationForServiceQuotaTemplate",
+                    "servicequotas:GetAWSDefaultServiceQuota",
+                    "servicequotas:GetRequestedServiceQuotaChange",
+                    "servicequotas:GetServiceQuota",
+                    "servicequotas:GetServiceQuotaIncreaseRequestFromTemplate",
+                    "servicequotas:ListAWSDefaultServiceQuotas",
+                    "servicequotas:ListRequestedServiceQuotaChangeHistory",
+                    "servicequotas:ListRequestedServiceQuotaChangeHistoryByQuota",
+                    "servicequotas:ListServices",
+                    "servicequotas:ListServiceQuotas",
+                    "servicequotas:ListServiceQuotaIncreaseRequestsInTemplate",
+                    "servicequotas:ListTagsForResource"
+                ],
+                "Resource": "*"
+            }
+        ]
+    }
+    ```
 * Tags
-  * `AmazonVPCReadOnlyAccess`
+  * Requires the `AmazonVPCReadOnlyAccess` IAM policy, which is a subset of `AmazonEC2ReadOnlyAccess`
 
 > [!NOTE]
 > Validation *can* be successful with custom IAM policies that are even more restrictive than the AWS managed policies listed above, but these will vary on a case-by-case basis and hence are undocumented for the sake of maintainability.
