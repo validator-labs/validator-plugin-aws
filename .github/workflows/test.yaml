@@ -19,6 +19,11 @@ jobs:
         with:
           go-version-file: go.mod
 
+      - name: Setup Python
+        uses: actions/setup-python@master
+        with:
+          python-version: 3.10
+
       - name: Test
         run: make test
 
