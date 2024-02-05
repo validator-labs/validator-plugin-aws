@@ -666,9 +666,11 @@ func computeFailures(rule iamRule, permissions map[string][]*permission, vr *typ
 	sort.Strings(resources)
 
 	for _, resource := range resources {
+		actions := missingActions[resource].Actions
+		sort.Strings(actions)
 		failureMsg := fmt.Sprintf(
 			"%T %s missing action(s): %s for resource %s from policy %s",
-			rule, rule.Name(), missingActions[resource].Actions, resource, missingActions[resource].PolicyName,
+			rule, rule.Name(), actions, resource, missingActions[resource].PolicyName,
 		)
 		failures = append(failures, failureMsg)
 	}
