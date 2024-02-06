@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.23](https://github.com/spectrocloud-labs/validator-plugin-aws/compare/v0.0.22...v0.0.23) (2024-02-06)
+
+
+### Other
+
+* update validator ([17d763b](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/17d763b881dba32e1c88698547b257f0e18d38ce))
+
 ## [0.0.22](https://github.com/spectrocloud-labs/validator-plugin-aws/compare/v0.0.21...v0.0.22) (2024-02-05)
 
 
