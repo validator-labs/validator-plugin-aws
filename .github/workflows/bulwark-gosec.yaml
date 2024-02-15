@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   gosec-pr-scan:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64, validator]
     container:
       image: gcr.io/spectro-dev-public/bulwark/gosec:latest
       env:
@@ -22,7 +22,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5
         with:
-          go-version-file: go.mod
+          go-version: '1.21'
 
       - name: run-gosec-scan
         shell: sh
