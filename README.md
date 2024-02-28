@@ -11,9 +11,10 @@ The AWS [validator](https://github.com/spectrocloud-labs/validator) plugin ensur
 ## Description
 The AWS validator plugin reconciles `AwsValidator` custom resources to perform the following validations against your AWS environment:
 
-1. Compare the IAM permissions associated with an IAM user / group / role / policy against an expected permission set
-2. Compare the usage for a particular service quota against the active quota
-3. Compare the tags associated with a subnet against an expected tag set
+1. Compare the IAM permissions associated with an IAM user / group / role / policy against an expected permission set.
+2. Compare the usage for a particular service quota against the active quota to avoid unexpectedly hitting quota limits.
+   - Essentially [Quota Monitor for AWS](https://docs.aws.amazon.com/solutions/latest/quota-monitor-for-aws/solution-overview.html) but cheaper, simpler, and open source.
+3. Compare the tags associated with a subnet against an expected tag set.
 
 Each `AwsValidator` CR is (re)-processed every two minutes to continuously ensure that your AWS environment matches the expected state.
 
