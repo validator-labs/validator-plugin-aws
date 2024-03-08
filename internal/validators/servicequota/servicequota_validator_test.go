@@ -22,7 +22,7 @@ import (
 	"github.com/spectrocloud-labs/validator-plugin-aws/internal/utils/test"
 	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
 	"github.com/spectrocloud-labs/validator/pkg/types"
-	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
+	"github.com/spectrocloud-labs/validator/pkg/util"
 )
 
 type ec2ApiMock struct {
@@ -101,7 +101,7 @@ var svcQuotaService = NewServiceQuotaRuleService(
 		addresses: &ec2.DescribeAddressesOutput{
 			Addresses: []ec2types.Address{
 				{
-					AssociationId: ptr.Ptr("1"),
+					AssociationId: util.Ptr("1"),
 				},
 				{
 					AssociationId: nil,
@@ -111,55 +111,55 @@ var svcQuotaService = NewServiceQuotaRuleService(
 		images: &ec2.DescribeImagesOutput{
 			Images: []ec2types.Image{
 				{
-					ImageId: ptr.Ptr("1"),
+					ImageId: util.Ptr("1"),
 				},
 			},
 		},
 		internetGateways: &ec2.DescribeInternetGatewaysOutput{
 			InternetGateways: []ec2types.InternetGateway{
 				{
-					InternetGatewayId: ptr.Ptr("1"),
+					InternetGatewayId: util.Ptr("1"),
 				},
 			},
 		},
 		natGateways: &ec2.DescribeNatGatewaysOutput{
 			NatGateways: []ec2types.NatGateway{
 				{
-					NatGatewayId: ptr.Ptr("1"),
-					SubnetId:     ptr.Ptr("1"),
+					NatGatewayId: util.Ptr("1"),
+					SubnetId:     util.Ptr("1"),
 				},
 			},
 		},
 		networkInterfaces: &ec2.DescribeNetworkInterfacesOutput{
 			NetworkInterfaces: []ec2types.NetworkInterface{
 				{
-					NetworkInterfaceId: ptr.Ptr("1"),
+					NetworkInterfaceId: util.Ptr("1"),
 				},
 			},
 		},
 		subnets: &ec2.DescribeSubnetsOutput{
 			Subnets: []ec2types.Subnet{
 				{
-					SubnetId:         ptr.Ptr("1"),
-					AvailabilityZone: ptr.Ptr("us-west-1"),
-					VpcId:            ptr.Ptr("1"),
+					SubnetId:         util.Ptr("1"),
+					AvailabilityZone: util.Ptr("us-west-1"),
+					VpcId:            util.Ptr("1"),
 				},
 				{
-					SubnetId:         ptr.Ptr("2"),
-					AvailabilityZone: ptr.Ptr("us-west-2"),
-					VpcId:            ptr.Ptr("2"),
+					SubnetId:         util.Ptr("2"),
+					AvailabilityZone: util.Ptr("us-west-2"),
+					VpcId:            util.Ptr("2"),
 				},
 				{
-					SubnetId:         ptr.Ptr("3"),
-					AvailabilityZone: ptr.Ptr("us-west-1"),
-					VpcId:            ptr.Ptr("1"),
+					SubnetId:         util.Ptr("3"),
+					AvailabilityZone: util.Ptr("us-west-1"),
+					VpcId:            util.Ptr("1"),
 				},
 			},
 		},
 		vpcs: &ec2.DescribeVpcsOutput{
 			Vpcs: []ec2types.Vpc{
 				{
-					VpcId: ptr.Ptr("1"),
+					VpcId: util.Ptr("1"),
 				},
 			},
 		},
@@ -168,7 +168,7 @@ var svcQuotaService = NewServiceQuotaRuleService(
 		filesystems: &efs.DescribeFileSystemsOutput{
 			FileSystems: []efstypes.FileSystemDescription{
 				{
-					FileSystemId: ptr.Ptr("1"),
+					FileSystemId: util.Ptr("1"),
 				},
 			},
 		},
@@ -177,7 +177,7 @@ var svcQuotaService = NewServiceQuotaRuleService(
 		loadBalancers: &elasticloadbalancing.DescribeLoadBalancersOutput{
 			LoadBalancerDescriptions: []elbtypes.LoadBalancerDescription{
 				{
-					LoadBalancerName: ptr.Ptr("clb1"),
+					LoadBalancerName: util.Ptr("clb1"),
 				},
 			},
 		},
@@ -186,11 +186,11 @@ var svcQuotaService = NewServiceQuotaRuleService(
 		loadBalancers: &elasticloadbalancingv2.DescribeLoadBalancersOutput{
 			LoadBalancers: []elbv2types.LoadBalancer{
 				{
-					LoadBalancerName: ptr.Ptr("alb1"),
+					LoadBalancerName: util.Ptr("alb1"),
 					Type:             elbv2types.LoadBalancerTypeEnumApplication,
 				},
 				{
-					LoadBalancerName: ptr.Ptr("nlb1"),
+					LoadBalancerName: util.Ptr("nlb1"),
 					Type:             elbv2types.LoadBalancerTypeEnumNetwork,
 				},
 			},
@@ -228,8 +228,8 @@ func TestQuotaValidation(t *testing.T) {
 			},
 			mockQuotas: []sqtypes.ServiceQuota{
 				{
-					QuotaName: ptr.Ptr("EC2-VPC Elastic IPs"),
-					Value:     ptr.Ptr(1.0),
+					QuotaName: util.Ptr("EC2-VPC Elastic IPs"),
+					Value:     util.Ptr(1.0),
 				},
 			},
 			expectedResult: types.ValidationResult{
@@ -241,7 +241,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       []string{"Remaining quota 0, less than buffer 3, for service ec2 and quota EC2-VPC Elastic IPs"},
 					Status:         corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -259,8 +259,8 @@ func TestQuotaValidation(t *testing.T) {
 			},
 			mockQuotas: []sqtypes.ServiceQuota{
 				{
-					QuotaName: ptr.Ptr("EC2-VPC Elastic IPs"),
-					Value:     ptr.Ptr(5.0),
+					QuotaName: util.Ptr("EC2-VPC Elastic IPs"),
+					Value:     util.Ptr(5.0),
 				},
 			},
 			expectedResult: types.ValidationResult{
@@ -272,7 +272,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(vapi.ValidationSucceeded),
+				State: util.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -290,8 +290,8 @@ func TestQuotaValidation(t *testing.T) {
 			},
 			mockQuotas: []sqtypes.ServiceQuota{
 				{
-					QuotaName: ptr.Ptr("Public AMIs"),
-					Value:     ptr.Ptr(1.0),
+					QuotaName: util.Ptr("Public AMIs"),
+					Value:     util.Ptr(1.0),
 				},
 			},
 			expectedResult: types.ValidationResult{
@@ -303,7 +303,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       []string{"Remaining quota 0, less than buffer 3, for service ec2 and quota Public AMIs"},
 					Status:         corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -321,8 +321,8 @@ func TestQuotaValidation(t *testing.T) {
 			},
 			mockQuotas: []sqtypes.ServiceQuota{
 				{
-					QuotaName: ptr.Ptr("Public AMIs"),
-					Value:     ptr.Ptr(5.0),
+					QuotaName: util.Ptr("Public AMIs"),
+					Value:     util.Ptr(5.0),
 				},
 			},
 			expectedResult: types.ValidationResult{
@@ -334,7 +334,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(vapi.ValidationSucceeded),
+				State: util.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -352,8 +352,8 @@ func TestQuotaValidation(t *testing.T) {
 			},
 			mockQuotas: []sqtypes.ServiceQuota{
 				{
-					QuotaName: ptr.Ptr("Internet gateways per Region"),
-					Value:     ptr.Ptr(1.0),
+					QuotaName: util.Ptr("Internet gateways per Region"),
+					Value:     util.Ptr(1.0),
 				},
 			},
 			expectedResult: types.ValidationResult{
@@ -365,7 +365,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       []string{"Remaining quota 0, less than buffer 3, for service ec2 and quota Internet gateways per Region"},
 					Status:         corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -383,8 +383,8 @@ func TestQuotaValidation(t *testing.T) {
 			},
 			mockQuotas: []sqtypes.ServiceQuota{
 				{
-					QuotaName: ptr.Ptr("Internet gateways per Region"),
-					Value:     ptr.Ptr(5.0),
+					QuotaName: util.Ptr("Internet gateways per Region"),
+					Value:     util.Ptr(5.0),
 				},
 			},
 			expectedResult: types.ValidationResult{
@@ -396,7 +396,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(vapi.ValidationSucceeded),
+				State: util.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -414,8 +414,8 @@ func TestQuotaValidation(t *testing.T) {
 			},
 			mockQuotas: []sqtypes.ServiceQuota{
 				{
-					QuotaName: ptr.Ptr("Network interfaces per Region"),
-					Value:     ptr.Ptr(1.0),
+					QuotaName: util.Ptr("Network interfaces per Region"),
+					Value:     util.Ptr(1.0),
 				},
 			},
 			expectedResult: types.ValidationResult{
@@ -427,7 +427,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       []string{"Remaining quota 0, less than buffer 3, for service ec2 and quota Network interfaces per Region"},
 					Status:         corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -445,8 +445,8 @@ func TestQuotaValidation(t *testing.T) {
 			},
 			mockQuotas: []sqtypes.ServiceQuota{
 				{
-					QuotaName: ptr.Ptr("Network interfaces per Region"),
-					Value:     ptr.Ptr(5.0),
+					QuotaName: util.Ptr("Network interfaces per Region"),
+					Value:     util.Ptr(5.0),
 				},
 			},
 			expectedResult: types.ValidationResult{
@@ -458,7 +458,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(vapi.ValidationSucceeded),
+				State: util.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -476,8 +476,8 @@ func TestQuotaValidation(t *testing.T) {
 			},
 			mockQuotas: []sqtypes.ServiceQuota{
 				{
-					QuotaName: ptr.Ptr("VPCs per Region"),
-					Value:     ptr.Ptr(1.0),
+					QuotaName: util.Ptr("VPCs per Region"),
+					Value:     util.Ptr(1.0),
 				},
 			},
 			expectedResult: types.ValidationResult{
@@ -489,7 +489,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       []string{"Remaining quota 0, less than buffer 3, for service ec2 and quota VPCs per Region"},
 					Status:         corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -507,8 +507,8 @@ func TestQuotaValidation(t *testing.T) {
 			},
 			mockQuotas: []sqtypes.ServiceQuota{
 				{
-					QuotaName: ptr.Ptr("VPCs per Region"),
-					Value:     ptr.Ptr(5.0),
+					QuotaName: util.Ptr("VPCs per Region"),
+					Value:     util.Ptr(5.0),
 				},
 			},
 			expectedResult: types.ValidationResult{
@@ -520,7 +520,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(vapi.ValidationSucceeded),
+				State: util.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -538,8 +538,8 @@ func TestQuotaValidation(t *testing.T) {
 			},
 			mockQuotas: []sqtypes.ServiceQuota{
 				{
-					QuotaName: ptr.Ptr("Subnets per VPC"),
-					Value:     ptr.Ptr(2.0),
+					QuotaName: util.Ptr("Subnets per VPC"),
+					Value:     util.Ptr(2.0),
 				},
 			},
 			expectedResult: types.ValidationResult{
@@ -551,7 +551,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       []string{"Remaining quota 0, less than buffer 3, for service ec2 and quota Subnets per VPC"},
 					Status:         corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -569,8 +569,8 @@ func TestQuotaValidation(t *testing.T) {
 			},
 			mockQuotas: []sqtypes.ServiceQuota{
 				{
-					QuotaName: ptr.Ptr("Subnets per VPC"),
-					Value:     ptr.Ptr(5.0),
+					QuotaName: util.Ptr("Subnets per VPC"),
+					Value:     util.Ptr(5.0),
 				},
 			},
 			expectedResult: types.ValidationResult{
@@ -582,7 +582,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(vapi.ValidationSucceeded),
+				State: util.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -600,8 +600,8 @@ func TestQuotaValidation(t *testing.T) {
 			},
 			mockQuotas: []sqtypes.ServiceQuota{
 				{
-					QuotaName: ptr.Ptr("NAT gateways per Availability Zone"),
-					Value:     ptr.Ptr(1.0),
+					QuotaName: util.Ptr("NAT gateways per Availability Zone"),
+					Value:     util.Ptr(1.0),
 				},
 			},
 			expectedResult: types.ValidationResult{
@@ -613,7 +613,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       []string{"Remaining quota 0, less than buffer 3, for service ec2 and quota NAT gateways per Availability Zone"},
 					Status:         corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -631,8 +631,8 @@ func TestQuotaValidation(t *testing.T) {
 			},
 			mockQuotas: []sqtypes.ServiceQuota{
 				{
-					QuotaName: ptr.Ptr("NAT gateways per Availability Zone"),
-					Value:     ptr.Ptr(5.0),
+					QuotaName: util.Ptr("NAT gateways per Availability Zone"),
+					Value:     util.Ptr(5.0),
 				},
 			},
 			expectedResult: types.ValidationResult{
@@ -644,7 +644,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(vapi.ValidationSucceeded),
+				State: util.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -662,8 +662,8 @@ func TestQuotaValidation(t *testing.T) {
 			},
 			mockQuotas: []sqtypes.ServiceQuota{
 				{
-					QuotaName: ptr.Ptr("File systems per account"),
-					Value:     ptr.Ptr(1.0),
+					QuotaName: util.Ptr("File systems per account"),
+					Value:     util.Ptr(1.0),
 				},
 			},
 			expectedResult: types.ValidationResult{
@@ -675,7 +675,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       []string{"Remaining quota 0, less than buffer 3, for service efs and quota File systems per account"},
 					Status:         corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -693,8 +693,8 @@ func TestQuotaValidation(t *testing.T) {
 			},
 			mockQuotas: []sqtypes.ServiceQuota{
 				{
-					QuotaName: ptr.Ptr("File systems per account"),
-					Value:     ptr.Ptr(5.0),
+					QuotaName: util.Ptr("File systems per account"),
+					Value:     util.Ptr(5.0),
 				},
 			},
 			expectedResult: types.ValidationResult{
@@ -706,7 +706,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(vapi.ValidationSucceeded),
+				State: util.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -724,8 +724,8 @@ func TestQuotaValidation(t *testing.T) {
 			},
 			mockQuotas: []sqtypes.ServiceQuota{
 				{
-					QuotaName: ptr.Ptr("Classic Load Balancers per Region"),
-					Value:     ptr.Ptr(1.0),
+					QuotaName: util.Ptr("Classic Load Balancers per Region"),
+					Value:     util.Ptr(1.0),
 				},
 			},
 			expectedResult: types.ValidationResult{
@@ -737,7 +737,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       []string{"Remaining quota 0, less than buffer 3, for service elasticloadbalancing and quota Classic Load Balancers per Region"},
 					Status:         corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -755,8 +755,8 @@ func TestQuotaValidation(t *testing.T) {
 			},
 			mockQuotas: []sqtypes.ServiceQuota{
 				{
-					QuotaName: ptr.Ptr("Classic Load Balancers per Region"),
-					Value:     ptr.Ptr(5.0),
+					QuotaName: util.Ptr("Classic Load Balancers per Region"),
+					Value:     util.Ptr(5.0),
 				},
 			},
 			expectedResult: types.ValidationResult{
@@ -768,7 +768,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(vapi.ValidationSucceeded),
+				State: util.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -786,8 +786,8 @@ func TestQuotaValidation(t *testing.T) {
 			},
 			mockQuotas: []sqtypes.ServiceQuota{
 				{
-					QuotaName: ptr.Ptr("Application Load Balancers per Region"),
-					Value:     ptr.Ptr(1.0),
+					QuotaName: util.Ptr("Application Load Balancers per Region"),
+					Value:     util.Ptr(1.0),
 				},
 			},
 			expectedResult: types.ValidationResult{
@@ -799,7 +799,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       []string{"Remaining quota 0, less than buffer 3, for service elasticloadbalancing and quota Application Load Balancers per Region"},
 					Status:         corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -817,8 +817,8 @@ func TestQuotaValidation(t *testing.T) {
 			},
 			mockQuotas: []sqtypes.ServiceQuota{
 				{
-					QuotaName: ptr.Ptr("Application Load Balancers per Region"),
-					Value:     ptr.Ptr(5.0),
+					QuotaName: util.Ptr("Application Load Balancers per Region"),
+					Value:     util.Ptr(5.0),
 				},
 			},
 			expectedResult: types.ValidationResult{
@@ -830,7 +830,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(vapi.ValidationSucceeded),
+				State: util.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -848,8 +848,8 @@ func TestQuotaValidation(t *testing.T) {
 			},
 			mockQuotas: []sqtypes.ServiceQuota{
 				{
-					QuotaName: ptr.Ptr("Network Load Balancers per Region"),
-					Value:     ptr.Ptr(1.0),
+					QuotaName: util.Ptr("Network Load Balancers per Region"),
+					Value:     util.Ptr(1.0),
 				},
 			},
 			expectedResult: types.ValidationResult{
@@ -861,7 +861,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       []string{"Remaining quota 0, less than buffer 3, for service elasticloadbalancing and quota Network Load Balancers per Region"},
 					Status:         corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -879,8 +879,8 @@ func TestQuotaValidation(t *testing.T) {
 			},
 			mockQuotas: []sqtypes.ServiceQuota{
 				{
-					QuotaName: ptr.Ptr("Network Load Balancers per Region"),
-					Value:     ptr.Ptr(5.0),
+					QuotaName: util.Ptr("Network Load Balancers per Region"),
+					Value:     util.Ptr(5.0),
 				},
 			},
 			expectedResult: types.ValidationResult{
@@ -892,7 +892,7 @@ func TestQuotaValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(vapi.ValidationSucceeded),
+				State: util.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 	}

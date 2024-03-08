@@ -14,7 +14,7 @@ import (
 	"github.com/spectrocloud-labs/validator-plugin-aws/internal/utils/test"
 	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
 	"github.com/spectrocloud-labs/validator/pkg/types"
-	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
+	"github.com/spectrocloud-labs/validator/pkg/util"
 )
 
 type tagApiMock struct {
@@ -31,7 +31,7 @@ var tagService = NewTagRuleService(logr.Logger{}, tagApiMock{
 		"tag:kubernetes.io/role/elb=1": {
 			Subnets: []ec2types.Subnet{
 				{
-					SubnetArn: ptr.Ptr("subnetArn2"),
+					SubnetArn: util.Ptr("subnetArn2"),
 				},
 			},
 		},
@@ -66,7 +66,7 @@ func TestTagValidation(t *testing.T) {
 					Failures:       []string{"Subnet with ARN subnetArn1 missing tag kubernetes.io/role/elb=1"},
 					Status:         corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -88,7 +88,7 @@ func TestTagValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(vapi.ValidationSucceeded),
+				State: util.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 	}

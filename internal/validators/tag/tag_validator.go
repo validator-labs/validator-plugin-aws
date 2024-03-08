@@ -14,7 +14,7 @@ import (
 	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
 	vapiconstants "github.com/spectrocloud-labs/validator/pkg/constants"
 	vapitypes "github.com/spectrocloud-labs/validator/pkg/types"
-	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
+	"github.com/spectrocloud-labs/validator/pkg/util"
 )
 
 type tagApi interface {
@@ -52,7 +52,7 @@ func (s *TagRuleService) ReconcileTagRule(rule v1alpha1.TagRule) (*vapitypes.Val
 		subnets, err := s.tagSvc.DescribeSubnets(context.Background(), &ec2.DescribeSubnetsInput{
 			Filters: []ec2types.Filter{
 				{
-					Name:   ptr.Ptr(fmt.Sprintf("tag:%s", rule.Key)),
+					Name:   util.Ptr(fmt.Sprintf("tag:%s", rule.Key)),
 					Values: []string{rule.ExpectedValue},
 				},
 			},

@@ -17,7 +17,7 @@ require (
 	github.com/go-logr/logr v1.4.1
 	github.com/onsi/ginkgo/v2 v2.16.0
 	github.com/onsi/gomega v1.31.1
-	github.com/spectrocloud-labs/validator v0.0.34
+	github.com/spectrocloud-labs/validator v0.0.36
 	golang.org/x/exp v0.0.0-20240222234643-814bf88cf225
 	k8s.io/api v0.29.2
 	k8s.io/apimachinery v0.29.2
