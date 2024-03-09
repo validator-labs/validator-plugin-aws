@@ -15,7 +15,7 @@ import (
 	"github.com/spectrocloud-labs/validator-plugin-aws/internal/utils/test"
 	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
 	"github.com/spectrocloud-labs/validator/pkg/types"
-	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
+	"github.com/spectrocloud-labs/validator/pkg/util"
 )
 
 type iamApiMock struct {
@@ -178,8 +178,8 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		"iamGroup": {
 			AttachedPolicies: []iamtypes.AttachedPolicy{
 				{
-					PolicyArn:  ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn1"),
-					PolicyName: ptr.Ptr("iamPolicy"),
+					PolicyArn:  util.Ptr("arn:aws:iam::123456789012:role/iamRoleArn1"),
+					PolicyName: util.Ptr("iamPolicy"),
 				},
 			},
 		},
@@ -188,68 +188,68 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		"iamRole1": {
 			AttachedPolicies: []iamtypes.AttachedPolicy{
 				{
-					PolicyArn:  ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn1"),
-					PolicyName: ptr.Ptr("iamPolicy"),
+					PolicyArn:  util.Ptr("arn:aws:iam::123456789012:role/iamRoleArn1"),
+					PolicyName: util.Ptr("iamPolicy"),
 				},
 			},
 		},
 		"iamRole2": {
 			AttachedPolicies: []iamtypes.AttachedPolicy{
 				{
-					PolicyArn:  ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn2"),
-					PolicyName: ptr.Ptr("iamPolicy"),
+					PolicyArn:  util.Ptr("arn:aws:iam::123456789012:role/iamRoleArn2"),
+					PolicyName: util.Ptr("iamPolicy"),
 				},
 			},
 		},
 		"iamRole3": {
 			AttachedPolicies: []iamtypes.AttachedPolicy{
 				{
-					PolicyArn:  ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn3"),
-					PolicyName: ptr.Ptr("iamPolicy"),
+					PolicyArn:  util.Ptr("arn:aws:iam::123456789012:role/iamRoleArn3"),
+					PolicyName: util.Ptr("iamPolicy"),
 				},
 			},
 		},
 		"iamRole4": {
 			AttachedPolicies: []iamtypes.AttachedPolicy{
 				{
-					PolicyArn:  ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn4"),
-					PolicyName: ptr.Ptr("iamPolicy"),
+					PolicyArn:  util.Ptr("arn:aws:iam::123456789012:role/iamRoleArn4"),
+					PolicyName: util.Ptr("iamPolicy"),
 				},
 			},
 		},
 		"iamRole5": {
 			AttachedPolicies: []iamtypes.AttachedPolicy{
 				{
-					PolicyArn:  ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn5"),
-					PolicyName: ptr.Ptr("iamPolicy"),
+					PolicyArn:  util.Ptr("arn:aws:iam::123456789012:role/iamRoleArn5"),
+					PolicyName: util.Ptr("iamPolicy"),
 				},
 			},
 		},
 	},
 	policyArns: map[string]*iam.GetPolicyOutput{
 		"arn:aws:iam::123456789012:role/iamRoleArn1": {
-			Policy: ptr.Ptr(iamtypes.Policy{
-				DefaultVersionId: ptr.Ptr("1"),
+			Policy: util.Ptr(iamtypes.Policy{
+				DefaultVersionId: util.Ptr("1"),
 			}),
 		},
 		"arn:aws:iam::123456789012:role/iamRoleArn2": {
-			Policy: ptr.Ptr(iamtypes.Policy{
-				DefaultVersionId: ptr.Ptr("1"),
+			Policy: util.Ptr(iamtypes.Policy{
+				DefaultVersionId: util.Ptr("1"),
 			}),
 		},
 		"arn:aws:iam::123456789012:role/iamRoleArn3": {
-			Policy: ptr.Ptr(iamtypes.Policy{
-				DefaultVersionId: ptr.Ptr("1"),
+			Policy: util.Ptr(iamtypes.Policy{
+				DefaultVersionId: util.Ptr("1"),
 			}),
 		},
 		"arn:aws:iam::123456789012:role/iamRoleArn4": {
-			Policy: ptr.Ptr(iamtypes.Policy{
-				DefaultVersionId: ptr.Ptr("1"),
+			Policy: util.Ptr(iamtypes.Policy{
+				DefaultVersionId: util.Ptr("1"),
 			}),
 		},
 		"arn:aws:iam::123456789012:role/iamRoleArn5": {
-			Policy: ptr.Ptr(iamtypes.Policy{
-				DefaultVersionId: ptr.Ptr("1"),
+			Policy: util.Ptr(iamtypes.Policy{
+				DefaultVersionId: util.Ptr("1"),
 			}),
 		},
 	},
@@ -257,36 +257,36 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		"iamUser": {
 			AttachedPolicies: []iamtypes.AttachedPolicy{
 				{
-					PolicyArn:  ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn1"),
-					PolicyName: ptr.Ptr("iamPolicy"),
+					PolicyArn:  util.Ptr("arn:aws:iam::123456789012:role/iamRoleArn1"),
+					PolicyName: util.Ptr("iamPolicy"),
 				},
 			},
 		},
 	},
 	policyVersions: map[string]*iam.GetPolicyVersionOutput{
 		"arn:aws:iam::123456789012:role/iamRoleArn1": {
-			PolicyVersion: ptr.Ptr(iamtypes.PolicyVersion{
-				Document: ptr.Ptr(url.QueryEscape(policyDocumentOutput1)),
+			PolicyVersion: util.Ptr(iamtypes.PolicyVersion{
+				Document: util.Ptr(url.QueryEscape(policyDocumentOutput1)),
 			}),
 		},
 		"arn:aws:iam::123456789012:role/iamRoleArn2": {
-			PolicyVersion: ptr.Ptr(iamtypes.PolicyVersion{
-				Document: ptr.Ptr(url.QueryEscape(policyDocumentOutput2)),
+			PolicyVersion: util.Ptr(iamtypes.PolicyVersion{
+				Document: util.Ptr(url.QueryEscape(policyDocumentOutput2)),
 			}),
 		},
 		"arn:aws:iam::123456789012:role/iamRoleArn3": {
-			PolicyVersion: ptr.Ptr(iamtypes.PolicyVersion{
-				Document: ptr.Ptr(url.QueryEscape(policyDocumentOutput3)),
+			PolicyVersion: util.Ptr(iamtypes.PolicyVersion{
+				Document: util.Ptr(url.QueryEscape(policyDocumentOutput3)),
 			}),
 		},
 		"arn:aws:iam::123456789012:role/iamRoleArn4": {
-			PolicyVersion: ptr.Ptr(iamtypes.PolicyVersion{
-				Document: ptr.Ptr(url.QueryEscape(policyDocumentOutput4)),
+			PolicyVersion: util.Ptr(iamtypes.PolicyVersion{
+				Document: util.Ptr(url.QueryEscape(policyDocumentOutput4)),
 			}),
 		},
 		"arn:aws:iam::123456789012:role/iamRoleArn5": {
-			PolicyVersion: ptr.Ptr(iamtypes.PolicyVersion{
-				Document: ptr.Ptr(url.QueryEscape(policyDocumentOutput5)),
+			PolicyVersion: util.Ptr(iamtypes.PolicyVersion{
+				Document: util.Ptr(url.QueryEscape(policyDocumentOutput5)),
 			}),
 		},
 	},
@@ -294,7 +294,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		"arn:aws:iam::123456789012:group/iamGroupArn1": {
 			EvaluationResults: []iamtypes.EvaluationResult{
 				{
-					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
+					EvalActionName:              util.Ptr("ec2:DescribeInstances"),
 					EvalDecision:                "allowed",
 					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: true},
 				},
@@ -303,7 +303,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		"arn:aws:iam::123456789012:group/iamGroupArn2": {
 			EvaluationResults: []iamtypes.EvaluationResult{
 				{
-					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
+					EvalActionName:              util.Ptr("ec2:DescribeInstances"),
 					EvalDecision:                "implicitDeny",
 					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: false},
 				},
@@ -312,7 +312,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		"arn:aws:iam::123456789012:user/iamUserArn1": {
 			EvaluationResults: []iamtypes.EvaluationResult{
 				{
-					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
+					EvalActionName:              util.Ptr("ec2:DescribeInstances"),
 					EvalDecision:                "allowed",
 					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: true},
 				},
@@ -321,7 +321,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		"arn:aws:iam::123456789012:user/iamUserArn2": {
 			EvaluationResults: []iamtypes.EvaluationResult{
 				{
-					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
+					EvalActionName:              util.Ptr("ec2:DescribeInstances"),
 					EvalDecision:                "implicitDeny",
 					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: false},
 				},
@@ -330,7 +330,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		"arn:aws:iam::123456789012:role/iamRoleArn1": {
 			EvaluationResults: []iamtypes.EvaluationResult{
 				{
-					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
+					EvalActionName:              util.Ptr("ec2:DescribeInstances"),
 					EvalDecision:                "allowed",
 					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: true},
 				},
@@ -339,7 +339,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		"arn:aws:iam::123456789012:role/iamRoleArn2": {
 			EvaluationResults: []iamtypes.EvaluationResult{
 				{
-					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
+					EvalActionName:              util.Ptr("ec2:DescribeInstances"),
 					EvalDecision:                "allowed",
 					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: true},
 				},
@@ -348,7 +348,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		"arn:aws:iam::123456789012:role/iamRoleArn3": {
 			EvaluationResults: []iamtypes.EvaluationResult{
 				{
-					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
+					EvalActionName:              util.Ptr("ec2:DescribeInstances"),
 					EvalDecision:                "allowed",
 					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: true},
 				},
@@ -357,7 +357,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		"arn:aws:iam::123456789012:role/iamRoleArn4": {
 			EvaluationResults: []iamtypes.EvaluationResult{
 				{
-					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
+					EvalActionName:              util.Ptr("ec2:DescribeInstances"),
 					EvalDecision:                "allowed",
 					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: true},
 				},
@@ -366,7 +366,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		"arn:aws:iam::123456789012:role/iamRoleArn5": {
 			EvaluationResults: []iamtypes.EvaluationResult{
 				{
-					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
+					EvalActionName:              util.Ptr("ec2:DescribeInstances"),
 					EvalDecision:                "allowed",
 					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: true},
 				},
@@ -375,7 +375,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		"arn:aws:iam::123456789012:role/iamRoleArn6": {
 			EvaluationResults: []iamtypes.EvaluationResult{
 				{
-					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
+					EvalActionName:              util.Ptr("ec2:DescribeInstances"),
 					EvalDecision:                "implicitDeny",
 					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: false},
 				},
@@ -384,7 +384,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 		"arn:aws:iam::123456789012:role/iamRoleZanzibar": {
 			EvaluationResults: []iamtypes.EvaluationResult{
 				{
-					EvalActionName:              ptr.Ptr("ec2:DescribeInstances"),
+					EvalActionName:              util.Ptr("ec2:DescribeInstances"),
 					EvalDecision:                "allowed",
 					OrganizationsDecisionDetail: &iamtypes.OrganizationsDecisionDetail{AllowedByOrganizations: true},
 				},
@@ -394,81 +394,81 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 	group: map[string]*iam.GetGroupOutput{
 		"iamGroup": {
 			Group: &iamtypes.Group{
-				Arn:       ptr.Ptr("arn:aws:iam::123456789012:group/iamGroupArn1"),
-				GroupName: ptr.Ptr("iamGroup"),
+				Arn:       util.Ptr("arn:aws:iam::123456789012:group/iamGroupArn1"),
+				GroupName: util.Ptr("iamGroup"),
 			},
 		},
 		"iamGroup2": {
 			Group: &iamtypes.Group{
-				Arn:       ptr.Ptr("arn:aws:iam::123456789012:group/iamGroupArn2"),
-				GroupName: ptr.Ptr("iamGroup2"),
+				Arn:       util.Ptr("arn:aws:iam::123456789012:group/iamGroupArn2"),
+				GroupName: util.Ptr("iamGroup2"),
 			},
 		},
 	},
 	role: map[string]*iam.GetRoleOutput{
 		"iamRole1": {
 			Role: &iamtypes.Role{
-				Arn:      ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn1"),
-				RoleName: ptr.Ptr("iamRole1"),
-				RoleId:   ptr.Ptr("iamRoleID1"),
+				Arn:      util.Ptr("arn:aws:iam::123456789012:role/iamRoleArn1"),
+				RoleName: util.Ptr("iamRole1"),
+				RoleId:   util.Ptr("iamRoleID1"),
 			},
 		},
 		"iamRole2": {
 			Role: &iamtypes.Role{
-				Arn:      ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn2"),
-				RoleName: ptr.Ptr("iamRole2"),
-				RoleId:   ptr.Ptr("iamRoleID2"),
+				Arn:      util.Ptr("arn:aws:iam::123456789012:role/iamRoleArn2"),
+				RoleName: util.Ptr("iamRole2"),
+				RoleId:   util.Ptr("iamRoleID2"),
 			},
 		},
 		"iamRole3": {
 			Role: &iamtypes.Role{
-				Arn:      ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn3"),
-				RoleName: ptr.Ptr("iamRole3"),
-				RoleId:   ptr.Ptr("iamRoleID3"),
+				Arn:      util.Ptr("arn:aws:iam::123456789012:role/iamRoleArn3"),
+				RoleName: util.Ptr("iamRole3"),
+				RoleId:   util.Ptr("iamRoleID3"),
 			},
 		},
 		"iamRole4": {
 			Role: &iamtypes.Role{
-				Arn:      ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn4"),
-				RoleName: ptr.Ptr("iamRole4"),
-				RoleId:   ptr.Ptr("iamRoleID4"),
+				Arn:      util.Ptr("arn:aws:iam::123456789012:role/iamRoleArn4"),
+				RoleName: util.Ptr("iamRole4"),
+				RoleId:   util.Ptr("iamRoleID4"),
 			},
 		},
 		"iamRole5": {
 			Role: &iamtypes.Role{
-				Arn:      ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn5"),
-				RoleName: ptr.Ptr("iamRole5"),
-				RoleId:   ptr.Ptr("iamRoleID5"),
+				Arn:      util.Ptr("arn:aws:iam::123456789012:role/iamRoleArn5"),
+				RoleName: util.Ptr("iamRole5"),
+				RoleId:   util.Ptr("iamRoleID5"),
 			},
 		},
 		"iamRole6": {
 			Role: &iamtypes.Role{
-				Arn:      ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleArn6"),
-				RoleName: ptr.Ptr("iamRole6"),
-				RoleId:   ptr.Ptr("iamRoleID6"),
+				Arn:      util.Ptr("arn:aws:iam::123456789012:role/iamRoleArn6"),
+				RoleName: util.Ptr("iamRole6"),
+				RoleId:   util.Ptr("iamRoleID6"),
 			},
 		},
 		"iamRoleZanzibar": {
 			Role: &iamtypes.Role{
-				Arn:      ptr.Ptr("arn:aws:iam::123456789012:role/iamRoleZanzibar"),
-				RoleName: ptr.Ptr("iamRoleZanzibar"),
-				RoleId:   ptr.Ptr("iamRoleIDZanzibar"),
+				Arn:      util.Ptr("arn:aws:iam::123456789012:role/iamRoleZanzibar"),
+				RoleName: util.Ptr("iamRoleZanzibar"),
+				RoleId:   util.Ptr("iamRoleIDZanzibar"),
 			},
 		},
 	},
 	user: map[string]*iam.GetUserOutput{
 		"iamUser": {
 			User: &iamtypes.User{
-				Arn:      ptr.Ptr("arn:aws:iam::123456789012:user/iamUserArn1"),
-				UserName: ptr.Ptr("iamUser"),
-				UserId:   ptr.Ptr("iamUserID1"),
+				Arn:      util.Ptr("arn:aws:iam::123456789012:user/iamUserArn1"),
+				UserName: util.Ptr("iamUser"),
+				UserId:   util.Ptr("iamUserID1"),
 			},
 		},
 		"iamUser2": {
 			User: &iamtypes.User{
-				Arn:      ptr.Ptr("arn:aws:iam::123456789012:user/iamUserArn2"),
-				UserName: ptr.Ptr("iamUser2"),
-				UserId:   ptr.Ptr("iamUserID2"),
+				Arn:      util.Ptr("arn:aws:iam::123456789012:user/iamUserArn2"),
+				UserName: util.Ptr("iamUser2"),
+				UserId:   util.Ptr("iamUserID2"),
 			},
 		},
 	},
@@ -520,7 +520,7 @@ func TestIAMGroupValidation(t *testing.T) {
 					},
 					Status: corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -550,7 +550,7 @@ func TestIAMGroupValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(vapi.ValidationSucceeded),
+				State: util.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -580,7 +580,7 @@ func TestIAMGroupValidation(t *testing.T) {
 					Failures:       []string{"Action: ec2:DescribeInstances is denied due to an Organization level SCP policy for group: iamGroup2"},
 					Status:         corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 	}
@@ -621,7 +621,7 @@ func TestIAMRoleValidation(t *testing.T) {
 					},
 					Status: corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -651,7 +651,7 @@ func TestIAMRoleValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(vapi.ValidationSucceeded),
+				State: util.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -681,7 +681,7 @@ func TestIAMRoleValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(vapi.ValidationSucceeded),
+				State: util.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -719,7 +719,7 @@ func TestIAMRoleValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(vapi.ValidationSucceeded),
+				State: util.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -762,7 +762,7 @@ func TestIAMRoleValidation(t *testing.T) {
 					},
 					Status: corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -802,7 +802,7 @@ func TestIAMRoleValidation(t *testing.T) {
 					},
 					Status: corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -834,7 +834,7 @@ func TestIAMRoleValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(vapi.ValidationSucceeded),
+				State: util.Ptr(vapi.ValidationSucceeded),
 			},
 			expectedError: errors.New("no policies found for IAM role iamRoleZanzibar"),
 		},
@@ -865,7 +865,7 @@ func TestIAMRoleValidation(t *testing.T) {
 					Failures:       []string{"Action: ec2:DescribeInstances is denied due to an Organization level SCP policy for role: iamRole6"},
 					Status:         corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 	}
@@ -906,7 +906,7 @@ func TestIAMUserValidation(t *testing.T) {
 					},
 					Status: corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -936,7 +936,7 @@ func TestIAMUserValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(vapi.ValidationSucceeded),
+				State: util.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -966,7 +966,7 @@ func TestIAMUserValidation(t *testing.T) {
 					Failures:       []string{"Action: ec2:DescribeInstances is denied due to an Organization level SCP policy for user: iamUser2"},
 					Status:         corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 	}
@@ -1007,7 +1007,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 					},
 					Status: corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -1037,7 +1037,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(vapi.ValidationSucceeded),
+				State: util.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -1077,7 +1077,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 					},
 					Status: corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -1113,7 +1113,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 					},
 					Status: corev1.ConditionFalse,
 				},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -1147,7 +1147,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(vapi.ValidationSucceeded),
+				State: util.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -1181,7 +1181,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(vapi.ValidationSucceeded),
+				State: util.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -1215,7 +1215,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(vapi.ValidationSucceeded),
+				State: util.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -1249,7 +1249,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
-				State: ptr.Ptr(vapi.ValidationSucceeded),
+				State: util.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 	}

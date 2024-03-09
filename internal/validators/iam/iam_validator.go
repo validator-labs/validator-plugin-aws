@@ -24,7 +24,7 @@ import (
 	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
 	vapiconstants "github.com/spectrocloud-labs/validator/pkg/constants"
 	"github.com/spectrocloud-labs/validator/pkg/types"
-	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
+	"github.com/spectrocloud-labs/validator/pkg/util"
 )
 
 const AccountIDFromARNRegex = "arn:[a-z]*:[a-z]*::([?<AccountID>\\d{12}$]*):[0-9A-Za-z]*\\/[0-9A-Za-z]*"
@@ -96,7 +96,7 @@ func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationRe
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMRolePolicy)
 
 	role, err := s.iamSvc.GetRole(context.Background(), &iam.GetRoleInput{
-		RoleName: ptr.Ptr(rule.Name()),
+		RoleName: util.Ptr(rule.Name()),
 	})
 	if err != nil {
 		return nil, err
@@ -105,7 +105,7 @@ func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationRe
 	policyDocs := rule.IAMPolicies()
 
 	ctxKeys, err := s.iamSvc.GetContextKeysForPrincipalPolicy(context.Background(), &iam.GetContextKeysForPrincipalPolicyInput{
-		PolicySourceArn: ptr.Ptr(*role.Role.Arn),
+		PolicySourceArn: util.Ptr(*role.Role.Arn),
 	})
 	if err != nil {
 		return nil, err
@@ -129,7 +129,7 @@ func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationRe
 
 	// Retrieve all IAM policies attached to the IAM role
 	policies, err := s.iamSvc.ListAttachedRolePolicies(context.Background(), &iam.ListAttachedRolePoliciesInput{
-		RoleName: ptr.Ptr(rule.Name()),
+		RoleName: util.Ptr(rule.Name()),
 	})
 	if err != nil {
 		s.log.V(0).Error(err, "failed to list policies for IAM role", "role", rule.Name())
@@ -161,7 +161,7 @@ func (s *IAMRuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationRe
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMUserPolicy)
 
 	user, err := s.iamSvc.GetUser(context.Background(), &iam.GetUserInput{
-		UserName: ptr.Ptr(rule.Name()),
+		UserName: util.Ptr(rule.Name()),
 	})
 	if err != nil {
 		return nil, err
@@ -170,7 +170,7 @@ func (s *IAMRuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationRe
 	policyDocs := rule.IAMPolicies()
 
 	ctxKeys, err := s.iamSvc.GetContextKeysForPrincipalPolicy(context.Background(), &iam.GetContextKeysForPrincipalPolicyInput{
-		PolicySourceArn: ptr.Ptr(*user.User.Arn),
+		PolicySourceArn: util.Ptr(*user.User.Arn),
 	})
 	if err != nil {
 		return nil, err
@@ -194,7 +194,7 @@ func (s *IAMRuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationRe
 
 	// Retrieve all IAM policies attached to the IAM user
 	policies, err := s.iamSvc.ListAttachedUserPolicies(context.Background(), &iam.ListAttachedUserPoliciesInput{
-		UserName: ptr.Ptr(rule.Name()),
+		UserName: util.Ptr(rule.Name()),
 	})
 	if err != nil {
 		s.log.V(0).Error(err, "failed to list policies for IAM user", "name", rule.Name())
@@ -236,19 +236,19 @@ func getContextEntries(log logr.Logger, entityName, entityID, entityARN string, 
 		switch ctxKey {
 		case "aws:username":
 			ctxEntries = append(ctxEntries, iamtypes.ContextEntry{
-				ContextKeyName:   ptr.Ptr("aws:username"),
+				ContextKeyName:   util.Ptr("aws:username"),
 				ContextKeyType:   "string",
 				ContextKeyValues: []string{entityName},
 			})
 		case "aws:userid":
 			ctxEntries = append(ctxEntries, iamtypes.ContextEntry{
-				ContextKeyName:   ptr.Ptr("aws:userid"),
+				ContextKeyName:   util.Ptr("aws:userid"),
 				ContextKeyType:   "string",
 				ContextKeyValues: []string{entityID},
 			})
 		case "aws:PrincipalArn":
 			ctxEntries = append(ctxEntries, iamtypes.ContextEntry{
-				ContextKeyName:   ptr.Ptr("aws:PrincipalArn"),
+				ContextKeyName:   util.Ptr("aws:PrincipalArn"),
 				ContextKeyType:   "string",
 				ContextKeyValues: []string{entityARN},
 			})
@@ -262,7 +262,7 @@ func getContextEntries(log logr.Logger, entityName, entityID, entityARN string, 
 				break
 			}
 			ctxEntries = append(ctxEntries, iamtypes.ContextEntry{
-				ContextKeyName:   ptr.Ptr("aws:PrincipalAccount"),
+				ContextKeyName:   util.Ptr("aws:PrincipalAccount"),
 				ContextKeyType:   "string",
 				ContextKeyValues: []string{accID},
 			})
@@ -270,14 +270,14 @@ func getContextEntries(log logr.Logger, entityName, entityID, entityARN string, 
 		case "aws:CurrentTime":
 			currentTime := time.Now().UTC().Format(time.RFC3339)
 			ctxEntries = append(ctxEntries, iamtypes.ContextEntry{
-				ContextKeyName:   ptr.Ptr("aws:CurrentTime"),
+				ContextKeyName:   util.Ptr("aws:CurrentTime"),
 				ContextKeyType:   "string",
 				ContextKeyValues: []string{currentTime},
 			})
 		case "aws:EpochTime":
 			epochTime := strconv.Itoa(int(time.Now().UTC().Unix()))
 			ctxEntries = append(ctxEntries, iamtypes.ContextEntry{
-				ContextKeyName:   ptr.Ptr("aws:EpochTime"),
+				ContextKeyName:   util.Ptr("aws:EpochTime"),
 				ContextKeyType:   "string",
 				ContextKeyValues: []string{epochTime},
 			})
@@ -295,7 +295,7 @@ func (s *IAMRuleService) ReconcileIAMGroupRule(rule iamRule) (*types.ValidationR
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMGroupPolicy)
 
 	group, err := s.iamSvc.GetGroup(context.Background(), &iam.GetGroupInput{
-		GroupName: ptr.Ptr(rule.Name()),
+		GroupName: util.Ptr(rule.Name()),
 	})
 	if err != nil {
 		return nil, err
@@ -315,7 +315,7 @@ func (s *IAMRuleService) ReconcileIAMGroupRule(rule iamRule) (*types.ValidationR
 
 	// Retrieve all IAM policies attached to the IAM user
 	policies, err := s.iamSvc.ListAttachedGroupPolicies(context.Background(), &iam.ListAttachedGroupPoliciesInput{
-		GroupName: ptr.Ptr(rule.Name()),
+		GroupName: util.Ptr(rule.Name()),
 	})
 	if err != nil {
 		s.log.V(0).Error(err, "failed to list policies for IAM group", "name", rule.Name())
@@ -340,7 +340,7 @@ func (s *IAMRuleService) ReconcileIAMGroupRule(rule iamRule) (*types.ValidationR
 }
 
 func getSCPFailedValidationResult(vr *types.ValidationResult, failures []string) *types.ValidationResult {
-	vr.State = ptr.Ptr(vapi.ValidationFailed)
+	vr.State = util.Ptr(vapi.ValidationFailed)
 	vr.Condition.Failures = failures
 	vr.Condition.Message = "One or more required SCP permissions was not found, or a condition was not met"
 	vr.Condition.Status = corev1.ConditionFalse
@@ -359,7 +359,7 @@ func (s *IAMRuleService) ReconcileIAMPolicyRule(rule iamRule) (*types.Validation
 
 	// Update the permission map for the IAM policy
 	context := []string{"policy", rule.Name()}
-	policyDocument, err := s.getPolicyDocument(ptr.Ptr(rule.Name()), context)
+	policyDocument, err := s.getPolicyDocument(util.Ptr(rule.Name()), context)
 	if err != nil {
 		return vr, err
 	}
@@ -378,7 +378,7 @@ func checkSCP(iamSvc iamApi, policyDocs []v1alpha1.PolicyDocument, policySourceA
 		for _, statement := range doc.Statements {
 			simulationInput := &iam.SimulatePrincipalPolicyInput{
 				ActionNames:     statement.Actions,
-				PolicySourceArn: ptr.Ptr(policySourceArn),
+				PolicySourceArn: util.Ptr(policySourceArn),
 				ResourceArns:    statement.Resources,
 				ContextEntries:  ctxEntries,
 			}
@@ -676,7 +676,7 @@ func computeFailures(rule iamRule, permissions map[string][]*permission, vr *typ
 	}
 	if len(failures) > 0 {
 		slices.Sort(failures)
-		vr.State = ptr.Ptr(vapi.ValidationFailed)
+		vr.State = util.Ptr(vapi.ValidationFailed)
 		vr.Condition.Failures = failures
 		vr.Condition.Message = "One or more required IAM permissions was not found, or a condition was not met"
 		vr.Condition.Status = corev1.ConditionFalse
