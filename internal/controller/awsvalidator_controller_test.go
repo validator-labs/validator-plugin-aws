@@ -116,7 +116,8 @@ var _ = Describe("AWSValidator controller", Ordered, func() {
 				return false
 			}
 			stateOk := vr.Status.State == vapi.ValidationFailed
-			return stateOk
+			allFailed := len(vr.Status.ValidationConditions) == val.Spec.ResultCount()
+			return stateOk && allFailed
 		}, timeout, interval).Should(BeTrue(), "failed to create a ValidationResult")
 	})
 })
