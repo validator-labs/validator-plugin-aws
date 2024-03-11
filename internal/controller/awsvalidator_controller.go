@@ -121,28 +121,36 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 			if err != nil {
 				r.Log.V(0).Error(err, "failed to reconcile IAM role rule")
 			}
-			r.safeUpdate(ctx, p, vr, vrr, err)
+			if err := r.safeUpdate(ctx, p, vr, vrr, err); err != nil {
+				return ctrl.Result{}, err
+			}
 		}
 		for _, rule := range validator.Spec.IamUserRules {
 			vrr, err := iamRuleService.ReconcileIAMUserRule(rule)
 			if err != nil {
 				r.Log.V(0).Error(err, "failed to reconcile IAM user rule")
 			}
-			r.safeUpdate(ctx, p, vr, vrr, err)
+			if err := r.safeUpdate(ctx, p, vr, vrr, err); err != nil {
+				return ctrl.Result{}, err
+			}
 		}
 		for _, rule := range validator.Spec.IamGroupRules {
 			vrr, err := iamRuleService.ReconcileIAMGroupRule(rule)
 			if err != nil {
 				r.Log.V(0).Error(err, "failed to reconcile IAM group rule")
 			}
-			r.safeUpdate(ctx, p, vr, vrr, err)
+			if err := r.safeUpdate(ctx, p, vr, vrr, err); err != nil {
+				return ctrl.Result{}, err
+			}
 		}
 		for _, rule := range validator.Spec.IamPolicyRules {
 			vrr, err := iamRuleService.ReconcileIAMPolicyRule(rule)
 			if err != nil {
 				r.Log.V(0).Error(err, "failed to reconcile IAM policy rule")
 			}
-			r.safeUpdate(ctx, p, vr, vrr, err)
+			if err := r.safeUpdate(ctx, p, vr, vrr, err); err != nil {
+				return ctrl.Result{}, err
+			}
 		}
 	}
 
@@ -165,7 +173,9 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile Service Quota rule")
 		}
-		r.safeUpdate(ctx, p, vr, vrr, err)
+		if err := r.safeUpdate(ctx, p, vr, vrr, err); err != nil {
+			return ctrl.Result{}, err
+		}
 	}
 
 	// Tag rules
@@ -180,15 +190,17 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile Tag rule")
 		}
-		r.safeUpdate(ctx, p, vr, vrr, err)
+		if err := r.safeUpdate(ctx, p, vr, vrr, err); err != nil {
+			return ctrl.Result{}, err
+		}
 	}
 
 	r.Log.V(0).Info("Requeuing for re-validation in two minutes.", "name", req.Name, "namespace", req.Namespace)
 	return ctrl.Result{RequeueAfter: time.Second * 120}, nil
 }
 
-func (r *AwsValidatorReconciler) safeUpdate(ctx context.Context, p vres.Patcher, vr *vapi.ValidationResult, vrr *types.ValidationRuleResult, vrrErr error) {
-	vres.SafeUpdateValidationResult(ctx, p, vr, vrr, vrrErr, r.Log)
+func (r *AwsValidatorReconciler) safeUpdate(ctx context.Context, p vres.Patcher, vr *vapi.ValidationResult, vrr *types.ValidationRuleResult, vrrErr error) error {
+	return vres.SafeUpdateValidationResult(ctx, p, vr, vrr, vrrErr, r.Log)
 }
 
 // envFromSecret sets environment variables from a secret to configure AWS credentials
