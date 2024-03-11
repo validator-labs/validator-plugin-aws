@@ -25,6 +25,18 @@ var _ = Describe("AWSValidator controller", Ordered, func() {
 		}
 	})
 
+	dummyPolicy := v1alpha1.PolicyDocument{
+		Name:    "test",
+		Version: "2012-10-17",
+		Statements: []v1alpha1.StatementEntry{
+			{
+				Effect:    "Allow",
+				Actions:   []string{"ec2:DescribeInstances"},
+				Resources: []string{"*"},
+			},
+		},
+	}
+
 	val := &v1alpha1.AwsValidator{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      awsValidatorName,
@@ -34,12 +46,44 @@ var _ = Describe("AWSValidator controller", Ordered, func() {
 			Auth: v1alpha1.AwsAuth{
 				Implicit: true,
 			},
-			DefaultRegion:     "us-west-1",
-			IamRoleRules:      []v1alpha1.IamRoleRule{},
-			IamGroupRules:     []v1alpha1.IamGroupRule{},
-			IamUserRules:      []v1alpha1.IamUserRule{},
-			IamPolicyRules:    []v1alpha1.IamPolicyRule{},
-			ServiceQuotaRules: []v1alpha1.ServiceQuotaRule{},
+			DefaultRegion: "us-west-1",
+			IamRoleRules: []v1alpha1.IamRoleRule{
+				{
+					IamRoleName: "IAMRole",
+					Policies:    []v1alpha1.PolicyDocument{dummyPolicy},
+				},
+			},
+			IamGroupRules: []v1alpha1.IamGroupRule{
+				{
+					IamGroupName: "IAMGroup",
+					Policies:     []v1alpha1.PolicyDocument{dummyPolicy},
+				},
+			},
+			IamUserRules: []v1alpha1.IamUserRule{
+				{
+					IamUserName: "IAMUser",
+					Policies:    []v1alpha1.PolicyDocument{dummyPolicy},
+				},
+			},
+			IamPolicyRules: []v1alpha1.IamPolicyRule{
+				{
+					IamPolicyARN: "IAMPolicyArn",
+					Policies:     []v1alpha1.PolicyDocument{dummyPolicy},
+				},
+			},
+			ServiceQuotaRules: []v1alpha1.ServiceQuotaRule{
+				{
+					Name:        "ServiceQuotaRule",
+					Region:      "us-west-1",
+					ServiceCode: "ec2",
+					ServiceQuotas: []v1alpha1.ServiceQuota{
+						{
+							Name:   "dummy-quota",
+							Buffer: 1,
+						},
+					},
+				},
+			},
 			TagRules: []v1alpha1.TagRule{
 				{
 					Key:           "foo",
