@@ -34,7 +34,7 @@ func NewTagRuleService(log logr.Logger, tagSvc tagApi) *TagRuleService {
 }
 
 // ReconcileTagRule reconciles an EC2 tagging validation rule from the AWSValidator config
-func (s *TagRuleService) ReconcileTagRule(rule v1alpha1.TagRule) (*vapitypes.ValidationResult, error) {
+func (s *TagRuleService) ReconcileTagRule(rule v1alpha1.TagRule) (*vapitypes.ValidationRuleResult, error) {
 
 	// Build the default latest condition for this tag rule
 	state := vapi.ValidationSucceeded
@@ -42,7 +42,7 @@ func (s *TagRuleService) ReconcileTagRule(rule v1alpha1.TagRule) (*vapitypes.Val
 	latestCondition.Message = "All required subnet tags were found"
 	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, rule.Name)
 	latestCondition.ValidationType = constants.ValidationTypeTag
-	validationResult := &vapitypes.ValidationResult{Condition: &latestCondition, State: &state}
+	validationResult := &vapitypes.ValidationRuleResult{Condition: &latestCondition, State: &state}
 
 	switch rule.ResourceType {
 	case "subnet":

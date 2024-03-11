@@ -206,7 +206,7 @@ var mockQuotas = &servicequotas.ListServiceQuotasOutput{}
 type testCase struct {
 	name           string
 	rule           v1alpha1.ServiceQuotaRule
-	expectedResult types.ValidationResult
+	expectedResult types.ValidationRuleResult
 	expectedError  error
 	mockQuotas     []sqtypes.ServiceQuota
 }
@@ -232,7 +232,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(1.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
@@ -263,7 +263,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(5.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
@@ -294,7 +294,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(1.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
@@ -325,7 +325,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(5.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
@@ -356,7 +356,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(1.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
@@ -387,7 +387,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(5.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
@@ -418,7 +418,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(1.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
@@ -449,7 +449,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(5.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
@@ -480,7 +480,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(1.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
@@ -511,7 +511,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(5.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
@@ -542,7 +542,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(2.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
@@ -573,7 +573,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(5.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
@@ -604,7 +604,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(1.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
@@ -635,7 +635,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(5.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
@@ -666,7 +666,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(1.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-efs",
@@ -697,7 +697,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(5.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-efs",
@@ -728,7 +728,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(1.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-elasticloadbalancing",
@@ -759,7 +759,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(5.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-elasticloadbalancing",
@@ -790,7 +790,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(1.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-elasticloadbalancing",
@@ -821,7 +821,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(5.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-elasticloadbalancing",
@@ -852,7 +852,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(1.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-elasticloadbalancing",
@@ -883,7 +883,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(5.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-elasticloadbalancing",

@@ -52,7 +52,12 @@ var _ = Describe("AWSValidator controller", Ordered, func() {
 		},
 	}
 
-	vr := &vapi.ValidationResult{}
+	vr := &vapi.ValidationResult{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      validationResultName(val),
+			Namespace: validatorNamespace,
+		},
+	}
 	vrKey := types.NamespacedName{Name: validationResultName(val), Namespace: validatorNamespace}
 
 	It("Should create a ValidationResult and update its Status with a failed condition", func() {

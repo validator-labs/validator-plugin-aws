@@ -7,7 +7,7 @@ import (
 	"github.com/spectrocloud-labs/validator/pkg/types"
 )
 
-func CheckTestCase(t *testing.T, res *types.ValidationResult, expectedResult types.ValidationResult, err, expectedError error) {
+func CheckTestCase(t *testing.T, res *types.ValidationRuleResult, expectedResult types.ValidationRuleResult, err, expectedError error) {
 	if !reflect.DeepEqual(res.State, expectedResult.State) {
 		t.Errorf("expected state (%+v), got (%+v)", expectedResult.State, res.State)
 	}

@@ -41,7 +41,7 @@ var tagService = NewTagRuleService(logr.Logger{}, tagApiMock{
 type testCase struct {
 	name           string
 	rule           v1alpha1.TagRule
-	expectedResult types.ValidationResult
+	expectedResult types.ValidationRuleResult
 	expectedError  error
 }
 
@@ -57,7 +57,7 @@ func TestTagValidation(t *testing.T) {
 				ResourceType:  "subnet",
 				ARNs:          []string{"subnetArn1"},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-tag",
 					ValidationRule: "validation-ELBSubnetTag",
@@ -79,7 +79,7 @@ func TestTagValidation(t *testing.T) {
 				ResourceType:  "subnet",
 				ARNs:          []string{"subnetArn2"},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-tag",
 					ValidationRule: "validation-ELBSubnetTag",
