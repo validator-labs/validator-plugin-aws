@@ -18,17 +18,18 @@ package controller
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"os"
 	"time"
 
 	"github.com/go-logr/logr"
+	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ktypes "k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/cluster-api/util/patch"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -59,12 +60,13 @@ type AwsValidatorReconciler struct {
 
 // Reconcile reconciles each rule found in each AWSValidator in the cluster and creates ValidationResults accordingly
 func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	r.Log.V(0).Info("Reconciling AwsValidator", "name", req.Name, "namespace", req.Namespace)
+	l := r.Log.V(0).WithValues("name", req.Name, "namespace", req.Namespace)
+	l.Info("Reconciling AwsValidator")
 
 	validator := &v1alpha1.AwsValidator{}
 	if err := r.Get(ctx, req.NamespacedName, validator); err != nil {
 		if !apierrs.IsNotFound(err) {
-			r.Log.Error(err, "failed to fetch AwsValidator", "key", req)
+			l.Error(err, "failed to fetch AwsValidator")
 		}
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
@@ -72,30 +74,44 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	// Configure AWS environment variable credentials from a secret, if applicable
 	if !validator.Spec.Auth.Implicit {
 		if validator.Spec.Auth.SecretName == "" {
-			r.Log.Error(ErrSecretNameRequired, "failed to reconcile AwsValidator with empty auth.secretName", "key", req)
+			l.Error(ErrSecretNameRequired, "failed to reconcile AwsValidator with empty auth.secretName")
 			return ctrl.Result{}, ErrSecretNameRequired
 		}
 		if err := r.envFromSecret(validator.Spec.Auth.SecretName, req.Namespace); err != nil {
-			r.Log.Error(err, "failed to configure environment from secret")
+			l.Error(err, "failed to configure environment from secret")
 			return ctrl.Result{}, err
 		}
 	}
 
 	// Get the active validator's validation result
 	vr := &vapi.ValidationResult{}
+	p, err := patch.NewHelper(vr, r.Client)
+	if err != nil {
+		l.Error(err, "failed to create patch helper")
+		return ctrl.Result{}, err
+	}
 	nn := ktypes.NamespacedName{
 		Name:      validationResultName(validator),
 		Namespace: req.Namespace,
 	}
 	if err := r.Get(ctx, nn, vr); err == nil {
-		vres.HandleExistingValidationResult(nn, vr, r.Log)
+		vres.HandleExistingValidationResult(vr, r.Log)
 	} else {
 		if !apierrs.IsNotFound(err) {
-			r.Log.V(0).Error(err, "unexpected error getting ValidationResult", "name", nn.Name, "namespace", nn.Namespace)
+			l.Error(err, "unexpected error getting ValidationResult")
 		}
-		if err := vres.HandleNewValidationResult(r.Client, buildValidationResult(validator), r.Log); err != nil {
+		if err := vres.HandleNewValidationResult(ctx, r.Client, p, buildValidationResult(validator), r.Log); err != nil {
 			return ctrl.Result{}, err
 		}
+		return ctrl.Result{RequeueAfter: time.Millisecond}, nil
+	}
+
+	// Always update the expected result count in case the validator's rules have changed
+	vr.Spec.ExpectedResults = validator.Spec.ResultCount()
+
+	resp := types.ValidationResponse{
+		ValidationRuleResults: make([]*types.ValidationRuleResult, 0, vr.Spec.ExpectedResults),
+		ValidationRuleErrors:  make([]error, 0, vr.Spec.ExpectedResults),
 	}
 
 	// IAM rules
@@ -106,32 +122,32 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		iamRuleService := iam.NewIAMRuleService(r.Log, awsApi.IAM)
 
 		for _, rule := range validator.Spec.IamRoleRules {
-			validationResult, err := iamRuleService.ReconcileIAMRoleRule(rule)
+			vrr, err := iamRuleService.ReconcileIAMRoleRule(rule)
 			if err != nil {
 				r.Log.V(0).Error(err, "failed to reconcile IAM role rule")
 			}
-			r.safeUpdate(nn, validator, validationResult, err)
+			resp.AddResult(vrr, err)
 		}
 		for _, rule := range validator.Spec.IamUserRules {
-			validationResult, err := iamRuleService.ReconcileIAMUserRule(rule)
+			vrr, err := iamRuleService.ReconcileIAMUserRule(rule)
 			if err != nil {
 				r.Log.V(0).Error(err, "failed to reconcile IAM user rule")
 			}
-			r.safeUpdate(nn, validator, validationResult, err)
+			resp.AddResult(vrr, err)
 		}
 		for _, rule := range validator.Spec.IamGroupRules {
-			validationResult, err := iamRuleService.ReconcileIAMGroupRule(rule)
+			vrr, err := iamRuleService.ReconcileIAMGroupRule(rule)
 			if err != nil {
 				r.Log.V(0).Error(err, "failed to reconcile IAM group rule")
 			}
-			r.safeUpdate(nn, validator, validationResult, err)
+			resp.AddResult(vrr, err)
 		}
 		for _, rule := range validator.Spec.IamPolicyRules {
-			validationResult, err := iamRuleService.ReconcileIAMPolicyRule(rule)
+			vrr, err := iamRuleService.ReconcileIAMPolicyRule(rule)
 			if err != nil {
 				r.Log.V(0).Error(err, "failed to reconcile IAM policy rule")
 			}
-			r.safeUpdate(nn, validator, validationResult, err)
+			resp.AddResult(vrr, err)
 		}
 	}
 
@@ -150,11 +166,11 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 			awsApi.ELBV2,
 			awsApi.SQ,
 		)
-		validationResult, err := svcQuotaService.ReconcileServiceQuotaRule(rule)
+		vrr, err := svcQuotaService.ReconcileServiceQuotaRule(rule)
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile Service Quota rule")
 		}
-		r.safeUpdate(nn, validator, validationResult, err)
+		resp.AddResult(vrr, err)
 	}
 
 	// Tag rules
@@ -165,19 +181,20 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 			continue
 		}
 		tagRuleService := tag.NewTagRuleService(r.Log, awsApi.EC2)
-		validationResult, err := tagRuleService.ReconcileTagRule(rule)
+		vrr, err := tagRuleService.ReconcileTagRule(rule)
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile Tag rule")
 		}
-		r.safeUpdate(nn, validator, validationResult, err)
+		resp.AddResult(vrr, err)
+	}
+
+	// Patch the ValidationResult with the latest ValidationRuleResults
+	if err := vres.SafeUpdateValidationResult(ctx, p, vr, resp, r.Log); err != nil {
+		return ctrl.Result{}, err
 	}
 
 	r.Log.V(0).Info("Requeuing for re-validation in two minutes.", "name", req.Name, "namespace", req.Namespace)
 	return ctrl.Result{RequeueAfter: time.Second * 120}, nil
-}
-
-func (r *AwsValidatorReconciler) safeUpdate(nn ktypes.NamespacedName, v *v1alpha1.AwsValidator, vr *types.ValidationResult, err error) {
-	vres.SafeUpdateValidationResult(r.Client, nn, vr, v.Spec.ResultCount(), err, r.Log)
 }
 
 // envFromSecret sets environment variables from a secret to configure AWS credentials

@@ -19,7 +19,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/spectrocloud-labs/validator-plugin-aws/api/v1alpha1"
-	"github.com/spectrocloud-labs/validator-plugin-aws/internal/utils/test"
 	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
 	"github.com/spectrocloud-labs/validator/pkg/types"
 	"github.com/spectrocloud-labs/validator/pkg/util"
@@ -206,7 +205,7 @@ var mockQuotas = &servicequotas.ListServiceQuotasOutput{}
 type testCase struct {
 	name           string
 	rule           v1alpha1.ServiceQuotaRule
-	expectedResult types.ValidationResult
+	expectedResult types.ValidationRuleResult
 	expectedError  error
 	mockQuotas     []sqtypes.ServiceQuota
 }
@@ -232,7 +231,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(1.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
@@ -263,7 +262,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(5.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
@@ -294,7 +293,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(1.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
@@ -325,7 +324,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(5.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
@@ -356,7 +355,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(1.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
@@ -387,7 +386,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(5.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
@@ -418,7 +417,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(1.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
@@ -449,7 +448,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(5.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
@@ -480,7 +479,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(1.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
@@ -511,7 +510,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(5.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
@@ -542,7 +541,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(2.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
@@ -573,7 +572,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(5.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
@@ -604,7 +603,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(1.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
@@ -635,7 +634,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(5.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-ec2",
@@ -666,7 +665,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(1.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-efs",
@@ -697,7 +696,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(5.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-efs",
@@ -728,7 +727,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(1.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-elasticloadbalancing",
@@ -759,7 +758,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(5.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-elasticloadbalancing",
@@ -790,7 +789,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(1.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-elasticloadbalancing",
@@ -821,7 +820,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(5.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-elasticloadbalancing",
@@ -852,7 +851,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(1.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-elasticloadbalancing",
@@ -883,7 +882,7 @@ func TestQuotaValidation(t *testing.T) {
 					Value:     util.Ptr(5.0),
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-service-quota",
 					ValidationRule: "validation-elasticloadbalancing",
@@ -900,6 +899,6 @@ func TestQuotaValidation(t *testing.T) {
 		fmt.Printf("Executing test: %s\n", c.name)
 		mockQuotas.Quotas = c.mockQuotas
 		result, err := svcQuotaService.ReconcileServiceQuotaRule(c.rule)
-		test.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
+		util.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
 	}
 }

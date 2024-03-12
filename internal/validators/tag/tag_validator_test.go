@@ -11,7 +11,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/spectrocloud-labs/validator-plugin-aws/api/v1alpha1"
-	"github.com/spectrocloud-labs/validator-plugin-aws/internal/utils/test"
 	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
 	"github.com/spectrocloud-labs/validator/pkg/types"
 	"github.com/spectrocloud-labs/validator/pkg/util"
@@ -41,7 +40,7 @@ var tagService = NewTagRuleService(logr.Logger{}, tagApiMock{
 type testCase struct {
 	name           string
 	rule           v1alpha1.TagRule
-	expectedResult types.ValidationResult
+	expectedResult types.ValidationRuleResult
 	expectedError  error
 }
 
@@ -57,7 +56,7 @@ func TestTagValidation(t *testing.T) {
 				ResourceType:  "subnet",
 				ARNs:          []string{"subnetArn1"},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-tag",
 					ValidationRule: "validation-ELBSubnetTag",
@@ -79,7 +78,7 @@ func TestTagValidation(t *testing.T) {
 				ResourceType:  "subnet",
 				ARNs:          []string{"subnetArn2"},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-tag",
 					ValidationRule: "validation-ELBSubnetTag",
@@ -94,6 +93,6 @@ func TestTagValidation(t *testing.T) {
 	}
 	for _, c := range cs {
 		result, err := tagService.ReconcileTagRule(c.rule)
-		test.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
+		util.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
 	}
 }

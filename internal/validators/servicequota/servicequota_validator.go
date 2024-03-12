@@ -103,7 +103,7 @@ func (s *ServiceQuotaRuleService) execQuotaUsageFunc(quotaName string, rule v1al
 }
 
 // ReconcileServiceQuotaRule reconciles an AWS service quota validation rule from the AWSValidator config
-func (s *ServiceQuotaRuleService) ReconcileServiceQuotaRule(rule v1alpha1.ServiceQuotaRule) (*vapitypes.ValidationResult, error) {
+func (s *ServiceQuotaRuleService) ReconcileServiceQuotaRule(rule v1alpha1.ServiceQuotaRule) (*vapitypes.ValidationRuleResult, error) {
 
 	// Build the default latest condition for this tag rule
 	state := vapi.ValidationSucceeded
@@ -111,7 +111,7 @@ func (s *ServiceQuotaRuleService) ReconcileServiceQuotaRule(rule v1alpha1.Servic
 	latestCondition.Message = "Usage for all service quotas is below specified buffer"
 	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, rule.Name)
 	latestCondition.ValidationType = constants.ValidationTypeServiceQuota
-	validationResult := &vapitypes.ValidationResult{Condition: &latestCondition, State: &state}
+	validationResult := &vapitypes.ValidationRuleResult{Condition: &latestCondition, State: &state}
 
 	// Fetch the quota by service code & name & compare against usage
 	failures := make([]string, 0)

@@ -89,7 +89,7 @@ func NewIAMRuleService(log logr.Logger, iamSvc iamApi) *IAMRuleService {
 }
 
 // ReconcileIAMRoleRule reconciles an IAM role validation rule from an AWSValidator config
-func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationResult, error) {
+func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationRuleResult, error) {
 	var ctxEntries []iamtypes.ContextEntry
 
 	// Build the default ValidationResult for this IAM rule
@@ -99,7 +99,7 @@ func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationRe
 		RoleName: util.Ptr(rule.Name()),
 	})
 	if err != nil {
-		return nil, err
+		return vr, err
 	}
 
 	policyDocs := rule.IAMPolicies()
@@ -108,12 +108,12 @@ func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationRe
 		PolicySourceArn: util.Ptr(*role.Role.Arn),
 	})
 	if err != nil {
-		return nil, err
+		return vr, err
 	}
 	if ctxKeys != nil {
 		ctxEntries, err = getContextEntries(s.log, *role.Role.RoleName, *role.Role.RoleId, *role.Role.Arn, ctxKeys.ContextKeyNames)
 		if err != nil {
-			return nil, err
+			return vr, err
 		}
 	}
 
@@ -154,7 +154,7 @@ func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationRe
 }
 
 // ReconcileIAMUserRule reconciles an IAM user validation rule from an AWSValidator config
-func (s *IAMRuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationResult, error) {
+func (s *IAMRuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationRuleResult, error) {
 	var ctxEntries []iamtypes.ContextEntry
 
 	// Build the default ValidationResult for this IAM rule
@@ -164,7 +164,7 @@ func (s *IAMRuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationRe
 		UserName: util.Ptr(rule.Name()),
 	})
 	if err != nil {
-		return nil, err
+		return vr, err
 	}
 
 	policyDocs := rule.IAMPolicies()
@@ -173,12 +173,12 @@ func (s *IAMRuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationRe
 		PolicySourceArn: util.Ptr(*user.User.Arn),
 	})
 	if err != nil {
-		return nil, err
+		return vr, err
 	}
 	if ctxKeys != nil {
 		ctxEntries, err = getContextEntries(s.log, *user.User.UserName, *user.User.UserId, *user.User.Arn, ctxKeys.ContextKeyNames)
 		if err != nil {
-			return nil, err
+			return vr, err
 		}
 	}
 
@@ -290,7 +290,7 @@ func getContextEntries(log logr.Logger, entityName, entityID, entityARN string, 
 }
 
 // ReconcileIAMGroupRule reconciles an IAM group validation rule from an AWSValidator config
-func (s *IAMRuleService) ReconcileIAMGroupRule(rule iamRule) (*types.ValidationResult, error) {
+func (s *IAMRuleService) ReconcileIAMGroupRule(rule iamRule) (*types.ValidationRuleResult, error) {
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMGroupPolicy)
 
@@ -298,7 +298,7 @@ func (s *IAMRuleService) ReconcileIAMGroupRule(rule iamRule) (*types.ValidationR
 		GroupName: util.Ptr(rule.Name()),
 	})
 	if err != nil {
-		return nil, err
+		return vr, err
 	}
 
 	policyDocs := rule.IAMPolicies()
@@ -339,7 +339,7 @@ func (s *IAMRuleService) ReconcileIAMGroupRule(rule iamRule) (*types.ValidationR
 	return vr, nil
 }
 
-func getSCPFailedValidationResult(vr *types.ValidationResult, failures []string) *types.ValidationResult {
+func getSCPFailedValidationResult(vr *types.ValidationRuleResult, failures []string) *types.ValidationRuleResult {
 	vr.State = util.Ptr(vapi.ValidationFailed)
 	vr.Condition.Failures = failures
 	vr.Condition.Message = "One or more required SCP permissions was not found, or a condition was not met"
@@ -349,7 +349,7 @@ func getSCPFailedValidationResult(vr *types.ValidationResult, failures []string)
 }
 
 // ReconcileIAMPolicyRule reconciles an IAM policy validation rule from an AWSValidator config
-func (s *IAMRuleService) ReconcileIAMPolicyRule(rule iamRule) (*types.ValidationResult, error) {
+func (s *IAMRuleService) ReconcileIAMPolicyRule(rule iamRule) (*types.ValidationRuleResult, error) {
 
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMPolicy)
@@ -466,13 +466,13 @@ func (s *IAMRuleService) getPolicyDocument(policyArn *string, ctx []string) (*aw
 }
 
 // buildValidationResult builds a default ValidationResult for a given validation type
-func buildValidationResult(rule iamRule, validationType string) *types.ValidationResult {
+func buildValidationResult(rule iamRule, validationType string) *types.ValidationRuleResult {
 	state := vapi.ValidationSucceeded
 	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = fmt.Sprintf("All required %s permissions were found", validationType)
 	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, rule.Name())
 	latestCondition.ValidationType = validationType
-	return &types.ValidationResult{Condition: &latestCondition, State: &state}
+	return &types.ValidationRuleResult{Condition: &latestCondition, State: &state}
 }
 
 // buildPermissions builds an IAM permission map from an IAM rule
@@ -622,7 +622,7 @@ func updatePermissionAction(permission *permission, a iamAction, actionAllowed b
 }
 
 // computeFailures derives IAM rule failures from an IAM permissions map once it has been fully updated
-func computeFailures(rule iamRule, permissions map[string][]*permission, vr *types.ValidationResult) {
+func computeFailures(rule iamRule, permissions map[string][]*permission, vr *types.ValidationRuleResult) {
 	failures := make([]string, 0)
 	missingActions := make(map[string]*missing)
 

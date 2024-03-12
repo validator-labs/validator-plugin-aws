@@ -12,7 +12,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/spectrocloud-labs/validator-plugin-aws/api/v1alpha1"
-	"github.com/spectrocloud-labs/validator-plugin-aws/internal/utils/test"
 	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
 	"github.com/spectrocloud-labs/validator/pkg/types"
 	"github.com/spectrocloud-labs/validator/pkg/util"
@@ -485,7 +484,7 @@ var iamService = NewIAMRuleService(logr.Logger{}, iamApiMock{
 type testCase struct {
 	name           string
 	rule           iamRule
-	expectedResult types.ValidationResult
+	expectedResult types.ValidationRuleResult
 	expectedError  error
 }
 
@@ -509,7 +508,7 @@ func TestIAMGroupValidation(t *testing.T) {
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-group-policy",
 					ValidationRule: "validation-iamGroup",
@@ -541,7 +540,7 @@ func TestIAMGroupValidation(t *testing.T) {
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-group-policy",
 					ValidationRule: "validation-iamGroup",
@@ -571,7 +570,7 @@ func TestIAMGroupValidation(t *testing.T) {
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-group-policy",
 					ValidationRule: "validation-iamGroup2",
@@ -586,7 +585,7 @@ func TestIAMGroupValidation(t *testing.T) {
 	}
 	for _, c := range cs {
 		result, err := iamService.ReconcileIAMGroupRule(c.rule)
-		test.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
+		util.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
 	}
 }
 
@@ -610,7 +609,7 @@ func TestIAMRoleValidation(t *testing.T) {
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-role-policy",
 					ValidationRule: "validation-iamRole1",
@@ -642,7 +641,7 @@ func TestIAMRoleValidation(t *testing.T) {
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-role-policy",
 					ValidationRule: "validation-iamRole1",
@@ -672,7 +671,7 @@ func TestIAMRoleValidation(t *testing.T) {
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-role-policy",
 					ValidationRule: "validation-iamRole2",
@@ -710,7 +709,7 @@ func TestIAMRoleValidation(t *testing.T) {
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-role-policy",
 					ValidationRule: "validation-iamRole3",
@@ -751,7 +750,7 @@ func TestIAMRoleValidation(t *testing.T) {
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-role-policy",
 					ValidationRule: "validation-iamRole3",
@@ -791,7 +790,7 @@ func TestIAMRoleValidation(t *testing.T) {
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-role-policy",
 					ValidationRule: "validation-iamRole2",
@@ -825,7 +824,7 @@ func TestIAMRoleValidation(t *testing.T) {
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-role-policy",
 					ValidationRule: "validation-iamRoleZanzibar",
@@ -856,7 +855,7 @@ func TestIAMRoleValidation(t *testing.T) {
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-role-policy",
 					ValidationRule: "validation-iamRole6",
@@ -871,7 +870,7 @@ func TestIAMRoleValidation(t *testing.T) {
 	}
 	for _, c := range cs {
 		result, err := iamService.ReconcileIAMRoleRule(c.rule)
-		test.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
+		util.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
 	}
 }
 
@@ -895,7 +894,7 @@ func TestIAMUserValidation(t *testing.T) {
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-user-policy",
 					ValidationRule: "validation-iamUser",
@@ -927,7 +926,7 @@ func TestIAMUserValidation(t *testing.T) {
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-user-policy",
 					ValidationRule: "validation-iamUser",
@@ -957,7 +956,7 @@ func TestIAMUserValidation(t *testing.T) {
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-user-policy",
 					ValidationRule: "validation-iamUser2",
@@ -972,7 +971,7 @@ func TestIAMUserValidation(t *testing.T) {
 	}
 	for _, c := range cs {
 		result, err := iamService.ReconcileIAMUserRule(c.rule)
-		test.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
+		util.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
 	}
 }
 
@@ -996,7 +995,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-policy",
 					ValidationRule: "validation-arn:aws:iam::123456789012:role/iamRoleArn1",
@@ -1028,7 +1027,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-policy",
 					ValidationRule: "validation-arn:aws:iam::123456789012:role/iamRoleArn1",
@@ -1066,7 +1065,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-policy",
 					ValidationRule: "validation-arn:aws:iam::123456789012:role/iamRoleArn4",
@@ -1102,7 +1101,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-policy",
 					ValidationRule: "validation-arn:aws:iam::123456789012:role/iamRoleArn5",
@@ -1138,7 +1137,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-policy",
 					ValidationRule: "validation-arn:aws:iam::123456789012:role/iamRoleArn5",
@@ -1172,7 +1171,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-policy",
 					ValidationRule: "validation-arn:aws:iam::123456789012:role/iamRoleArn5",
@@ -1206,7 +1205,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-policy",
 					ValidationRule: "validation-arn:aws:iam::123456789012:role/iamRoleArn5",
@@ -1240,7 +1239,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{
+			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-policy",
 					ValidationRule: "validation-arn:aws:iam::123456789012:role/iamRoleArn5",
@@ -1255,6 +1254,6 @@ func TestIAMPolicyValidation(t *testing.T) {
 	}
 	for _, c := range cs {
 		result, err := iamService.ReconcileIAMPolicyRule(c.rule)
-		test.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
+		util.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
 	}
 }
