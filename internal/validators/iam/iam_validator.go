@@ -99,7 +99,7 @@ func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationRu
 		RoleName: util.Ptr(rule.Name()),
 	})
 	if err != nil {
-		return nil, err
+		return vr, err
 	}
 
 	policyDocs := rule.IAMPolicies()
@@ -108,12 +108,12 @@ func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationRu
 		PolicySourceArn: util.Ptr(*role.Role.Arn),
 	})
 	if err != nil {
-		return nil, err
+		return vr, err
 	}
 	if ctxKeys != nil {
 		ctxEntries, err = getContextEntries(s.log, *role.Role.RoleName, *role.Role.RoleId, *role.Role.Arn, ctxKeys.ContextKeyNames)
 		if err != nil {
-			return nil, err
+			return vr, err
 		}
 	}
 
@@ -164,7 +164,7 @@ func (s *IAMRuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationRu
 		UserName: util.Ptr(rule.Name()),
 	})
 	if err != nil {
-		return nil, err
+		return vr, err
 	}
 
 	policyDocs := rule.IAMPolicies()
@@ -173,12 +173,12 @@ func (s *IAMRuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationRu
 		PolicySourceArn: util.Ptr(*user.User.Arn),
 	})
 	if err != nil {
-		return nil, err
+		return vr, err
 	}
 	if ctxKeys != nil {
 		ctxEntries, err = getContextEntries(s.log, *user.User.UserName, *user.User.UserId, *user.User.Arn, ctxKeys.ContextKeyNames)
 		if err != nil {
-			return nil, err
+			return vr, err
 		}
 	}
 
@@ -298,7 +298,7 @@ func (s *IAMRuleService) ReconcileIAMGroupRule(rule iamRule) (*types.ValidationR
 		GroupName: util.Ptr(rule.Name()),
 	})
 	if err != nil {
-		return nil, err
+		return vr, err
 	}
 
 	policyDocs := rule.IAMPolicies()
