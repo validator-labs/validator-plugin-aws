@@ -100,8 +100,7 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		if !apierrs.IsNotFound(err) {
 			l.Error(err, "unexpected error getting ValidationResult")
 		}
-		vr = buildValidationResult(validator)
-		if err := vres.HandleNewValidationResult(ctx, r.Client, p, vr, r.Log); err != nil {
+		if err := vres.HandleNewValidationResult(ctx, r.Client, p, buildValidationResult(validator), r.Log); err != nil {
 			return ctrl.Result{}, err
 		}
 		return ctrl.Result{RequeueAfter: time.Millisecond}, nil
