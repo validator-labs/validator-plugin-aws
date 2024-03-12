@@ -11,7 +11,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/spectrocloud-labs/validator-plugin-aws/api/v1alpha1"
-	"github.com/spectrocloud-labs/validator-plugin-aws/internal/utils/test"
 	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
 	"github.com/spectrocloud-labs/validator/pkg/types"
 	"github.com/spectrocloud-labs/validator/pkg/util"
@@ -94,6 +93,6 @@ func TestTagValidation(t *testing.T) {
 	}
 	for _, c := range cs {
 		result, err := tagService.ReconcileTagRule(c.rule)
-		test.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
+		util.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
 	}
 }

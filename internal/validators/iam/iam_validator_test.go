@@ -12,7 +12,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/spectrocloud-labs/validator-plugin-aws/api/v1alpha1"
-	"github.com/spectrocloud-labs/validator-plugin-aws/internal/utils/test"
 	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
 	"github.com/spectrocloud-labs/validator/pkg/types"
 	"github.com/spectrocloud-labs/validator/pkg/util"
@@ -586,7 +585,7 @@ func TestIAMGroupValidation(t *testing.T) {
 	}
 	for _, c := range cs {
 		result, err := iamService.ReconcileIAMGroupRule(c.rule)
-		test.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
+		util.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
 	}
 }
 
@@ -871,7 +870,7 @@ func TestIAMRoleValidation(t *testing.T) {
 	}
 	for _, c := range cs {
 		result, err := iamService.ReconcileIAMRoleRule(c.rule)
-		test.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
+		util.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
 	}
 }
 
@@ -972,7 +971,7 @@ func TestIAMUserValidation(t *testing.T) {
 	}
 	for _, c := range cs {
 		result, err := iamService.ReconcileIAMUserRule(c.rule)
-		test.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
+		util.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
 	}
 }
 
@@ -1255,6 +1254,6 @@ func TestIAMPolicyValidation(t *testing.T) {
 	}
 	for _, c := range cs {
 		result, err := iamService.ReconcileIAMPolicyRule(c.rule)
-		test.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
+		util.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
 	}
 }
