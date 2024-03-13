@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.25](https://github.com/spectrocloud-labs/validator-plugin-aws/compare/v0.0.24...v0.0.25) (2024-03-12)
+
+
+### Refactoring
+
+* use patch helpers; batch validation rule result updates ([#361](https://github.com/spectrocloud-labs/validator-plugin-aws/issues/361)) ([4321627](https://github.com/spectrocloud-labs/validator-plugin-aws/commit/43216270e9cb549b2eafa77532c16b6267ce6993))
+
 ## [0.0.24](https://github.com/spectrocloud-labs/validator-plugin-aws/compare/v0.0.23...v0.0.24) (2024-03-09)
 
 
