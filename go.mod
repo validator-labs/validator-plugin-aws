@@ -1,6 +1,6 @@
 module github.com/spectrocloud-labs/validator-plugin-aws
 
-go 1.21.6
+go 1.22.2
 
 require (
 	github.com/L30Bola/aws-policy v0.0.0-20230126045340-5e6118545ac1
