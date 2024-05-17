@@ -30,7 +30,7 @@ controllerManager:
         drop:
         - ALL
     image:
-      repository: quay.io/spectrocloud-labs/validator-plugin-aws
+      repository: quay.io/validator-labs/validator-plugin-aws
       tag: v0.0.25  # x-release-please-version
     resources:
       limits:
@@ -54,7 +54,7 @@ auth:
   # Leave secret undefined for implicit auth (node instance IAM role, IAM roles for Service Accounts, etc.)
   secret: {}
     # Specify the name of a secret in your cluster that contains AWS credentials.
-    # E.g.: https://github.com/spectrocloud-labs/validator/blob/main/chart/validator/templates/plugin-secret-aws.yaml
+    # E.g.: https://github.com/validator-labs/validator/blob/main/chart/validator/templates/plugin-secret-aws.yaml
     # secretName: aws-creds
 
   # Override the service account used by AWS validator (optional, could be used for IAM roles for Service Accounts)

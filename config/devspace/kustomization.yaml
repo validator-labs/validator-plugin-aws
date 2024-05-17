@@ -2,7 +2,7 @@ resources:
 - ../default
 
 images:
-- name: quay.io/spectrocloud-labs/aws-validator:latest
+- name: quay.io/validator-labs/aws-validator:latest
   newTag: dev
 
 patches:
