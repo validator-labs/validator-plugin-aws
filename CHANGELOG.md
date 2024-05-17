@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.26](https://github.com/validator-labs/validator-plugin-aws/compare/v0.0.25...v0.0.26) (2024-05-17)
+
+
+### Other
+
+* migrate from spectrocloud-labs to validator-labs ([#371](https://github.com/validator-labs/validator-plugin-aws/issues/371)) ([25edd27](https://github.com/validator-labs/validator-plugin-aws/commit/25edd27dbcba02a1556b9144b933141b2dcf2862))
+
 ## [0.0.25](https://github.com/validator-labs/validator-plugin-aws/compare/v0.0.24...v0.0.25) (2024-03-12)
 
 
