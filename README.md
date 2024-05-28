@@ -1,12 +1,12 @@
-[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/spectrocloud-labs/validator-plugin-aws/issues)
+[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/validator-labs/validator-plugin-aws/issues)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-![Test](https://github.com/spectrocloud-labs/validator-plugin-aws/actions/workflows/test.yaml/badge.svg)
-[![Go Report Card](https://goreportcard.com/badge/github.com/spectrocloud-labs/validator-plugin-aws)](https://goreportcard.com/report/github.com/spectrocloud-labs/validator-plugin-aws)
-[![codecov](https://codecov.io/gh/spectrocloud-labs/validator-plugin-aws/graph/badge.svg?token=QHR08U8SEQ)](https://codecov.io/gh/spectrocloud-labs/validator-plugin-aws)
-[![Go Reference](https://pkg.go.dev/badge/github.com/spectrocloud-labs/validator-plugin-aws.svg)](https://pkg.go.dev/github.com/spectrocloud-labs/validator-plugin-aws)
+![Test](https://github.com/validator-labs/validator-plugin-aws/actions/workflows/test.yaml/badge.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/validator-labs/validator-plugin-aws)](https://goreportcard.com/report/github.com/validator-labs/validator-plugin-aws)
+[![codecov](https://codecov.io/gh/validator-labs/validator-plugin-aws/graph/badge.svg?token=QHR08U8SEQ)](https://codecov.io/gh/validator-labs/validator-plugin-aws)
+[![Go Reference](https://pkg.go.dev/badge/github.com/validator-labs/validator-plugin-aws.svg)](https://pkg.go.dev/github.com/validator-labs/validator-plugin-aws)
 
 # validator-plugin-aws
-The AWS [validator](https://github.com/spectrocloud-labs/validator) plugin ensures that your AWS environment matches a user-configurable expected state.
+The AWS [validator](https://github.com/validator-labs/validator) plugin ensures that your AWS environment matches a user-configurable expected state.
 
 ## Description
 The AWS validator plugin reconciles `AwsValidator` custom resources to perform the following validations against your AWS environment:
@@ -18,7 +18,7 @@ The AWS validator plugin reconciles `AwsValidator` custom resources to perform t
 
 Each `AwsValidator` CR is (re)-processed every two minutes to continuously ensure that your AWS environment matches the expected state.
 
-See the [samples](https://github.com/spectrocloud-labs/validator-plugin-aws/tree/main/config/samples) directory for example `AwsValidator` configurations.
+See the [samples](https://github.com/validator-labs/validator-plugin-aws/tree/main/config/samples) directory for example `AwsValidator` configurations.
 
 ## Authn & Authz
 Authentication details for the AWS validator controller are provided within each `AwsValidator` custom resource. AWS authentication can be configured either implicitly or explicitly. All supported options are detailed below:
@@ -32,7 +32,7 @@ Authentication details for the AWS validator controller are provided within each
   * Environment variables + [role assumption via AWS STS](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/credentials/stscreds#AssumeRoleOptions)
 
 > [!NOTE]
-> See [values.yaml](https://github.com/spectrocloud-labs/validator-plugin-aws/tree/main/chart/validator-plugin-aws/values.yaml) for additional configuration details for each authentication option.
+> See [values.yaml](https://github.com/validator-labs/validator-plugin-aws/tree/main/chart/validator-plugin-aws/values.yaml) for additional configuration details for each authentication option.
 
 ### Minimal AWS managed IAM permission policies by validation type
 For validation to succeed, certain AWS managed permission policies must be attached to the principal used and/or assumed by the AWS validator controller. The minimal required IAM policies, broken out by validation category, are as follows:
@@ -222,10 +222,10 @@ VPC:
 - Subnets per VPC
 
 ## Installation
-The AWS validator plugin is meant to be [installed by validator](https://github.com/spectrocloud-labs/validator/tree/gh_pages#installation) (via a ValidatorConfig), but it can also be installed directly as follows:
+The AWS validator plugin is meant to be [installed by validator](https://github.com/validator-labs/validator/tree/gh_pages#installation) (via a ValidatorConfig), but it can also be installed directly as follows:
 
 ```bash
-helm repo add validator-plugin-aws https://spectrocloud-labs.github.io/validator-plugin-aws
+helm repo add validator-plugin-aws https://validator-labs.github.io/validator-plugin-aws
 helm repo update
 helm install validator-plugin-aws validator-plugin-aws/validator-plugin-aws -n validator-plugin-aws --create-namespace
 ```
