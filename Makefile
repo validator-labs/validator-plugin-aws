@@ -1,6 +1,6 @@
 
 # Image URL to use all building/pushing image targets
-IMG ?= quay.io/spectrocloud-labs/validator-plugin-aws:latest
+IMG ?= quay.io/validator-labs/validator-plugin-aws:latest
 
 GOARCH ?= $(shell go env GOARCH)
 
@@ -67,7 +67,7 @@ test: manifests generate fmt vet envtest setup-validator ## Run tests.
 .PHONY: setup-validator
 setup-validator:
 	@if [ ! -d ../validator ]; then \
-		git clone https://github.com/spectrocloud-labs/validator ../validator; \
+		git clone https://github.com/validator-labs/validator ../validator; \
 	fi
 
 ##@ Build
@@ -201,7 +201,7 @@ helm-build: helm helmify manifests kustomize
 helm-package: generate manifests
 	$(HELM) package --version $(CHART_VERSION) chart/validator-plugin-aws/
 	mkdir -p charts && mv validator-*.tgz charts
-	$(HELM) repo index --url https://spectrocloud-labs.github.io/validator-plugin-aws ./chart
+	$(HELM) repo index --url https://validator-labs.github.io/validator-plugin-aws ./chart
 	mv charts/validator-plugin-aws/index.yaml index.yaml
 
 .PHONY: frigate

@@ -18,13 +18,13 @@ import (
 	"golang.org/x/exp/slices"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/spectrocloud-labs/validator-plugin-aws/api/v1alpha1"
-	"github.com/spectrocloud-labs/validator-plugin-aws/internal/constants"
-	str_utils "github.com/spectrocloud-labs/validator-plugin-aws/internal/utils/strings"
-	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
-	vapiconstants "github.com/spectrocloud-labs/validator/pkg/constants"
-	"github.com/spectrocloud-labs/validator/pkg/types"
-	"github.com/spectrocloud-labs/validator/pkg/util"
+	"github.com/validator-labs/validator-plugin-aws/api/v1alpha1"
+	"github.com/validator-labs/validator-plugin-aws/internal/constants"
+	str_utils "github.com/validator-labs/validator-plugin-aws/internal/utils/strings"
+	vapi "github.com/validator-labs/validator/api/v1alpha1"
+	vapiconstants "github.com/validator-labs/validator/pkg/constants"
+	"github.com/validator-labs/validator/pkg/types"
+	"github.com/validator-labs/validator/pkg/util"
 )
 
 const AccountIDFromARNRegex = "arn:[a-z]*:[a-z]*::([?<AccountID>\\d{12}$]*):[0-9A-Za-z]*\\/[0-9A-Za-z]*"
