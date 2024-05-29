@@ -23,8 +23,8 @@ The following table lists the configurable parameters of the Validator-plugin-aw
 | `controllerManager.manager.args` |  | `["--health-probe-bind-address=:8081", "--metrics-bind-address=127.0.0.1:8080", "--leader-elect"]` |
 | `controllerManager.manager.containerSecurityContext.allowPrivilegeEscalation` |  | `false` |
 | `controllerManager.manager.containerSecurityContext.capabilities.drop` |  | `["ALL"]` |
-| `controllerManager.manager.image.repository` |  | `"quay.io/spectrocloud-labs/validator-plugin-aws"` |
-| `controllerManager.manager.image.tag` | x-release-please-version | `"v0.0.25"` |
+| `controllerManager.manager.image.repository` |  | `"quay.io/validator-labs/validator-plugin-aws"` |
+| `controllerManager.manager.image.tag` | x-release-please-version | `"v0.0.26"` |
 | `controllerManager.manager.resources.limits.cpu` |  | `"500m"` |
 | `controllerManager.manager.resources.limits.memory` |  | `"128Mi"` |
 | `controllerManager.manager.resources.requests.cpu` |  | `"10m"` |
