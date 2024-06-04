@@ -14,7 +14,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/iam v1.32.4
 	github.com/aws/aws-sdk-go-v2/service/servicequotas v1.21.8
 	github.com/aws/aws-sdk-go-v2/service/sts v1.28.10
-	github.com/go-logr/logr v1.4.1
+	github.com/go-logr/logr v1.4.2
 	github.com/onsi/ginkgo/v2 v2.17.2
 	github.com/onsi/gomega v1.33.1
 	github.com/pkg/errors v0.9.1
