@@ -693,10 +693,10 @@ func TestIAMRoleValidation(t *testing.T) {
 						Version: "1",
 						Statements: []v1alpha1.StatementEntry{
 							{
-								Condition: &v1alpha1.Condition{
-									Type:   "ForAnyValue:StringLike",
-									Key:    "kms:ResourceAliases",
-									Values: []string{"alias/cluster-api-provider-aws-*"},
+								Condition: v1alpha1.Condition{
+									"ForAnyValue:StringLike": {
+										"kms:ResourceAliases": {"alias/cluster-api-provider-aws-*"},
+									},
 								},
 								Effect: "Allow",
 								Actions: []string{
@@ -731,12 +731,9 @@ func TestIAMRoleValidation(t *testing.T) {
 						Version: "1",
 						Statements: []v1alpha1.StatementEntry{
 							{
-								Condition: &v1alpha1.Condition{
-									Type: "ForAnyValue:StringLike",
-									Key:  "kms:ResourceAliases",
-									Values: []string{
-										"alias/cluster-api-provider-aws-*",
-										"alias/another-value",
+								Condition: v1alpha1.Condition{
+									"ForAnyValue:StringLike": {
+										"kms:ResourceAliases": {"alias/cluster-api-provider-aws-*", "alias/another-value"},
 									},
 								},
 								Effect: "Allow",
@@ -757,7 +754,7 @@ func TestIAMRoleValidation(t *testing.T) {
 					Message:        "One or more required IAM permissions was not found, or a condition was not met",
 					Details:        []string{},
 					Failures: []string{
-						"Condition ForAnyValue:StringLike: kms:ResourceAliases=[alias/cluster-api-provider-aws-* alias/another-value] not applied to action(s) [kms:CreateGrant kms:DescribeKey] for resource * from policy iamPolicy",
+						"Condition ForAnyValue:StringLike: kms:ResourceAliases=[alias/cluster-api-provider-aws-* alias/another-value];  not applied to action(s) [kms:CreateGrant kms:DescribeKey] for resource * from policy iamPolicy",
 					},
 					Status: corev1.ConditionFalse,
 				},
@@ -774,10 +771,10 @@ func TestIAMRoleValidation(t *testing.T) {
 						Version: "1",
 						Statements: []v1alpha1.StatementEntry{
 							{
-								Condition: &v1alpha1.Condition{
-									Type:   "ForAnyValue:StringLike",
-									Key:    "kms:ResourceAliases",
-									Values: []string{"alias/cluster-api-provider-aws-*"},
+								Condition: v1alpha1.Condition{
+									"ForAnyValue:StringLike": {
+										"kms:ResourceAliases": {"alias/cluster-api-provider-aws-*"},
+									},
 								},
 								Effect: "Allow",
 								Actions: []string{
@@ -797,7 +794,7 @@ func TestIAMRoleValidation(t *testing.T) {
 					Message:        "One or more required IAM permissions was not found, or a condition was not met",
 					Details:        []string{},
 					Failures: []string{
-						"Condition ForAnyValue:StringLike: kms:ResourceAliases=[alias/cluster-api-provider-aws-*] not applied to action(s) [kms:CreateGrant kms:DescribeKey] for resource * from policy iamPolicy",
+						"Condition ForAnyValue:StringLike: kms:ResourceAliases=[alias/cluster-api-provider-aws-*];  not applied to action(s) [kms:CreateGrant kms:DescribeKey] for resource * from policy iamPolicy",
 					},
 					Status: corev1.ConditionFalse,
 				},

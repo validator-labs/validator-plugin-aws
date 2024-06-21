@@ -51,7 +51,7 @@ type missing struct {
 
 type permission struct {
 	Actions     map[iamAction]bool
-	Condition   *v1alpha1.Condition
+	Condition   v1alpha1.Condition
 	ConditionOk bool
 	Errors      []string
 	PolicyName  string
@@ -554,20 +554,22 @@ func updateResourcePermissions(policyDocument *awspolicy.Policy, permissions map
 func updatePermissions(s awspolicy.Statement, permissions []*permission, actionAllowed bool) {
 	for _, permission := range permissions {
 		if s.Condition != nil && permission.Condition != nil {
-			condition, ok := s.Condition[permission.Condition.Type]
-			if ok {
-				values, ok := condition[permission.Condition.Key]
-				if ok {
-					allFound := true
-					for _, v := range permission.Condition.Values {
-						if !slices.Contains(values, v) {
-							allFound = false
+			allFound := true
+			for pConditionType, pConditionMap := range permission.Condition {
+				for pKeyStr, pValSlice := range pConditionMap {
+					if sConditionMap, ok := s.Condition[pConditionType]; ok {
+						if sValSlice, ok := sConditionMap[pKeyStr]; ok {
+							for _, v := range pValSlice {
+								if !slices.Contains(sValSlice, v) {
+									allFound = false
+								}
+							}
 						}
 					}
-					if allFound {
-						permission.ConditionOk = true
-					}
 				}
+			}
+			if allFound {
+				permission.ConditionOk = true
 			}
 		}
 		for _, action := range s.Action {
