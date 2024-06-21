@@ -20,30 +20,27 @@ spec:
       - actions:
         - "iam:CreateServiceLinkedRole"
         condition:
-          type: StringLike
-          key: "iam:AWSServiceName"
-          values:
-          - eks.amazonaws.com
+          StringLike:
+            iam:AWSServiceName:
+            - eks.amazonaws.com
         effect: Allow
         resources:
         - "arn:*:iam::*:role/aws-service-role/eks.amazonaws.com/AWSServiceRoleForAmazonEKS"
       - actions:
         - "iam:CreateServiceLinkedRole"
         condition:
-          type: StringLike
-          key: "iam:AWSServiceName"
-          values:
-          - eks-nodegroup.amazonaws.com
+          StringLike:
+            iam:AWSServiceName:
+            - eks-nodegroup.amazonaws.com
         effect: Allow
         resources:
         - "arn:*:iam::*:role/aws-service-role/eks-nodegroup.amazonaws.com/AWSServiceRoleForAmazonEKSNodegroup"
       - actions:
         - "iam:CreateServiceLinkedRole"
         condition:
-          type: StringLike
-          key: "iam:AWSServiceName"
-          values:
-          - eks-fargate.amazonaws.com
+          StringLike:
+            iam:AWSServiceName:
+            - eks-fargate.amazonaws.com
         effect: Allow
         resources:
         - "arn:*:iam::*:role/aws-service-role/eks-fargate-pods.amazonaws.com/AWSServiceRoleForAmazonEKSForFargate"
@@ -114,10 +111,9 @@ spec:
       - actions:
         - "iam:PassRole"
         condition:
-          type: StringEquals
-          key: "iam:PassedToService"
-          values:
-          - eks.amazonaws.com
+          StringEquals:
+            iam:PassedToService:
+            - eks.amazonaws.com
         effect: Allow
         resources:
         - "*"
@@ -125,10 +121,9 @@ spec:
         - "kms:CreateGrant"
         - "kms:DescribeKey"
         condition:
-          type: "ForAnyValue:StringLike"
-          key: "kms:ResourceAliases"
-          values:
-          - "alias/cluster-api-provider-aws-*"
+          ForAnyValue:StringLike:
+            kms:ResourceAliases:
+            - "alias/cluster-api-provider-aws-*"
         effect: Allow
         resources:
         - "*"

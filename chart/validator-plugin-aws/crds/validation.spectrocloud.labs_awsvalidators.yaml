@@ -3,7 +3,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.12.0
+    controller-gen.kubebuilder.io/version: v0.15.0
   name: awsvalidators.validation.spectrocloud.labs
 spec:
   group: validation.spectrocloud.labs
@@ -20,14 +20,19 @@ spec:
         description: AwsValidator is the Schema for the awsvalidators API
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
             type: string
           metadata:
             type: object
@@ -37,14 +42,14 @@ spec:
               auth:
                 properties:
                   implicit:
-                    description: If true, the AwsValidator will use the AWS SDK's
-                      default credential chain to authenticate. Set to true if using
-                      node instance IAM role or IAM roles for Service Accounts.
+                    description: |-
+                      If true, the AwsValidator will use the AWS SDK's default credential chain to authenticate.
+                      Set to true if using node instance IAM role or IAM roles for Service Accounts.
                     type: boolean
                   secretName:
-                    description: Name of a Secret in the same namespace as the AwsValidator
-                      that contains AWS credentials. The secret data's keys and values
-                      are expected to align with valid AWS environment variable credentials,
+                    description: |-
+                      Name of a Secret in the same namespace as the AwsValidator that contains AWS credentials.
+                      The secret data's keys and values are expected to align with valid AWS environment variable credentials,
                       per the options defined in https://aws.github.io/aws-sdk-go-v2/docs/configuring-sdk/#environment-variables.
                     type: string
                   stsAuth:
@@ -95,19 +100,12 @@ spec:
                                     type: string
                                   type: array
                                 condition:
-                                  properties:
-                                    key:
-                                      type: string
-                                    type:
-                                      type: string
-                                    values:
+                                  additionalProperties:
+                                    additionalProperties:
                                       items:
                                         type: string
                                       type: array
-                                  required:
-                                  - key
-                                  - type
-                                  - values
+                                    type: object
                                   type: object
                                 effect:
                                   type: string
@@ -155,19 +153,12 @@ spec:
                                     type: string
                                   type: array
                                 condition:
-                                  properties:
-                                    key:
-                                      type: string
-                                    type:
-                                      type: string
-                                    values:
+                                  additionalProperties:
+                                    additionalProperties:
                                       items:
                                         type: string
                                       type: array
-                                  required:
-                                  - key
-                                  - type
-                                  - values
+                                    type: object
                                   type: object
                                 effect:
                                   type: string
@@ -217,19 +208,12 @@ spec:
                                     type: string
                                   type: array
                                 condition:
-                                  properties:
-                                    key:
-                                      type: string
-                                    type:
-                                      type: string
-                                    values:
+                                  additionalProperties:
+                                    additionalProperties:
                                       items:
                                         type: string
                                       type: array
-                                  required:
-                                  - key
-                                  - type
-                                  - values
+                                    type: object
                                   type: object
                                 effect:
                                   type: string
@@ -279,19 +263,12 @@ spec:
                                     type: string
                                   type: array
                                 condition:
-                                  properties:
-                                    key:
-                                      type: string
-                                    type:
-                                      type: string
-                                    values:
+                                  additionalProperties:
+                                    additionalProperties:
                                       items:
                                         type: string
                                       type: array
-                                  required:
-                                  - key
-                                  - type
-                                  - values
+                                    type: object
                                   type: object
                                 effect:
                                   type: string

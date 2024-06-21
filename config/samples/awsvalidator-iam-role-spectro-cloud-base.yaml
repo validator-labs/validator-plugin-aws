@@ -99,30 +99,27 @@ spec:
       - actions:
         - "iam:CreateServiceLinkedRole"
         condition:
-          type: StringLike
-          key: "iam:AWSServiceName"
-          values:
-          - autoscaling.amazonaws.com
+          StringLike:
+            iam:AWSServiceName:
+            - autoscaling.amazonaws.com
         effect: Allow
         resources:
         - "arn:*:iam::*:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling"
       - actions:
         - "iam:CreateServiceLinkedRole"
         condition:
-          type: StringLike
-          key: "iam:AWSServiceName"
-          values:
-          - elasticloadbalancing.amazonaws.com
+          StringLike:
+            iam:AWSServiceName:
+            - elasticloadbalancing.amazonaws.com
         effect: Allow
         resources:
         - "arn:*:iam::*:role/aws-service-role/elasticloadbalancing.amazonaws.com/AWSServiceRoleForElasticLoadBalancing"
       - actions:
         - "iam:CreateServiceLinkedRole"
         condition:
-          type: StringLike
-          key: "iam:AWSServiceName"
-          values:
-          - spot.amazonaws.com
+          StringLike:
+            iam:AWSServiceName:
+            - spot.amazonaws.com
         effect: Allow
         resources:
         - "arn:*:iam::*:role/aws-service-role/spot.amazonaws.com/AWSServiceRoleForEC2Spot"
@@ -175,8 +172,7 @@ spec:
         - "ec2:DeleteVolume"
         - "ec2:DetachVolume"
         - "ec2:RevokeSecurityGroupIngress"
-        - "ec2:DescribeVpcs"
-        - "elasticloadbalancing:AddTags"
+        - "ec2:DescribeVpcs" - "elasticloadbalancing:AddTags"
         - "elasticloadbalancing:AttachLoadBalancerToSubnets"
         - "elasticloadbalancing:ApplySecurityGroupsToLoadBalancer"
         - "elasticloadbalancing:CreateLoadBalancer"
