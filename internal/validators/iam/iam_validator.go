@@ -554,23 +554,7 @@ func updateResourcePermissions(policyDocument *awspolicy.Policy, permissions map
 func updatePermissions(s awspolicy.Statement, permissions []*permission, actionAllowed bool) {
 	for _, permission := range permissions {
 		if s.Condition != nil && permission.Condition != nil {
-			allFound := true
-			for pConditionType, pConditionMap := range permission.Condition {
-				for pKeyStr, pValSlice := range pConditionMap {
-					if sConditionMap, ok := s.Condition[pConditionType]; ok {
-						if sValSlice, ok := sConditionMap[pKeyStr]; ok {
-							for _, v := range pValSlice {
-								if !slices.Contains(sValSlice, v) {
-									allFound = false
-								}
-							}
-						}
-					}
-				}
-			}
-			if allFound {
-				permission.ConditionOk = true
-			}
+			permission.ConditionOk = conditionSatisfied(s.Condition, permission.Condition)
 		}
 		for _, action := range s.Action {
 			iamAction := toIAMAction(action)
@@ -615,6 +599,28 @@ func updatePermissions(s awspolicy.Statement, permissions []*permission, actionA
 			}
 		}
 	}
+}
+
+// conditionSatisfied returns true if and only if all conditions on the ruleCondition are found in the policyCondition
+func conditionSatisfied(policyCondition awspolicy.Condition, ruleCondition v1alpha1.Condition) bool {
+	for rType, rConditionMap := range ruleCondition {
+		pConditionMap, ok := policyCondition[rType]
+		if !ok {
+			return false
+		}
+		for rKey, rValues := range rConditionMap {
+			pValues, ok := pConditionMap[rKey]
+			if !ok {
+				return false
+			}
+			for _, rv := range rValues {
+				if !slices.Contains(pValues, rv) {
+					return false
+				}
+			}
+		}
+	}
+	return true
 }
 
 func updatePermissionAction(permission *permission, a iamAction, actionAllowed bool) {
