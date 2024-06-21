@@ -554,7 +554,9 @@ func updateResourcePermissions(policyDocument *awspolicy.Policy, permissions map
 func updatePermissions(s awspolicy.Statement, permissions []*permission, actionAllowed bool) {
 	for _, permission := range permissions {
 		if s.Condition != nil && permission.Condition != nil {
-			permission.ConditionOk = conditionSatisfied(s.Condition, permission.Condition)
+			if conditionSatisfied(s.Condition, permission.Condition) {
+				permission.ConditionOk = true
+			}
 		}
 		for _, action := range s.Action {
 			iamAction := toIAMAction(action)
