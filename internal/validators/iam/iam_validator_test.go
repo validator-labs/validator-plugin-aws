@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"testing"
 
+	awspolicy "github.com/L30Bola/aws-policy"
 	"github.com/aws/aws-sdk-go-v2/service/iam"
 	iamtypes "github.com/aws/aws-sdk-go-v2/service/iam/types"
 	"github.com/go-logr/logr"
@@ -693,10 +694,10 @@ func TestIAMRoleValidation(t *testing.T) {
 						Version: "1",
 						Statements: []v1alpha1.StatementEntry{
 							{
-								Condition: &v1alpha1.Condition{
-									Type:   "ForAnyValue:StringLike",
-									Key:    "kms:ResourceAliases",
-									Values: []string{"alias/cluster-api-provider-aws-*"},
+								Condition: v1alpha1.Condition{
+									"ForAnyValue:StringLike": {
+										"kms:ResourceAliases": {"alias/cluster-api-provider-aws-*"},
+									},
 								},
 								Effect: "Allow",
 								Actions: []string{
@@ -731,12 +732,9 @@ func TestIAMRoleValidation(t *testing.T) {
 						Version: "1",
 						Statements: []v1alpha1.StatementEntry{
 							{
-								Condition: &v1alpha1.Condition{
-									Type: "ForAnyValue:StringLike",
-									Key:  "kms:ResourceAliases",
-									Values: []string{
-										"alias/cluster-api-provider-aws-*",
-										"alias/another-value",
+								Condition: v1alpha1.Condition{
+									"ForAnyValue:StringLike": {
+										"kms:ResourceAliases": {"alias/cluster-api-provider-aws-*", "alias/another-value"},
 									},
 								},
 								Effect: "Allow",
@@ -757,7 +755,7 @@ func TestIAMRoleValidation(t *testing.T) {
 					Message:        "One or more required IAM permissions was not found, or a condition was not met",
 					Details:        []string{},
 					Failures: []string{
-						"Condition ForAnyValue:StringLike: kms:ResourceAliases=[alias/cluster-api-provider-aws-* alias/another-value] not applied to action(s) [kms:CreateGrant kms:DescribeKey] for resource * from policy iamPolicy",
+						"Condition ForAnyValue:StringLike: kms:ResourceAliases=[alias/cluster-api-provider-aws-* alias/another-value];  not applied to action(s) [kms:CreateGrant kms:DescribeKey] for resource * from policy iamPolicy",
 					},
 					Status: corev1.ConditionFalse,
 				},
@@ -774,10 +772,10 @@ func TestIAMRoleValidation(t *testing.T) {
 						Version: "1",
 						Statements: []v1alpha1.StatementEntry{
 							{
-								Condition: &v1alpha1.Condition{
-									Type:   "ForAnyValue:StringLike",
-									Key:    "kms:ResourceAliases",
-									Values: []string{"alias/cluster-api-provider-aws-*"},
+								Condition: v1alpha1.Condition{
+									"ForAnyValue:StringLike": {
+										"kms:ResourceAliases": {"alias/cluster-api-provider-aws-*"},
+									},
 								},
 								Effect: "Allow",
 								Actions: []string{
@@ -797,7 +795,7 @@ func TestIAMRoleValidation(t *testing.T) {
 					Message:        "One or more required IAM permissions was not found, or a condition was not met",
 					Details:        []string{},
 					Failures: []string{
-						"Condition ForAnyValue:StringLike: kms:ResourceAliases=[alias/cluster-api-provider-aws-*] not applied to action(s) [kms:CreateGrant kms:DescribeKey] for resource * from policy iamPolicy",
+						"Condition ForAnyValue:StringLike: kms:ResourceAliases=[alias/cluster-api-provider-aws-*];  not applied to action(s) [kms:CreateGrant kms:DescribeKey] for resource * from policy iamPolicy",
 					},
 					Status: corev1.ConditionFalse,
 				},
@@ -1255,5 +1253,104 @@ func TestIAMPolicyValidation(t *testing.T) {
 	for _, c := range cs {
 		result, err := iamService.ReconcileIAMPolicyRule(c.rule)
 		util.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
+	}
+}
+
+func TestConditionSatisfied(t *testing.T) {
+	tests := []struct {
+		name            string
+		policyCondition awspolicy.Condition
+		ruleCondition   v1alpha1.Condition
+		expected        bool
+	}{
+		{
+			name: "All conditions match",
+			policyCondition: awspolicy.Condition{
+				"StringEquals": {
+					"s3:prefix": {"home/", "home/John/"},
+				},
+				"StringLike": {
+					"s3:prefix": {"home/"},
+				},
+			},
+			ruleCondition: v1alpha1.Condition{
+				"StringEquals": {
+					"s3:prefix": {"home/", "home/John/"},
+				},
+				"StringLike": {
+					"s3:prefix": {"home/"},
+				},
+			},
+			expected: true,
+		},
+		{
+			name: "Conditions type not present",
+			policyCondition: awspolicy.Condition{
+				"StringEquals": {
+					"s3:prefix": {"home/", "home/John/"},
+				},
+			},
+			ruleCondition: v1alpha1.Condition{
+				"StringEquals": {
+					"s3:prefix": {"home/", "home/John/"},
+				},
+				"StringLike": {
+					"s3:prefix": {"home/"},
+				},
+			},
+			expected: false,
+		},
+		{
+			name: "Condition key not present",
+			policyCondition: awspolicy.Condition{
+				"StringEquals": {
+					"s3:suffix": {"home/"},
+				},
+			},
+			ruleCondition: v1alpha1.Condition{
+				"StringEquals": {
+					"s3:prefix": {"home/"},
+				},
+			},
+			expected: false,
+		},
+		{
+			name: "Condition value not present",
+			policyCondition: awspolicy.Condition{
+				"StringEquals": {
+					"s3:prefix": {"home/John/"},
+				},
+			},
+			ruleCondition: v1alpha1.Condition{
+				"StringEquals": {
+					"s3:prefix": {"home/"},
+				},
+			},
+			expected: false,
+		},
+		{
+			name: "Extra conditions in policy",
+			policyCondition: awspolicy.Condition{
+				"StringEquals": {
+					"s3:prefix": {"home/", "home/John/"},
+					"s3:suffix": {"docs/"},
+				},
+			},
+			ruleCondition: v1alpha1.Condition{
+				"StringEquals": {
+					"s3:prefix": {"home/"},
+				},
+			},
+			expected: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := conditionSatisfied(tt.policyCondition, tt.ruleCondition)
+			if result != tt.expected {
+				t.Errorf("conditionSatisfied() = %v, expected %v", result, tt.expected)
+			}
+		})
 	}
 }

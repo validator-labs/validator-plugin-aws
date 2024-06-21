@@ -51,7 +51,7 @@ type missing struct {
 
 type permission struct {
 	Actions     map[iamAction]bool
-	Condition   *v1alpha1.Condition
+	Condition   v1alpha1.Condition
 	ConditionOk bool
 	Errors      []string
 	PolicyName  string
@@ -554,20 +554,8 @@ func updateResourcePermissions(policyDocument *awspolicy.Policy, permissions map
 func updatePermissions(s awspolicy.Statement, permissions []*permission, actionAllowed bool) {
 	for _, permission := range permissions {
 		if s.Condition != nil && permission.Condition != nil {
-			condition, ok := s.Condition[permission.Condition.Type]
-			if ok {
-				values, ok := condition[permission.Condition.Key]
-				if ok {
-					allFound := true
-					for _, v := range permission.Condition.Values {
-						if !slices.Contains(values, v) {
-							allFound = false
-						}
-					}
-					if allFound {
-						permission.ConditionOk = true
-					}
-				}
+			if conditionSatisfied(s.Condition, permission.Condition) {
+				permission.ConditionOk = true
 			}
 		}
 		for _, action := range s.Action {
@@ -613,6 +601,28 @@ func updatePermissions(s awspolicy.Statement, permissions []*permission, actionA
 			}
 		}
 	}
+}
+
+// conditionSatisfied returns true if and only if all conditions on the ruleCondition are found in the policyCondition
+func conditionSatisfied(policyCondition awspolicy.Condition, ruleCondition v1alpha1.Condition) bool {
+	for rType, rConditionMap := range ruleCondition {
+		pConditionMap, ok := policyCondition[rType]
+		if !ok {
+			return false
+		}
+		for rKey, rValues := range rConditionMap {
+			pValues, ok := pConditionMap[rKey]
+			if !ok {
+				return false
+			}
+			for _, rv := range rValues {
+				if !slices.Contains(pValues, rv) {
+					return false
+				}
+			}
+		}
+	}
+	return true
 }
 
 func updatePermissionAction(permission *permission, a iamAction, actionAllowed bool) {

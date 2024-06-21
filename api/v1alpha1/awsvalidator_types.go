@@ -18,6 +18,7 @@ package v1alpha1
 
 import (
 	"fmt"
+	"strings"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -136,20 +137,24 @@ type PolicyDocument struct {
 }
 
 type StatementEntry struct {
-	Condition *Condition `json:"condition,omitempty" yaml:"condition,omitempty"`
-	Effect    string     `json:"effect" yaml:"effect"`
-	Actions   []string   `json:"actions" yaml:"actions"`
-	Resources []string   `json:"resources" yaml:"resources"`
+	Condition Condition `json:"condition,omitempty" yaml:"condition,omitempty"`
+	Effect    string    `json:"effect" yaml:"effect"`
+	Actions   []string  `json:"actions" yaml:"actions"`
+	Resources []string  `json:"resources" yaml:"resources"`
 }
 
-type Condition struct {
-	Type   string   `json:"type" yaml:"type"`
-	Key    string   `json:"key" yaml:"key"`
-	Values []string `json:"values" yaml:"values"`
-}
+type Condition map[string]map[string][]string
 
-func (c *Condition) String() string {
-	return fmt.Sprintf("%s: %s=%s", c.Type, c.Key, c.Values)
+func (c Condition) String() string {
+	sb := strings.Builder{}
+	for k, v := range c {
+		sb.WriteString(fmt.Sprintf("%s: ", k))
+
+		for subk, subv := range v {
+			sb.WriteString(fmt.Sprintf("%s=%s; ", subk, subv))
+		}
+	}
+	return sb.String()
 }
 
 type ServiceQuotaRule struct {
