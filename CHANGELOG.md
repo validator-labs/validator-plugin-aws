@@ -1,5 +1,60 @@
 # Changelog
 
+## [0.1.0](https://github.com/validator-labs/validator-plugin-aws/compare/v0.0.26...v0.1.0) (2024-06-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* update StatementEntry.Condition to be a map[string]map[sting][]string ([#410](https://github.com/validator-labs/validator-plugin-aws/issues/410))
+
+### Bug Fixes
+
+* **deps:** update aws-sdk-go-v2 monorepo ([#355](https://github.com/validator-labs/validator-plugin-aws/issues/355)) ([e1fb6bb](https://github.com/validator-labs/validator-plugin-aws/commit/e1fb6bb337595ec0ed3fbea7a23af78abde9e64d))
+* **deps:** update aws-sdk-go-v2 monorepo ([#377](https://github.com/validator-labs/validator-plugin-aws/issues/377)) ([52043ca](https://github.com/validator-labs/validator-plugin-aws/commit/52043ca669c264f08867e0b5c77da18f185a4416))
+* **deps:** update aws-sdk-go-v2 monorepo ([#391](https://github.com/validator-labs/validator-plugin-aws/issues/391)) ([1a98cda](https://github.com/validator-labs/validator-plugin-aws/commit/1a98cda4a2efb05be494be7a66829786567d80e6))
+* **deps:** update aws-sdk-go-v2 monorepo ([#399](https://github.com/validator-labs/validator-plugin-aws/issues/399)) ([8732cef](https://github.com/validator-labs/validator-plugin-aws/commit/8732cef8b21832f26321baefa7705321a9b4aa02))
+* **deps:** update aws-sdk-go-v2 monorepo ([#405](https://github.com/validator-labs/validator-plugin-aws/issues/405)) ([dde6a96](https://github.com/validator-labs/validator-plugin-aws/commit/dde6a9665f7ea348c9e00af053071072359aeafc))
+* **deps:** update aws-sdk-go-v2 monorepo ([#406](https://github.com/validator-labs/validator-plugin-aws/issues/406)) ([48bdf52](https://github.com/validator-labs/validator-plugin-aws/commit/48bdf527c4fc080f7b9d3aacbe95ccf505bec8e7))
+* **deps:** update aws-sdk-go-v2 monorepo ([#408](https://github.com/validator-labs/validator-plugin-aws/issues/408)) ([0696879](https://github.com/validator-labs/validator-plugin-aws/commit/0696879ac034cef8919daade63708c3f19bb0669))
+* **deps:** update golang.org/x/exp digest to 7f521ea ([#403](https://github.com/validator-labs/validator-plugin-aws/issues/403)) ([e0526be](https://github.com/validator-labs/validator-plugin-aws/commit/e0526be1d243df056f2faa030fe33423cc589760))
+* **deps:** update golang.org/x/exp digest to fc45aab ([#393](https://github.com/validator-labs/validator-plugin-aws/issues/393)) ([a3393f8](https://github.com/validator-labs/validator-plugin-aws/commit/a3393f81d50d552a5d6cc3f5548f7042696b059b))
+* **deps:** update golang.org/x/exp digest to fd00a4e ([#381](https://github.com/validator-labs/validator-plugin-aws/issues/381)) ([dcca2a0](https://github.com/validator-labs/validator-plugin-aws/commit/dcca2a069b373672167db73c7f9cc6d68c445ad6))
+* **deps:** update kubernetes packages to v0.30.1 ([#387](https://github.com/validator-labs/validator-plugin-aws/issues/387)) ([3d2c47b](https://github.com/validator-labs/validator-plugin-aws/commit/3d2c47b5c245f5227aa7bf873ec542575773333b))
+* **deps:** update kubernetes packages to v0.30.2 ([#401](https://github.com/validator-labs/validator-plugin-aws/issues/401)) ([023b620](https://github.com/validator-labs/validator-plugin-aws/commit/023b62070ff847231ab71ac2ac4138a3b3dd654b))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/ec2 to v1.163.0 ([#394](https://github.com/validator-labs/validator-plugin-aws/issues/394)) ([f3f1bb1](https://github.com/validator-labs/validator-plugin-aws/commit/f3f1bb14d3c29bd1b50a3b6441eb9600d830631f))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/ec2 to v1.164.0 ([#402](https://github.com/validator-labs/validator-plugin-aws/issues/402)) ([17c1a51](https://github.com/validator-labs/validator-plugin-aws/commit/17c1a510efdfd899fcdc6d252b93c0cb1432da72))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/ec2 to v1.164.1 ([#404](https://github.com/validator-labs/validator-plugin-aws/issues/404)) ([e486c58](https://github.com/validator-labs/validator-plugin-aws/commit/e486c585e6a315bbc1526d8e3b00cea2dae733ec))
+* **deps:** update module github.com/go-logr/logr to v1.4.2 ([#382](https://github.com/validator-labs/validator-plugin-aws/issues/382)) ([ae53fe8](https://github.com/validator-labs/validator-plugin-aws/commit/ae53fe880847d825f09a313498100021ada0f910))
+* **deps:** update module github.com/onsi/ginkgo/v2 to v2.19.0 ([#388](https://github.com/validator-labs/validator-plugin-aws/issues/388)) ([48ec989](https://github.com/validator-labs/validator-plugin-aws/commit/48ec989e40ebd135e070a128795ed1c26872953a))
+* **deps:** update module github.com/onsi/gomega to v1.33.1 ([#389](https://github.com/validator-labs/validator-plugin-aws/issues/389)) ([c60ea70](https://github.com/validator-labs/validator-plugin-aws/commit/c60ea706502ae98cd498d963d2a7029c3560fa0e))
+* **deps:** update module github.com/validator-labs/validator to v0.0.41 ([#383](https://github.com/validator-labs/validator-plugin-aws/issues/383)) ([55ba0b6](https://github.com/validator-labs/validator-plugin-aws/commit/55ba0b61af69ef3ebc8483d0d24dd374703661ed))
+* **deps:** update module github.com/validator-labs/validator to v0.0.42 ([#398](https://github.com/validator-labs/validator-plugin-aws/issues/398)) ([feda991](https://github.com/validator-labs/validator-plugin-aws/commit/feda9919060a60e262b6a82f63b22391950ef9d6))
+* **deps:** update module sigs.k8s.io/cluster-api to v1.7.2 ([#363](https://github.com/validator-labs/validator-plugin-aws/issues/363)) ([9f447f2](https://github.com/validator-labs/validator-plugin-aws/commit/9f447f2c5c7cfdb201f623d99cf8b7f23341a8b4))
+* **deps:** update module sigs.k8s.io/cluster-api to v1.7.3 ([#400](https://github.com/validator-labs/validator-plugin-aws/issues/400)) ([4e606a0](https://github.com/validator-labs/validator-plugin-aws/commit/4e606a09dc0709aa666a29862bdae9d91060e911))
+* **deps:** update module sigs.k8s.io/controller-runtime to v0.18.4 ([#396](https://github.com/validator-labs/validator-plugin-aws/issues/396)) ([9e89fd8](https://github.com/validator-labs/validator-plugin-aws/commit/9e89fd8b199165b9ffb8c98a83aad2247b59e150))
+* update StatementEntry.Condition to be a map[string]map[sting][]string ([#410](https://github.com/validator-labs/validator-plugin-aws/issues/410)) ([49c4b16](https://github.com/validator-labs/validator-plugin-aws/commit/49c4b16fb0b9a4b6c128431f6e75f770315a746c))
+
+
+### Other
+
+* **deps:** bump golang.org/x/net from 0.21.0 to 0.23.0 ([#369](https://github.com/validator-labs/validator-plugin-aws/issues/369)) ([40af9b5](https://github.com/validator-labs/validator-plugin-aws/commit/40af9b59e180e1a91742eeda599dac74b7cc3134))
+* **deps:** pin googleapis/release-please-action action to f3969c0 ([#374](https://github.com/validator-labs/validator-plugin-aws/issues/374)) ([641a872](https://github.com/validator-labs/validator-plugin-aws/commit/641a872925122a5ee8040c149757ac170abddfad))
+* **deps:** update actions/checkout digest to 0ad4b8f ([#370](https://github.com/validator-labs/validator-plugin-aws/issues/370)) ([b10a81e](https://github.com/validator-labs/validator-plugin-aws/commit/b10a81e62fe054c844ccd99eadb1d4cab6648af8))
+* **deps:** update actions/checkout digest to a5ac7e5 ([#375](https://github.com/validator-labs/validator-plugin-aws/issues/375)) ([e3a337f](https://github.com/validator-labs/validator-plugin-aws/commit/e3a337f0ac85556f2fbb3d845d32ec945edb1230))
+* **deps:** update actions/setup-go digest to cdcb360 ([#378](https://github.com/validator-labs/validator-plugin-aws/issues/378)) ([36a8e26](https://github.com/validator-labs/validator-plugin-aws/commit/36a8e26d3496d6b802238575d0f2965b2804677c))
+* **deps:** update actions/setup-python digest to 82c7e63 ([#379](https://github.com/validator-labs/validator-plugin-aws/issues/379)) ([3769508](https://github.com/validator-labs/validator-plugin-aws/commit/37695085ab494c77147f39e843a3b1356bf1c91c))
+* **deps:** update anchore/sbom-action action to v0.16.0 ([#384](https://github.com/validator-labs/validator-plugin-aws/issues/384)) ([75c63c8](https://github.com/validator-labs/validator-plugin-aws/commit/75c63c8e23be90305982bb9db434d2242e867bbb))
+* **deps:** update azure/setup-helm digest to fe7b79c ([#356](https://github.com/validator-labs/validator-plugin-aws/issues/356)) ([da0a9b8](https://github.com/validator-labs/validator-plugin-aws/commit/da0a9b8223c9eefbce61a6918cf5f5fb899f59b4))
+* **deps:** update codecov/codecov-action digest to 125fc84 ([#380](https://github.com/validator-labs/validator-plugin-aws/issues/380)) ([3329a6f](https://github.com/validator-labs/validator-plugin-aws/commit/3329a6f07865779ba1e31178533e774750c615f5))
+* **deps:** update dependency go to v1.22.4 ([#392](https://github.com/validator-labs/validator-plugin-aws/issues/392)) ([4bb505c](https://github.com/validator-labs/validator-plugin-aws/commit/4bb505c50081bc7b2eeb7d90b49580555267b083))
+* **deps:** update docker/build-push-action digest to 2cdde99 ([#357](https://github.com/validator-labs/validator-plugin-aws/issues/357)) ([515016b](https://github.com/validator-labs/validator-plugin-aws/commit/515016b5eebbfe7441bd945d9e76b9a844e14781))
+* **deps:** update docker/login-action digest to 0d4c9c5 ([#376](https://github.com/validator-labs/validator-plugin-aws/issues/376)) ([e12570e](https://github.com/validator-labs/validator-plugin-aws/commit/e12570e1b42fd43561778dcc37b6dfef9bea4103))
+* **deps:** update docker/login-action digest to e92390c ([#365](https://github.com/validator-labs/validator-plugin-aws/issues/365)) ([74fdd08](https://github.com/validator-labs/validator-plugin-aws/commit/74fdd08d68ef4333f57ddf909e2b53a6a45f09de))
+* **deps:** update docker/setup-buildx-action digest to d70bba7 ([#367](https://github.com/validator-labs/validator-plugin-aws/issues/367)) ([e85f7a3](https://github.com/validator-labs/validator-plugin-aws/commit/e85f7a33d5423a2b789cc9a79ba52be94370de9f))
+* **deps:** update gcr.io/kubebuilder/kube-rbac-proxy docker tag to v0.16.0 ([#385](https://github.com/validator-labs/validator-plugin-aws/issues/385)) ([a0f7493](https://github.com/validator-labs/validator-plugin-aws/commit/a0f749355c2c5e9671a5f2894dcec23fbb04dc84))
+* **deps:** update helm/kind-action action to v1.10.0 ([#386](https://github.com/validator-labs/validator-plugin-aws/issues/386)) ([0f43dd4](https://github.com/validator-labs/validator-plugin-aws/commit/0f43dd4a247f78a55a9af882d515fc0d2f2d8705))
+* **deps:** update softprops/action-gh-release action to v2 ([#358](https://github.com/validator-labs/validator-plugin-aws/issues/358)) ([d166acc](https://github.com/validator-labs/validator-plugin-aws/commit/d166acc11f6df062965af770357fd4e445f49cc5))
+
 ## [0.0.26](https://github.com/validator-labs/validator-plugin-aws/compare/v0.0.25...v0.0.26) (2024-05-17)
 
 
