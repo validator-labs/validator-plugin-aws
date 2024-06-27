@@ -89,6 +89,7 @@ func NewIAMRuleService(log logr.Logger, iamSvc iamApi) *IAMRuleService {
 }
 
 // ReconcileIAMRoleRule reconciles an IAM role validation rule from an AWSValidator config
+// nolint:dupl
 func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationRuleResult, error) {
 	var ctxEntries []iamtypes.ContextEntry
 
@@ -111,10 +112,7 @@ func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationRu
 		return vr, err
 	}
 	if ctxKeys != nil {
-		ctxEntries, err = getContextEntries(s.log, *role.Role.RoleName, *role.Role.RoleId, *role.Role.Arn, ctxKeys.ContextKeyNames)
-		if err != nil {
-			return vr, err
-		}
+		ctxEntries = getContextEntries(s.log, *role.Role.RoleName, *role.Role.RoleId, *role.Role.Arn, ctxKeys.ContextKeyNames)
 	}
 
 	scpFailures, err := checkSCP(s.iamSvc, policyDocs, *role.Role.Arn, "role", *role.Role.RoleName, ctxEntries)
@@ -154,6 +152,7 @@ func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationRu
 }
 
 // ReconcileIAMUserRule reconciles an IAM user validation rule from an AWSValidator config
+// nolint:dupl
 func (s *IAMRuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationRuleResult, error) {
 	var ctxEntries []iamtypes.ContextEntry
 
@@ -176,10 +175,7 @@ func (s *IAMRuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationRu
 		return vr, err
 	}
 	if ctxKeys != nil {
-		ctxEntries, err = getContextEntries(s.log, *user.User.UserName, *user.User.UserId, *user.User.Arn, ctxKeys.ContextKeyNames)
-		if err != nil {
-			return vr, err
-		}
+		ctxEntries = getContextEntries(s.log, *user.User.UserName, *user.User.UserId, *user.User.Arn, ctxKeys.ContextKeyNames)
 	}
 
 	scpFailures, err := checkSCP(s.iamSvc, policyDocs, *user.User.Arn, "user", *user.User.UserName, ctxEntries)
@@ -229,7 +225,7 @@ func getAccountIDFromARN(arn string) (string, error) {
 	return matches[1], nil
 }
 
-func getContextEntries(log logr.Logger, entityName, entityID, entityARN string, contextKeys []string) ([]iamtypes.ContextEntry, error) {
+func getContextEntries(log logr.Logger, entityName, entityID, entityARN string, contextKeys []string) []iamtypes.ContextEntry {
 	var ctxEntries []iamtypes.ContextEntry
 
 	for _, ctxKey := range contextKeys {
@@ -286,10 +282,11 @@ func getContextEntries(log logr.Logger, entityName, entityID, entityARN string, 
 		}
 	}
 
-	return ctxEntries, nil
+	return ctxEntries
 }
 
 // ReconcileIAMGroupRule reconciles an IAM group validation rule from an AWSValidator config
+// nolint:dupl
 func (s *IAMRuleService) ReconcileIAMGroupRule(rule iamRule) (*types.ValidationRuleResult, error) {
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMGroupPolicy)
@@ -669,7 +666,7 @@ func computeFailures(rule iamRule, permissions map[string][]*permission, vr *typ
 	}
 
 	// sort the missing actions list
-	var resources []string
+	resources := make([]string, 0, len(missingActions))
 	for key := range missingActions {
 		resources = append(resources, key)
 	}
