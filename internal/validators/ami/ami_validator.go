@@ -8,9 +8,11 @@ import (
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 
+	ec2types "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
 	vapiconstants "github.com/validator-labs/validator/pkg/constants"
 	vapitypes "github.com/validator-labs/validator/pkg/types"
+	"github.com/validator-labs/validator/pkg/util"
 
 	"github.com/validator-labs/validator-plugin-aws/api/v1alpha1"
 	"github.com/validator-labs/validator-plugin-aws/internal/constants"
@@ -45,9 +47,22 @@ func (s *AmiRuleService) ReconcileAmiRule(rule v1alpha1.AmiRule) (*vapitypes.Val
 	validationResult := &vapitypes.ValidationRuleResult{Condition: &latestCondition, State: &state}
 
 	// Describe AMIs matching the rule's ID list in the rule's region
-	images, err := s.amiSvc.DescribeImages(context.Background(), &ec2.DescribeImagesInput{
+	input := &ec2.DescribeImagesInput{
 		ImageIds: rule.AmiIds,
-	})
+		Filters:  []ec2types.Filter{},
+		Owners:   rule.Owners,
+	}
+	for _, f := range rule.Filters {
+		filter := ec2types.Filter{
+			Name:   util.Ptr(f.Key),
+			Values: f.Values,
+		}
+		if f.IsTag {
+			filter.Name = util.Ptr(fmt.Sprintf("tag:%s", f.Key))
+		}
+		input.Filters = append(input.Filters, filter)
+	}
+	images, err := s.amiSvc.DescribeImages(context.Background(), input)
 	if err != nil {
 		s.log.V(0).Error(err, "failed to describe images", "region", rule.Region)
 		return validationResult, err
