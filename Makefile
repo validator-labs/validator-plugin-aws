@@ -6,3 +6,7 @@ IMG ?= quay.io/validator-labs/validator-plugin-aws:latest
 
 # Helm vars
 CHART_NAME=validator-plugin-aws
+
+.PHONY: dev
+dev:
+	devspace dev -n validator
