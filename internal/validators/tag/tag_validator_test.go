@@ -59,7 +59,7 @@ func TestTagValidation(t *testing.T) {
 			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-tag",
-					ValidationRule: "validation-ELBSubnetTag",
+					ValidationRule: "validation-elbsubnettag",
 					Message:        "One or more required subnet tags was not found",
 					Details:        []string{},
 					Failures:       []string{"Subnet with ARN subnetArn1 missing tag kubernetes.io/role/elb=1"},
@@ -81,7 +81,7 @@ func TestTagValidation(t *testing.T) {
 			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-tag",
-					ValidationRule: "validation-ELBSubnetTag",
+					ValidationRule: "validation-elbsubnettag",
 					Message:        "All required subnet tags were found",
 					Details:        []string{},
 					Failures:       nil,

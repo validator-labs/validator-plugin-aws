@@ -9,12 +9,14 @@ import (
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/validator-labs/validator-plugin-aws/api/v1alpha1"
-	"github.com/validator-labs/validator-plugin-aws/internal/constants"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
 	vapiconstants "github.com/validator-labs/validator/pkg/constants"
 	vapitypes "github.com/validator-labs/validator/pkg/types"
 	"github.com/validator-labs/validator/pkg/util"
+
+	"github.com/validator-labs/validator-plugin-aws/api/v1alpha1"
+	"github.com/validator-labs/validator-plugin-aws/internal/constants"
+	stringutils "github.com/validator-labs/validator-plugin-aws/internal/utils/strings"
 )
 
 type tagApi interface {
@@ -40,7 +42,7 @@ func (s *TagRuleService) ReconcileTagRule(rule v1alpha1.TagRule) (*vapitypes.Val
 	state := vapi.ValidationSucceeded
 	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = "All required subnet tags were found"
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, rule.Name)
+	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, stringutils.Sanitize(rule.Name))
 	latestCondition.ValidationType = constants.ValidationTypeTag
 	validationResult := &vapitypes.ValidationRuleResult{Condition: &latestCondition, State: &state}
 
