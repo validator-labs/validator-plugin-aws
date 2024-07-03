@@ -3,6 +3,7 @@ package constants
 const (
 	PluginCode string = "AWS"
 
+	ValidationTypeAmi            string = "aws-ami"
 	ValidationTypeIAMRolePolicy  string = "aws-iam-role-policy"
 	ValidationTypeIAMUserPolicy  string = "aws-iam-user-policy"
 	ValidationTypeIAMGroupPolicy string = "aws-iam-group-policy"

@@ -28,6 +28,9 @@ type AwsValidatorSpec struct {
 	Auth          AwsAuth `json:"auth,omitempty" yaml:"auth,omitempty"`
 	DefaultRegion string  `json:"defaultRegion" yaml:"defaultRegion"`
 	// +kubebuilder:validation:MaxItems=5
+	// +kubebuilder:validation:XValidation:message="AmiRules must have unique names",rule="self.all(e, size(self.filter(x, x.name == e.name)) == 1)"
+	AmiRules []AmiRule `json:"amiRules,omitempty" yaml:"amiRules,omitempty"`
+	// +kubebuilder:validation:MaxItems=5
 	// +kubebuilder:validation:XValidation:message="IamRoleRules must have unique IamRoleNames",rule="self.all(e, size(self.filter(x, x.iamRoleName == e.iamRoleName)) == 1)"
 	IamRoleRules []IamRoleRule `json:"iamRoleRules,omitempty" yaml:"iamRoleRules,omitempty"`
 	// +kubebuilder:validation:MaxItems=5
@@ -76,6 +79,12 @@ type AwsSTSAuth struct {
 	DurationSeconds int `json:"durationSeconds" yaml:"durationSeconds"`
 	// A unique identifier that might be required when you assume a role in another account.
 	ExternalId string `json:"externalId,omitempty" yaml:"externalId,omitempty"`
+}
+
+type AmiRule struct {
+	Name   string   `json:"name" yaml:"name"`
+	AmiIds []string `json:"amiIds" yaml:"amiIds"`
+	Region string   `json:"region" yaml:"region"`
 }
 
 type IamRoleRule struct {

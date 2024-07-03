@@ -39,6 +39,27 @@ spec:
           spec:
             description: AwsValidatorSpec defines the desired state of AwsValidator
             properties:
+              amiRules:
+                items:
+                  properties:
+                    amiIds:
+                      items:
+                        type: string
+                      type: array
+                    name:
+                      type: string
+                    region:
+                      type: string
+                  required:
+                  - amiIds
+                  - name
+                  - region
+                  type: object
+                maxItems: 5
+                type: array
+                x-kubernetes-validations:
+                - message: AmiRules must have unique names
+                  rule: self.all(e, size(self.filter(x, x.name == e.name)) == 1)
               auth:
                 properties:
                   implicit:
