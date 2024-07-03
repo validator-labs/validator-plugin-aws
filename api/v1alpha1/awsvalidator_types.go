@@ -81,8 +81,9 @@ type AwsSTSAuth struct {
 	ExternalId string `json:"externalId,omitempty" yaml:"externalId,omitempty"`
 }
 
-// AmiRules ensure that an EC2 AMI exists in a particular region. Each AmiRule corresponds to a single AMI.
-// AMIs can be matched by any combination of ID, Owner, and filter.
+// AmiRules ensure that an EC2 AMI exists in a particular region.
+// AMIs can be matched by any combination of ID, owner, and filter(s).
+// Each AmiRule is intended to match a single AMI, as an AmiRule is considered successful if at least one AMI is found.
 // Refer to https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeImages.html for more information.
 type AmiRule struct {
 	Name    string   `json:"name" yaml:"name"`
