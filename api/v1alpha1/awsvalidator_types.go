@@ -51,8 +51,8 @@ type AwsValidatorSpec struct {
 }
 
 func (s AwsValidatorSpec) ResultCount() int {
-	return len(s.IamGroupRules) + len(s.IamPolicyRules) + len(s.IamRoleRules) + len(s.IamUserRules) +
-		len(s.ServiceQuotaRules) + len(s.TagRules)
+	return len(s.AmiRules) + len(s.IamGroupRules) + len(s.IamPolicyRules) + len(s.IamRoleRules) +
+		len(s.IamUserRules) + len(s.ServiceQuotaRules) + len(s.TagRules)
 }
 
 type AwsAuth struct {
