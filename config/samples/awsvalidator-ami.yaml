@@ -8,14 +8,14 @@ spec:
   - name: AMI Rule
     region: us-east-2
     amiIds:
-    - "<image_id_1>"
+    - <image_id_1>
     owners:
     - <owner_id_1>
     filters:
-    - key: "name"
+    - key: name
       values:
-      - "ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-2"
-    - key: "Foo"
+      - suse-sles-12-sp5-v20240308-hvm-ssd-x86_64
+    - key: FooTag
       values:
-      - "Bar"
+      - BarValue
       isTag: true

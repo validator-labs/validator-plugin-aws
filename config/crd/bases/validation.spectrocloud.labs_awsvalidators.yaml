@@ -42,7 +42,7 @@ spec:
               amiRules:
                 items:
                   description: |-
-                    AmiRules ensure that one or more EC2 AMI(s) exist in a particular region.
+                    AmiRules ensure that an EC2 AMI exists in a particular region. Each AmiRule corresponds to a single AMI.
                     AMIs can be matched by any combination of ID, Owner, and filter.
                     Refer to https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeImages.html for more information.
                   properties:

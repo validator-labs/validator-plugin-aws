@@ -90,3 +90,67 @@ func TestAmiValidation(t *testing.T) {
 		util.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
 	}
 }
+
+func Test_prettyPrintDescribeImagesInput(t *testing.T) {
+	tests := []struct {
+		name  string
+		input *ec2.DescribeImagesInput
+		want  string
+	}{
+		{
+			name:  "empty input",
+			input: &ec2.DescribeImagesInput{},
+			want:  "",
+		},
+		{
+			name: "input with image IDs",
+			input: &ec2.DescribeImagesInput{
+				ImageIds: []string{"ami-12345678", "ami-87654321"},
+			},
+			want: "ImageIds: [ami-12345678, ami-87654321]",
+		},
+		{
+			name: "input with owners",
+			input: &ec2.DescribeImagesInput{
+				Owners: []string{"self", "123456789012"},
+			},
+			want: "Owners: [self, 123456789012]",
+		},
+		{
+			name: "input with filters",
+			input: &ec2.DescribeImagesInput{
+				Filters: []ec2types.Filter{
+					{
+						Name:   util.Ptr("name"),
+						Values: []string{"my-image"},
+					},
+				},
+			},
+			want: "Filters: [{name: [my-image]}]",
+		},
+		{
+			name: "input with all fields",
+			input: &ec2.DescribeImagesInput{
+				ImageIds: []string{"ami-12345678", "ami-87654321"},
+				Owners:   []string{"self", "123456789012"},
+				Filters: []ec2types.Filter{
+					{
+						Name:   util.Ptr("name"),
+						Values: []string{"my-image"},
+					},
+					{
+						Name:   util.Ptr("architecture"),
+						Values: []string{"x86_64"},
+					},
+				},
+			},
+			want: "ImageIds: [ami-12345678, ami-87654321], Owners: [self, 123456789012], Filters: [{name: [my-image]}, {architecture: [x86_64]}]",
+		},
+	}
+	for _, tt := range tests {
+		got := prettyPrintDescribeImagesInput(tt.input)
+		if got != tt.want {
+			t.Errorf("%s: got %v, want %v", tt.name, got, tt.want)
+		}
+	}
+}
