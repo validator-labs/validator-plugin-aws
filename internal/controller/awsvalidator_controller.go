@@ -36,6 +36,7 @@ import (
 	"github.com/validator-labs/validator-plugin-aws/api/v1alpha1"
 	"github.com/validator-labs/validator-plugin-aws/internal/constants"
 	aws_utils "github.com/validator-labs/validator-plugin-aws/internal/utils/aws"
+	"github.com/validator-labs/validator-plugin-aws/internal/validators/ami"
 	"github.com/validator-labs/validator-plugin-aws/internal/validators/iam"
 	"github.com/validator-labs/validator-plugin-aws/internal/validators/servicequota"
 	"github.com/validator-labs/validator-plugin-aws/internal/validators/tag"
@@ -112,6 +113,21 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	resp := types.ValidationResponse{
 		ValidationRuleResults: make([]*types.ValidationRuleResult, 0, vr.Spec.ExpectedResults),
 		ValidationRuleErrors:  make([]error, 0, vr.Spec.ExpectedResults),
+	}
+
+	// AMI rules
+	for _, rule := range validator.Spec.AmiRules {
+		awsApi, err := aws_utils.NewAwsApi(r.Log, validator.Spec.Auth, rule.Region)
+		if err != nil {
+			r.Log.V(0).Error(err, "failed to reconcile AMI rule")
+			continue
+		}
+		amiRuleService := ami.NewAmiRuleService(r.Log, awsApi.EC2)
+		vrr, err := amiRuleService.ReconcileAmiRule(rule)
+		if err != nil {
+			r.Log.V(0).Error(err, "failed to reconcile AMI rule")
+		}
+		resp.AddResult(vrr, err)
 	}
 
 	// IAM rules

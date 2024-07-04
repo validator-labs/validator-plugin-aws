@@ -39,6 +39,51 @@ spec:
           spec:
             description: AwsValidatorSpec defines the desired state of AwsValidator
             properties:
+              amiRules:
+                items:
+                  description: |-
+                    AmiRules ensure that an EC2 AMI exists in a particular region.
+                    AMIs can be matched by any combination of ID, owner, and filter(s).
+                    Each AmiRule is intended to match a single AMI, as an AmiRule is considered successful if at least one AMI is found.
+                    Refer to https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeImages.html for more information.
+                  properties:
+                    amiIds:
+                      items:
+                        type: string
+                      type: array
+                    filters:
+                      items:
+                        properties:
+                          isTag:
+                            type: boolean
+                          key:
+                            type: string
+                          values:
+                            items:
+                              type: string
+                            type: array
+                        required:
+                        - key
+                        - values
+                        type: object
+                      type: array
+                    name:
+                      type: string
+                    owners:
+                      items:
+                        type: string
+                      type: array
+                    region:
+                      type: string
+                  required:
+                  - name
+                  - region
+                  type: object
+                maxItems: 5
+                type: array
+                x-kubernetes-validations:
+                - message: AmiRules must have unique names
+                  rule: self.all(e, size(self.filter(x, x.name == e.name)) == 1)
               auth:
                 properties:
                   implicit:
@@ -84,6 +129,8 @@ spec:
                 type: string
               iamGroupRules:
                 items:
+                  description: IamGroupRules compare the IAM permissions associated
+                    with an IAM group against an expected permission set.
                   properties:
                     iamGroupName:
                       type: string
@@ -139,6 +186,8 @@ spec:
                     == 1)
               iamPolicyRules:
                 items:
+                  description: IamPolicyRules compare the IAM permissions associated
+                    with an IAM policy against an expected permission set.
                   properties:
                     iamPolicies:
                       items:
@@ -194,6 +243,8 @@ spec:
                     == 1)
               iamRoleRules:
                 items:
+                  description: IamRoleRules compare the IAM permissions associated
+                    with an IAM role against an expected permission set.
                   properties:
                     iamPolicies:
                       items:
@@ -249,6 +300,8 @@ spec:
                     == 1)
               iamUserRules:
                 items:
+                  description: IamUserRules compare the IAM permissions associated
+                    with an IAM user against an expected permission set.
                   properties:
                     iamPolicies:
                       items:
@@ -304,6 +357,8 @@ spec:
                     == 1)
               serviceQuotaRules:
                 items:
+                  description: ServiceQuotaRules ensure that AWS service quotas are
+                    within a particular threshold.
                   properties:
                     name:
                       type: string
@@ -336,6 +391,8 @@ spec:
                   rule: self.all(e, size(self.filter(x, x.name == e.name)) == 1)
               tagRules:
                 items:
+                  description: TagRules ensure that the tags associated with a particular
+                    AWS resource match an expected tag set.
                   properties:
                     arns:
                       items:

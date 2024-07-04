@@ -20,6 +20,7 @@ Dockerfile.cross
 
 # editor and IDE paraphernalia
 .devspace
+.env
 .idea
 .vscode
 !.vscode/launch.json

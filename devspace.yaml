@@ -2,6 +2,12 @@ name: validator-plugin-aws
 version: v2beta1
 
 vars:
+  AWS_ACCESS_KEY_ID:
+    command: yq
+    args: ["e", ".AWS_ACCESS_KEY_ID", ".env"]
+  AWS_SECRET_ACCESS_KEY:
+    command: yq
+    args: ["e", ".AWS_SECRET_ACCESS_KEY", ".env"]
   GOARCH:
     command: go
     args: ["env", "GOARCH"]
@@ -26,6 +32,14 @@ deployments:
       kustomize: true
       manifests:
       - config/devspace
+
+hooks:
+- name: validator-crds
+  command: "kubectl apply -f https://raw.githubusercontent.com/validator-labs/validator/main/config/crd/bases/validation.spectrocloud.labs_validationresults.yaml"
+  events: ["after:deploy"]
+- name: aws-creds
+  command: "kubectl get secret aws-creds -n validator || kubectl create secret generic aws-creds -n validator --from-literal=AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} --from-literal=AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
+  events: ["after:deploy"]
 
 dev:
   validator-plugin-aws:

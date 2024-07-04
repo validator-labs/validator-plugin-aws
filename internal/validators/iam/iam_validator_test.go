@@ -512,7 +512,7 @@ func TestIAMGroupValidation(t *testing.T) {
 			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-group-policy",
-					ValidationRule: "validation-iamGroup",
+					ValidationRule: "validation-iamgroup",
 					Message:        "One or more required IAM permissions was not found, or a condition was not met",
 					Details:        []string{},
 					Failures: []string{
@@ -544,7 +544,7 @@ func TestIAMGroupValidation(t *testing.T) {
 			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-group-policy",
-					ValidationRule: "validation-iamGroup",
+					ValidationRule: "validation-iamgroup",
 					Message:        "All required aws-iam-group-policy permissions were found",
 					Details:        []string{},
 					Failures:       nil,
@@ -574,7 +574,7 @@ func TestIAMGroupValidation(t *testing.T) {
 			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-group-policy",
-					ValidationRule: "validation-iamGroup2",
+					ValidationRule: "validation-iamgroup2",
 					Message:        "One or more required SCP permissions was not found, or a condition was not met",
 					Details:        []string{},
 					Failures:       []string{"Action: ec2:DescribeInstances is denied due to an Organization level SCP policy for group: iamGroup2"},
@@ -613,7 +613,7 @@ func TestIAMRoleValidation(t *testing.T) {
 			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-role-policy",
-					ValidationRule: "validation-iamRole1",
+					ValidationRule: "validation-iamrole1",
 					Message:        "One or more required IAM permissions was not found, or a condition was not met",
 					Details:        []string{},
 					Failures: []string{
@@ -645,7 +645,7 @@ func TestIAMRoleValidation(t *testing.T) {
 			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-role-policy",
-					ValidationRule: "validation-iamRole1",
+					ValidationRule: "validation-iamrole1",
 					Message:        "All required aws-iam-role-policy permissions were found",
 					Details:        []string{},
 					Failures:       nil,
@@ -675,7 +675,7 @@ func TestIAMRoleValidation(t *testing.T) {
 			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-role-policy",
-					ValidationRule: "validation-iamRole2",
+					ValidationRule: "validation-iamrole2",
 					Message:        "All required aws-iam-role-policy permissions were found",
 					Details:        []string{},
 					Failures:       nil,
@@ -713,7 +713,7 @@ func TestIAMRoleValidation(t *testing.T) {
 			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-role-policy",
-					ValidationRule: "validation-iamRole3",
+					ValidationRule: "validation-iamrole3",
 					Message:        "All required aws-iam-role-policy permissions were found",
 					Details:        []string{},
 					Failures:       nil,
@@ -751,7 +751,7 @@ func TestIAMRoleValidation(t *testing.T) {
 			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-role-policy",
-					ValidationRule: "validation-iamRole3",
+					ValidationRule: "validation-iamrole3",
 					Message:        "One or more required IAM permissions was not found, or a condition was not met",
 					Details:        []string{},
 					Failures: []string{
@@ -791,7 +791,7 @@ func TestIAMRoleValidation(t *testing.T) {
 			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-role-policy",
-					ValidationRule: "validation-iamRole2",
+					ValidationRule: "validation-iamrole2",
 					Message:        "One or more required IAM permissions was not found, or a condition was not met",
 					Details:        []string{},
 					Failures: []string{
@@ -825,7 +825,7 @@ func TestIAMRoleValidation(t *testing.T) {
 			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-role-policy",
-					ValidationRule: "validation-iamRoleZanzibar",
+					ValidationRule: "validation-iamrolezanzibar",
 					Message:        "All required aws-iam-role-policy permissions were found",
 					Details:        []string{},
 					Failures:       nil,
@@ -856,7 +856,7 @@ func TestIAMRoleValidation(t *testing.T) {
 			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-role-policy",
-					ValidationRule: "validation-iamRole6",
+					ValidationRule: "validation-iamrole6",
 					Message:        "One or more required SCP permissions was not found, or a condition was not met",
 					Details:        []string{},
 					Failures:       []string{"Action: ec2:DescribeInstances is denied due to an Organization level SCP policy for role: iamRole6"},
@@ -895,7 +895,7 @@ func TestIAMUserValidation(t *testing.T) {
 			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-user-policy",
-					ValidationRule: "validation-iamUser",
+					ValidationRule: "validation-iamuser",
 					Message:        "One or more required IAM permissions was not found, or a condition was not met",
 					Details:        []string{},
 					Failures: []string{
@@ -927,7 +927,7 @@ func TestIAMUserValidation(t *testing.T) {
 			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-user-policy",
-					ValidationRule: "validation-iamUser",
+					ValidationRule: "validation-iamuser",
 					Message:        "All required aws-iam-user-policy permissions were found",
 					Details:        []string{},
 					Failures:       nil,
@@ -957,7 +957,7 @@ func TestIAMUserValidation(t *testing.T) {
 			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-user-policy",
-					ValidationRule: "validation-iamUser2",
+					ValidationRule: "validation-iamuser2",
 					Message:        "One or more required SCP permissions was not found, or a condition was not met",
 					Details:        []string{},
 					Failures:       []string{"Action: ec2:DescribeInstances is denied due to an Organization level SCP policy for user: iamUser2"},
@@ -996,7 +996,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-policy",
-					ValidationRule: "validation-arn:aws:iam::123456789012:role/iamRoleArn1",
+					ValidationRule: "validation-arn-aws-iam-123456789012-role-iamrolearn1",
 					Message:        "One or more required IAM permissions was not found, or a condition was not met",
 					Details:        []string{},
 					Failures: []string{
@@ -1028,7 +1028,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-policy",
-					ValidationRule: "validation-arn:aws:iam::123456789012:role/iamRoleArn1",
+					ValidationRule: "validation-arn-aws-iam-123456789012-role-iamrolearn1",
 					Message:        "All required aws-iam-policy permissions were found",
 					Details:        []string{},
 					Failures:       nil,
@@ -1066,7 +1066,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-policy",
-					ValidationRule: "validation-arn:aws:iam::123456789012:role/iamRoleArn4",
+					ValidationRule: "validation-arn-aws-iam-123456789012-role-iamrolearn4",
 					Message:        "One or more required IAM permissions was not found, or a condition was not met",
 					Details:        []string{},
 					Failures: []string{
@@ -1102,7 +1102,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-policy",
-					ValidationRule: "validation-arn:aws:iam::123456789012:role/iamRoleArn5",
+					ValidationRule: "validation-arn-aws-iam-123456789012-role-iamrolearn5",
 					Message:        "One or more required IAM permissions was not found, or a condition was not met",
 					Details:        []string{},
 					Failures: []string{
@@ -1138,7 +1138,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-policy",
-					ValidationRule: "validation-arn:aws:iam::123456789012:role/iamRoleArn5",
+					ValidationRule: "validation-arn-aws-iam-123456789012-role-iamrolearn5",
 					Message:        "All required aws-iam-policy permissions were found",
 					Details:        []string{},
 					Failures:       nil,
@@ -1172,7 +1172,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-policy",
-					ValidationRule: "validation-arn:aws:iam::123456789012:role/iamRoleArn5",
+					ValidationRule: "validation-arn-aws-iam-123456789012-role-iamrolearn5",
 					Message:        "All required aws-iam-policy permissions were found",
 					Details:        []string{},
 					Failures:       nil,
@@ -1206,7 +1206,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-policy",
-					ValidationRule: "validation-arn:aws:iam::123456789012:role/iamRoleArn5",
+					ValidationRule: "validation-arn-aws-iam-123456789012-role-iamrolearn5",
 					Message:        "All required aws-iam-policy permissions were found",
 					Details:        []string{},
 					Failures:       nil,
@@ -1240,7 +1240,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 			expectedResult: types.ValidationRuleResult{
 				Condition: &vapi.ValidationCondition{
 					ValidationType: "aws-iam-policy",
-					ValidationRule: "validation-arn:aws:iam::123456789012:role/iamRoleArn5",
+					ValidationRule: "validation-arn-aws-iam-123456789012-role-iamrolearn5",
 					Message:        "All required aws-iam-policy permissions were found",
 					Details:        []string{},
 					Failures:       nil,

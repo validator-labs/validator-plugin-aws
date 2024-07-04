@@ -11,10 +11,11 @@ The AWS [validator](https://github.com/validator-labs/validator) plugin ensures 
 ## Description
 The AWS validator plugin reconciles `AwsValidator` custom resources to perform the following validations against your AWS environment:
 
-1. Compare the IAM permissions associated with an IAM user / group / role / policy against an expected permission set.
-2. Compare the usage for a particular service quota against the active quota to avoid unexpectedly hitting quota limits.
+1. Ensure that one or more EC2 AMI(s) exist in a particular region.
+2. Compare the IAM permissions associated with an IAM user / group / role / policy against an expected permission set.
+3. Compare the usage for a particular service quota against the active quota to avoid unexpectedly hitting quota limits.
    - Essentially [Quota Monitor for AWS](https://docs.aws.amazon.com/solutions/latest/quota-monitor-for-aws/solution-overview.html) but cheaper, simpler, and open source.
-3. Compare the tags associated with a subnet against an expected tag set.
+4. Compare the tags associated with a subnet against an expected tag set.
 
 Each `AwsValidator` CR is (re)-processed every two minutes to continuously ensure that your AWS environment matches the expected state.
 

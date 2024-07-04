@@ -14,12 +14,14 @@ import (
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/validator-labs/validator-plugin-aws/api/v1alpha1"
-	"github.com/validator-labs/validator-plugin-aws/internal/constants"
-	"github.com/validator-labs/validator-plugin-aws/internal/types"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
 	vapiconstants "github.com/validator-labs/validator/pkg/constants"
 	vapitypes "github.com/validator-labs/validator/pkg/types"
+
+	"github.com/validator-labs/validator-plugin-aws/api/v1alpha1"
+	"github.com/validator-labs/validator-plugin-aws/internal/constants"
+	"github.com/validator-labs/validator-plugin-aws/internal/types"
+	stringutils "github.com/validator-labs/validator-plugin-aws/internal/utils/strings"
 )
 
 type ec2Api interface {
@@ -109,7 +111,7 @@ func (s *ServiceQuotaRuleService) ReconcileServiceQuotaRule(rule v1alpha1.Servic
 	state := vapi.ValidationSucceeded
 	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = "Usage for all service quotas is below specified buffer"
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, rule.Name)
+	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, stringutils.Sanitize(rule.Name))
 	latestCondition.ValidationType = constants.ValidationTypeServiceQuota
 	validationResult := &vapitypes.ValidationRuleResult{Condition: &latestCondition, State: &state}
 

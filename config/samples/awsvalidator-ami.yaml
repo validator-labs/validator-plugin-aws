@@ -1,0 +1,21 @@
+apiVersion: validation.spectrocloud.labs/v1alpha1
+kind: AwsValidator
+metadata:
+  name: awsvalidator-sample-ami
+spec:
+  defaultRegion: us-west-1
+  amiRules:
+  - name: AMI Rule
+    region: us-east-2
+    amiIds:
+    - <image_id_1>
+    owners:
+    - <owner_id_1>
+    filters:
+    - key: name
+      values:
+      - suse-sles-12-sp5-v20240308-hvm-ssd-x86_64
+    - key: FooTag
+      values:
+      - BarValue
+      isTag: true

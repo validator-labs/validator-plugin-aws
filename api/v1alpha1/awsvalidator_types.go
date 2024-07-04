@@ -28,6 +28,9 @@ type AwsValidatorSpec struct {
 	Auth          AwsAuth `json:"auth,omitempty" yaml:"auth,omitempty"`
 	DefaultRegion string  `json:"defaultRegion" yaml:"defaultRegion"`
 	// +kubebuilder:validation:MaxItems=5
+	// +kubebuilder:validation:XValidation:message="AmiRules must have unique names",rule="self.all(e, size(self.filter(x, x.name == e.name)) == 1)"
+	AmiRules []AmiRule `json:"amiRules,omitempty" yaml:"amiRules,omitempty"`
+	// +kubebuilder:validation:MaxItems=5
 	// +kubebuilder:validation:XValidation:message="IamRoleRules must have unique IamRoleNames",rule="self.all(e, size(self.filter(x, x.iamRoleName == e.iamRoleName)) == 1)"
 	IamRoleRules []IamRoleRule `json:"iamRoleRules,omitempty" yaml:"iamRoleRules,omitempty"`
 	// +kubebuilder:validation:MaxItems=5
@@ -48,8 +51,8 @@ type AwsValidatorSpec struct {
 }
 
 func (s AwsValidatorSpec) ResultCount() int {
-	return len(s.IamGroupRules) + len(s.IamPolicyRules) + len(s.IamRoleRules) + len(s.IamUserRules) +
-		len(s.ServiceQuotaRules) + len(s.TagRules)
+	return len(s.AmiRules) + len(s.IamGroupRules) + len(s.IamPolicyRules) + len(s.IamRoleRules) +
+		len(s.IamUserRules) + len(s.ServiceQuotaRules) + len(s.TagRules)
 }
 
 type AwsAuth struct {
@@ -78,6 +81,25 @@ type AwsSTSAuth struct {
 	ExternalId string `json:"externalId,omitempty" yaml:"externalId,omitempty"`
 }
 
+// AmiRules ensure that an EC2 AMI exists in a particular region.
+// AMIs can be matched by any combination of ID, owner, and filter(s).
+// Each AmiRule is intended to match a single AMI, as an AmiRule is considered successful if at least one AMI is found.
+// Refer to https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeImages.html for more information.
+type AmiRule struct {
+	Name    string   `json:"name" yaml:"name"`
+	AmiIds  []string `json:"amiIds,omitempty" yaml:"amiIds,omitempty"`
+	Filters []Filter `json:"filters,omitempty" yaml:"filters,omitempty"`
+	Owners  []string `json:"owners,omitempty" yaml:"owners,omitempty"`
+	Region  string   `json:"region" yaml:"region"`
+}
+
+type Filter struct {
+	Key    string   `json:"key" yaml:"key"`
+	Values []string `json:"values" yaml:"values"`
+	IsTag  bool     `json:"isTag,omitempty" yaml:"isTag,omitempty"`
+}
+
+// IamRoleRules compare the IAM permissions associated with an IAM role against an expected permission set.
 type IamRoleRule struct {
 	IamRoleName string           `json:"iamRoleName" yaml:"iamRoleName"`
 	Policies    []PolicyDocument `json:"iamPolicies" yaml:"iamPolicies"`
@@ -91,6 +113,7 @@ func (r IamRoleRule) IAMPolicies() []PolicyDocument {
 	return r.Policies
 }
 
+// IamUserRules compare the IAM permissions associated with an IAM user against an expected permission set.
 type IamUserRule struct {
 	IamUserName string           `json:"iamUserName" yaml:"iamUserName"`
 	Policies    []PolicyDocument `json:"iamPolicies" yaml:"iamPolicies"`
@@ -104,6 +127,7 @@ func (r IamUserRule) IAMPolicies() []PolicyDocument {
 	return r.Policies
 }
 
+// IamGroupRules compare the IAM permissions associated with an IAM group against an expected permission set.
 type IamGroupRule struct {
 	IamGroupName string           `json:"iamGroupName" yaml:"iamGroupName"`
 	Policies     []PolicyDocument `json:"iamPolicies" yaml:"iamPolicies"`
@@ -117,6 +141,7 @@ func (r IamGroupRule) IAMPolicies() []PolicyDocument {
 	return r.Policies
 }
 
+// IamPolicyRules compare the IAM permissions associated with an IAM policy against an expected permission set.
 type IamPolicyRule struct {
 	IamPolicyARN string           `json:"iamPolicyArn" yaml:"iamPolicyArn"`
 	Policies     []PolicyDocument `json:"iamPolicies" yaml:"iamPolicies"`
@@ -157,6 +182,7 @@ func (c Condition) String() string {
 	return sb.String()
 }
 
+// ServiceQuotaRules ensure that AWS service quotas are within a particular threshold.
 type ServiceQuotaRule struct {
 	Name          string         `json:"name" yaml:"name"`
 	Region        string         `json:"region" yaml:"region"`
@@ -169,6 +195,7 @@ type ServiceQuota struct {
 	Buffer int    `json:"buffer" yaml:"buffer"`
 }
 
+// TagRules ensure that the tags associated with a particular AWS resource match an expected tag set.
 type TagRule struct {
 	Name          string   `json:"name" yaml:"name"`
 	Key           string   `json:"key" yaml:"key"`
