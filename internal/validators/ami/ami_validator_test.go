@@ -52,7 +52,7 @@ func TestAmiValidation(t *testing.T) {
 			name: "Fail (missing image)",
 			rule: v1alpha1.AmiRule{
 				Name:   "AMI Rule Fail",
-				AmiIds: []string{"ami-87654321"},
+				AmiIDs: []string{"ami-87654321"},
 				Region: "us-west-1",
 			},
 			expectedResult: types.ValidationRuleResult{
@@ -71,7 +71,7 @@ func TestAmiValidation(t *testing.T) {
 			name: "Pass",
 			rule: v1alpha1.AmiRule{
 				Name:   "AMI Rule Pass",
-				AmiIds: []string{"ami-12345678"},
+				AmiIDs: []string{"ami-12345678"},
 				Region: "us-west-1",
 			},
 			expectedResult: types.ValidationRuleResult{

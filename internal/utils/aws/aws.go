@@ -1,3 +1,4 @@
+// Package aws implements an API struct for aggregating AWS service clients.
 package aws
 
 import (
@@ -14,12 +15,12 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/iam"
 	"github.com/aws/aws-sdk-go-v2/service/servicequotas"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
-	"github.com/go-logr/logr"
 
 	"github.com/validator-labs/validator-plugin-aws/api/v1alpha1"
 )
 
-type AwsApi struct {
+// API aggregates AWS service clients.
+type API struct {
 	IAM   *iam.Client
 	EC2   *ec2.Client
 	EFS   *efs.Client
@@ -28,8 +29,8 @@ type AwsApi struct {
 	SQ    *servicequotas.Client
 }
 
-// NewAwsApi creates an AwsApi object that aggregates AWS service clients
-func NewAwsApi(log logr.Logger, auth v1alpha1.AwsAuth, region string) (*AwsApi, error) {
+// NewAwsAPI creates an API object that aggregates AWS service clients
+func NewAwsAPI(auth v1alpha1.AwsAuth, region string) (*API, error) {
 	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithDefaultRegion(region))
 	if err != nil {
 		return nil, err
@@ -37,7 +38,7 @@ func NewAwsApi(log logr.Logger, auth v1alpha1.AwsAuth, region string) (*AwsApi, 
 	if auth.StsAuth != nil {
 		awsStsConfig(&cfg, auth.StsAuth)
 	}
-	return &AwsApi{
+	return &API{
 		IAM:   iam.NewFromConfig(cfg),
 		EC2:   ec2.NewFromConfig(cfg),
 		EFS:   efs.NewFromConfig(cfg),
@@ -51,8 +52,8 @@ func awsStsConfig(cfg *aws.Config, auth *v1alpha1.AwsSTSAuth) {
 	creds := stscreds.NewAssumeRoleProvider(sts.NewFromConfig(*cfg), auth.RoleArn, func(o *stscreds.AssumeRoleOptions) {
 		o.Duration = time.Duration(auth.DurationSeconds) * time.Second
 		o.RoleSessionName = auth.RoleSessionName
-		if auth.ExternalId != "" {
-			o.ExternalID = &auth.ExternalId
+		if auth.ExternalID != "" {
+			o.ExternalID = &auth.ExternalID
 		}
 	})
 	cfg.Credentials = aws.NewCredentialsCache(creds)

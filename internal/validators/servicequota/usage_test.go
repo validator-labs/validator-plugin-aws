@@ -1,4 +1,4 @@
-package types
+package servicequota
 
 import (
 	"reflect"
@@ -8,29 +8,29 @@ import (
 func TestMax(t *testing.T) {
 	cs := []struct {
 		name     string
-		usageMap UsageMap
-		expected UsageResult
+		usageMap usageMap
+		expected usageResult
 	}{
 		{
 			name: "Pass basic",
-			usageMap: UsageMap{
+			usageMap: usageMap{
 				"a": 1.0,
 				"b": 2.0,
 				"c": 3.0,
 			},
-			expected: UsageResult{
+			expected: usageResult{
 				Description: "c",
 				MaxUsage:    3.0,
 			},
 		},
 		{
 			name: "Pass lexigraphic",
-			usageMap: UsageMap{
+			usageMap: usageMap{
 				"us-east-2c": 1.0,
 				"us-east-2a": 1.0,
 				"us-east-2b": 1.0,
 			},
-			expected: UsageResult{
+			expected: usageResult{
 				Description: "us-east-2a",
 				MaxUsage:    1.0,
 			},

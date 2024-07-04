@@ -1,3 +1,4 @@
+// Package ami handles AMI validation rule reconciliation.
 package ami
 
 import (
@@ -20,24 +21,26 @@ import (
 	stringutils "github.com/validator-labs/validator-plugin-aws/internal/utils/strings"
 )
 
-type amiApi interface {
+type amiAPI interface {
 	DescribeImages(ctx context.Context, params *ec2.DescribeImagesInput, optFns ...func(*ec2.Options)) (*ec2.DescribeImagesOutput, error)
 }
 
-type AmiRuleService struct {
+// RuleService reconciles AMI validation rules.
+type RuleService struct {
 	log    logr.Logger
-	amiSvc amiApi
+	amiSvc amiAPI
 }
 
-func NewAmiRuleService(log logr.Logger, amiSvc amiApi) *AmiRuleService {
-	return &AmiRuleService{
+// NewAmiRuleService creates a new AmiRuleService.
+func NewAmiRuleService(log logr.Logger, amiSvc amiAPI) *RuleService {
+	return &RuleService{
 		log:    log,
 		amiSvc: amiSvc,
 	}
 }
 
 // ReconcileAmiRule reconciles an AMI validation rule from the AWSValidator config.
-func (s *AmiRuleService) ReconcileAmiRule(rule v1alpha1.AmiRule) (*vapitypes.ValidationRuleResult, error) {
+func (s *RuleService) ReconcileAmiRule(rule v1alpha1.AmiRule) (*vapitypes.ValidationRuleResult, error) {
 
 	// Build the default latest condition for this AMI rule
 	state := vapi.ValidationSucceeded
@@ -49,7 +52,7 @@ func (s *AmiRuleService) ReconcileAmiRule(rule v1alpha1.AmiRule) (*vapitypes.Val
 
 	// Describe AMIs matching the rule. There should be at least one.
 	input := &ec2.DescribeImagesInput{
-		ImageIds: rule.AmiIds,
+		ImageIds: rule.AmiIDs,
 		Filters:  []ec2types.Filter{},
 		Owners:   rule.Owners,
 	}

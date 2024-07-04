@@ -1,3 +1,4 @@
+// Package iam handles IAM validation rule reconciliation.
 package iam
 
 import (
@@ -27,6 +28,7 @@ import (
 	"github.com/validator-labs/validator/pkg/util"
 )
 
+// AccountIDFromARNRegex is a regex pattern to extract the Account ID from an ARN.
 const AccountIDFromARNRegex = "arn:[a-z]*:[a-z]*::([?<AccountID>\\d{12}$]*):[0-9A-Za-z]*\\/[0-9A-Za-z]*"
 
 var re = regexp.MustCompile(AccountIDFromARNRegex)
@@ -63,7 +65,7 @@ type iamRule interface {
 	IAMPolicies() []v1alpha1.PolicyDocument
 }
 
-type iamApi interface {
+type iamAPI interface {
 	GetPolicy(ctx context.Context, params *iam.GetPolicyInput, optFns ...func(*iam.Options)) (*iam.GetPolicyOutput, error)
 	GetPolicyVersion(ctx context.Context, params *iam.GetPolicyVersionInput, optFns ...func(*iam.Options)) (*iam.GetPolicyVersionOutput, error)
 	ListAttachedGroupPolicies(ctx context.Context, params *iam.ListAttachedGroupPoliciesInput, optFns ...func(*iam.Options)) (*iam.ListAttachedGroupPoliciesOutput, error)
@@ -76,13 +78,15 @@ type iamApi interface {
 	GetContextKeysForPrincipalPolicy(ctx context.Context, params *iam.GetContextKeysForPrincipalPolicyInput, optFns ...func(*iam.Options)) (*iam.GetContextKeysForPrincipalPolicyOutput, error)
 }
 
-type IAMRuleService struct {
+// RuleService reconciles IAM validation rules.
+type RuleService struct {
 	log    logr.Logger
-	iamSvc iamApi
+	iamSvc iamAPI
 }
 
-func NewIAMRuleService(log logr.Logger, iamSvc iamApi) *IAMRuleService {
-	return &IAMRuleService{
+// NewIAMRuleService creates a new IAMRuleService.
+func NewIAMRuleService(log logr.Logger, iamSvc iamAPI) *RuleService {
+	return &RuleService{
 		log:    log,
 		iamSvc: iamSvc,
 	}
@@ -90,7 +94,7 @@ func NewIAMRuleService(log logr.Logger, iamSvc iamApi) *IAMRuleService {
 
 // ReconcileIAMRoleRule reconciles an IAM role validation rule from an AWSValidator config
 // nolint:dupl
-func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationRuleResult, error) {
+func (s *RuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationRuleResult, error) {
 	var ctxEntries []iamtypes.ContextEntry
 
 	// Build the default ValidationResult for this IAM rule
@@ -153,7 +157,7 @@ func (s *IAMRuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationRu
 
 // ReconcileIAMUserRule reconciles an IAM user validation rule from an AWSValidator config
 // nolint:dupl
-func (s *IAMRuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationRuleResult, error) {
+func (s *RuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationRuleResult, error) {
 	var ctxEntries []iamtypes.ContextEntry
 
 	// Build the default ValidationResult for this IAM rule
@@ -287,7 +291,7 @@ func getContextEntries(log logr.Logger, entityName, entityID, entityARN string, 
 
 // ReconcileIAMGroupRule reconciles an IAM group validation rule from an AWSValidator config
 // nolint:dupl
-func (s *IAMRuleService) ReconcileIAMGroupRule(rule iamRule) (*types.ValidationRuleResult, error) {
+func (s *RuleService) ReconcileIAMGroupRule(rule iamRule) (*types.ValidationRuleResult, error) {
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMGroupPolicy)
 
@@ -346,7 +350,7 @@ func getSCPFailedValidationResult(vr *types.ValidationRuleResult, failures []str
 }
 
 // ReconcileIAMPolicyRule reconciles an IAM policy validation rule from an AWSValidator config
-func (s *IAMRuleService) ReconcileIAMPolicyRule(rule iamRule) (*types.ValidationRuleResult, error) {
+func (s *RuleService) ReconcileIAMPolicyRule(rule iamRule) (*types.ValidationRuleResult, error) {
 
 	// Build the default ValidationResult for this IAM rule
 	vr := buildValidationResult(rule, constants.ValidationTypeIAMPolicy)
@@ -368,7 +372,7 @@ func (s *IAMRuleService) ReconcileIAMPolicyRule(rule iamRule) (*types.Validation
 	return vr, nil
 }
 
-func checkSCP(iamSvc iamApi, policyDocs []v1alpha1.PolicyDocument, policySourceArn string, policySourceType string, policySourceName string, ctxEntries []iamtypes.ContextEntry) ([]string, error) {
+func checkSCP(iamSvc iamAPI, policyDocs []v1alpha1.PolicyDocument, policySourceArn string, policySourceType string, policySourceName string, ctxEntries []iamtypes.ContextEntry) ([]string, error) {
 	var scpFailures []string
 
 	for _, doc := range policyDocs {
@@ -412,7 +416,7 @@ func checkSCP(iamSvc iamApi, policyDocs []v1alpha1.PolicyDocument, policySourceA
 }
 
 // processPolicies updates an IAM permission map for each IAM policy in an array of IAM policies attached to a IAM user / group / role
-func (s *IAMRuleService) processPolicies(policies []iamtypes.AttachedPolicy, permissions map[string][]*permission, context []string) error {
+func (s *RuleService) processPolicies(policies []iamtypes.AttachedPolicy, permissions map[string][]*permission, context []string) error {
 	for _, p := range policies {
 		policyDocument, err := s.getPolicyDocument(p.PolicyArn, context)
 		if err != nil {
@@ -426,7 +430,7 @@ func (s *IAMRuleService) processPolicies(policies []iamtypes.AttachedPolicy, per
 }
 
 // getPolicyDocument generates an awspolicy.Policy, given an AWS IAM policy ARN
-func (s *IAMRuleService) getPolicyDocument(policyArn *string, ctx []string) (*awspolicy.Policy, error) {
+func (s *RuleService) getPolicyDocument(policyArn *string, ctx []string) (*awspolicy.Policy, error) {
 	// Fetch the IAM policy's policy document
 	policyOutput, err := s.iamSvc.GetPolicy(context.Background(), &iam.GetPolicyInput{
 		PolicyArn: policyArn,
