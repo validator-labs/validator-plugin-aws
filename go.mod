@@ -2,7 +2,7 @@ module github.com/validator-labs/validator-plugin-aws
 
 go 1.22.0
 
-toolchain go1.22.4
+toolchain go1.22.5
 
 require (
 	github.com/L30Bola/aws-policy v0.0.0-20230126045340-5e6118545ac1
