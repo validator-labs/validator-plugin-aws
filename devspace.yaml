@@ -4,10 +4,10 @@ version: v2beta1
 vars:
   AWS_ACCESS_KEY_ID:
     command: yq
-    args: ["e", ".AWS_ACCESS_KEY_ID", ".env"]
+    args: ["e", ".AWS_ACCESS_KEY_ID", ".devspace-config.yaml"]
   AWS_SECRET_ACCESS_KEY:
     command: yq
-    args: ["e", ".AWS_SECRET_ACCESS_KEY", ".env"]
+    args: ["e", ".AWS_SECRET_ACCESS_KEY", ".devspace-config.yaml"]
   GOARCH:
     command: go
     args: ["env", "GOARCH"]
