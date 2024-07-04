@@ -85,8 +85,18 @@ func (s *AmiRuleService) ReconcileAmiRule(rule v1alpha1.AmiRule) (*vapitypes.Val
 
 	// Update validation result details with each AMI found
 	for _, i := range images.Images {
+		var id, name, source string
+		if i.ImageId != nil {
+			id = *i.ImageId
+		}
+		if i.Name != nil {
+			name = *i.Name
+		}
+		if i.ImageLocation != nil {
+			source = *i.ImageLocation
+		}
 		latestCondition.Details = append(latestCondition.Details,
-			fmt.Sprintf("Found AMI; ID: %s; Name: %s; Source: %s", *i.ImageId, *i.Name, *i.ImageLocation),
+			fmt.Sprintf("Found AMI; ID: '%s'; Name: '%s'; Source: '%s'", id, name, source),
 		)
 	}
 

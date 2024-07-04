@@ -32,7 +32,9 @@ func (m amiApiMock) DescribeImages(ctx context.Context, params *ec2.DescribeImag
 var amiService = NewAmiRuleService(logr.Logger{}, amiApiMock{
 	images: map[string]ec2types.Image{
 		"ami-12345678": {
-			ImageId: util.Ptr("ami-12345678"),
+			ImageId:       util.Ptr("ami-12345678"),
+			Name:          util.Ptr("my-image"),
+			ImageLocation: util.Ptr("self"),
 		},
 	},
 })
@@ -59,7 +61,7 @@ func TestAmiValidation(t *testing.T) {
 					ValidationRule: "validation-ami-rule-fail",
 					Message:        "One or more required AMIs was not found",
 					Details:        []string{},
-					Failures:       []string{"AMI with ID ami-87654321 not found in region us-west-1"},
+					Failures:       []string{"AMI not found. Region: us-west-1. DescribeImagesInput{ImageIds: [ami-87654321]}"},
 					Status:         corev1.ConditionFalse,
 				},
 				State: util.Ptr(vapi.ValidationFailed),
@@ -77,7 +79,7 @@ func TestAmiValidation(t *testing.T) {
 					ValidationType: "aws-ami",
 					ValidationRule: "validation-ami-rule-pass",
 					Message:        "All required AMIs were found",
-					Details:        []string{},
+					Details:        []string{"Found AMI; ID: 'ami-12345678'; Name: 'my-image'; Source: 'self'"},
 					Failures:       nil,
 					Status:         corev1.ConditionTrue,
 				},
