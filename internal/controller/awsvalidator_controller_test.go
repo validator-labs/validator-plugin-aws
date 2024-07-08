@@ -50,7 +50,7 @@ var _ = Describe("AWSValidator controller", Ordered, func() {
 			AmiRules: []v1alpha1.AmiRule{
 				{
 					Name:   "AMIRule",
-					AmiIds: []string{"ami-12345678"},
+					AmiIDs: []string{"ami-12345678"},
 					Region: "us-west-2",
 				},
 			},
