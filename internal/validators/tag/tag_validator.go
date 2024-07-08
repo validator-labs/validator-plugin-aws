@@ -1,3 +1,4 @@
+// Package tag handles EC2 tag validation rule reconciliation.
 package tag
 
 import (
@@ -19,24 +20,26 @@ import (
 	stringutils "github.com/validator-labs/validator-plugin-aws/internal/utils/strings"
 )
 
-type tagApi interface {
+type tagAPI interface {
 	DescribeSubnets(ctx context.Context, params *ec2.DescribeSubnetsInput, optFns ...func(*ec2.Options)) (*ec2.DescribeSubnetsOutput, error)
 }
 
-type TagRuleService struct {
+// RuleService reconciles EC2 tag validation rules.
+type RuleService struct {
 	log    logr.Logger
-	tagSvc tagApi
+	tagSvc tagAPI
 }
 
-func NewTagRuleService(log logr.Logger, tagSvc tagApi) *TagRuleService {
-	return &TagRuleService{
+// NewTagRuleService creates a new TagRuleService.
+func NewTagRuleService(log logr.Logger, tagSvc tagAPI) *RuleService {
+	return &RuleService{
 		log:    log,
 		tagSvc: tagSvc,
 	}
 }
 
 // ReconcileTagRule reconciles an EC2 tagging validation rule from the AWSValidator config
-func (s *TagRuleService) ReconcileTagRule(rule v1alpha1.TagRule) (*vapitypes.ValidationRuleResult, error) {
+func (s *RuleService) ReconcileTagRule(rule v1alpha1.TagRule) (*vapitypes.ValidationRuleResult, error) {
 
 	// Build the default latest condition for this tag rule
 	state := vapi.ValidationSucceeded

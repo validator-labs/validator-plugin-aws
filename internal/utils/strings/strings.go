@@ -1,3 +1,4 @@
+// Package strings contains utility functions for working with strings.
 package strings
 
 import "strings"

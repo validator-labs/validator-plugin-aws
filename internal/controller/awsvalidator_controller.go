@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+// Package controller defines a controller for reconciling AWSValidator objects.
 package controller
 
 import (
@@ -46,6 +47,7 @@ import (
 	vres "github.com/validator-labs/validator/pkg/validationresult"
 )
 
+// ErrSecretNameRequired is returned when the auth.secretName field is empty.
 var ErrSecretNameRequired = errors.New("auth.secretName is required")
 
 // AwsValidatorReconciler reconciles a AwsValidator object
@@ -117,12 +119,12 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	// AMI rules
 	for _, rule := range validator.Spec.AmiRules {
-		awsApi, err := aws_utils.NewAwsApi(r.Log, validator.Spec.Auth, rule.Region)
+		awsAPI, err := aws_utils.NewAwsAPI(validator.Spec.Auth, rule.Region)
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile AMI rule")
 			continue
 		}
-		amiRuleService := ami.NewAmiRuleService(r.Log, awsApi.EC2)
+		amiRuleService := ami.NewAmiRuleService(r.Log, awsAPI.EC2)
 		vrr, err := amiRuleService.ReconcileAmiRule(rule)
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile AMI rule")
@@ -131,11 +133,11 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	}
 
 	// IAM rules
-	awsApi, err := aws_utils.NewAwsApi(r.Log, validator.Spec.Auth, validator.Spec.DefaultRegion)
+	awsAPI, err := aws_utils.NewAwsAPI(validator.Spec.Auth, validator.Spec.DefaultRegion)
 	if err != nil {
 		r.Log.V(0).Error(err, "failed to get AWS client")
 	} else {
-		iamRuleService := iam.NewIAMRuleService(r.Log, awsApi.IAM)
+		iamRuleService := iam.NewIAMRuleService(r.Log, awsAPI.IAM)
 
 		for _, rule := range validator.Spec.IamRoleRules {
 			vrr, err := iamRuleService.ReconcileIAMRoleRule(rule)
@@ -169,18 +171,18 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	// Service Quota rules
 	for _, rule := range validator.Spec.ServiceQuotaRules {
-		awsApi, err := aws_utils.NewAwsApi(r.Log, validator.Spec.Auth, rule.Region)
+		awsAPI, err := aws_utils.NewAwsAPI(validator.Spec.Auth, rule.Region)
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile Service Quota rule")
 			continue
 		}
 		svcQuotaService := servicequota.NewServiceQuotaRuleService(
 			r.Log,
-			awsApi.EC2,
-			awsApi.EFS,
-			awsApi.ELB,
-			awsApi.ELBV2,
-			awsApi.SQ,
+			awsAPI.EC2,
+			awsAPI.EFS,
+			awsAPI.ELB,
+			awsAPI.ELBV2,
+			awsAPI.SQ,
 		)
 		vrr, err := svcQuotaService.ReconcileServiceQuotaRule(rule)
 		if err != nil {
@@ -191,12 +193,12 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	// Tag rules
 	for _, rule := range validator.Spec.TagRules {
-		awsApi, err := aws_utils.NewAwsApi(r.Log, validator.Spec.Auth, rule.Region)
+		awsAPI, err := aws_utils.NewAwsAPI(validator.Spec.Auth, rule.Region)
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile Tag rule")
 			continue
 		}
-		tagRuleService := tag.NewTagRuleService(r.Log, awsApi.EC2)
+		tagRuleService := tag.NewTagRuleService(r.Log, awsAPI.EC2)
 		vrr, err := tagRuleService.ReconcileTagRule(rule)
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile Tag rule")

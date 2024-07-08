@@ -50,11 +50,13 @@ type AwsValidatorSpec struct {
 	TagRules []TagRule `json:"tagRules,omitempty" yaml:"tagRules,omitempty"`
 }
 
+// ResultCount returns the number of validation results expected for an AwsValidatorSpec.
 func (s AwsValidatorSpec) ResultCount() int {
 	return len(s.AmiRules) + len(s.IamGroupRules) + len(s.IamPolicyRules) + len(s.IamRoleRules) +
 		len(s.IamUserRules) + len(s.ServiceQuotaRules) + len(s.TagRules)
 }
 
+// AwsAuth defines authentication configuration for an AwsValidator.
 type AwsAuth struct {
 	// If true, the AwsValidator will use the AWS SDK's default credential chain to authenticate.
 	// Set to true if using node instance IAM role or IAM roles for Service Accounts.
@@ -67,6 +69,7 @@ type AwsAuth struct {
 	StsAuth *AwsSTSAuth `json:"stsAuth,omitempty" yaml:"stsAuth,omitempty"`
 }
 
+// AwsSTSAuth defines AWS STS authentication configuration for an AwsValidator.
 type AwsSTSAuth struct {
 	// The Amazon Resource Name (ARN) of the role to assume.
 	RoleArn string `json:"roleArn" yaml:"roleArn"`
@@ -78,89 +81,100 @@ type AwsSTSAuth struct {
 	// +kubebuilder:validation:Maximum=43200
 	DurationSeconds int `json:"durationSeconds" yaml:"durationSeconds"`
 	// A unique identifier that might be required when you assume a role in another account.
-	ExternalId string `json:"externalId,omitempty" yaml:"externalId,omitempty"`
+	ExternalID string `json:"externalId,omitempty" yaml:"externalId,omitempty"`
 }
 
-// AmiRules ensure that an EC2 AMI exists in a particular region.
+// AmiRule ensures that an EC2 AMI exists in a particular region.
 // AMIs can be matched by any combination of ID, owner, and filter(s).
 // Each AmiRule is intended to match a single AMI, as an AmiRule is considered successful if at least one AMI is found.
 // Refer to https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeImages.html for more information.
 type AmiRule struct {
 	Name    string   `json:"name" yaml:"name"`
-	AmiIds  []string `json:"amiIds,omitempty" yaml:"amiIds,omitempty"`
+	AmiIDs  []string `json:"amiIds,omitempty" yaml:"amiIds,omitempty"`
 	Filters []Filter `json:"filters,omitempty" yaml:"filters,omitempty"`
 	Owners  []string `json:"owners,omitempty" yaml:"owners,omitempty"`
 	Region  string   `json:"region" yaml:"region"`
 }
 
+// Filter defines a filter to apply to an AWS API query.
 type Filter struct {
 	Key    string   `json:"key" yaml:"key"`
 	Values []string `json:"values" yaml:"values"`
 	IsTag  bool     `json:"isTag,omitempty" yaml:"isTag,omitempty"`
 }
 
-// IamRoleRules compare the IAM permissions associated with an IAM role against an expected permission set.
+// IamRoleRule compares the IAM permissions associated with an IAM role against an expected permission set.
 type IamRoleRule struct {
 	IamRoleName string           `json:"iamRoleName" yaml:"iamRoleName"`
 	Policies    []PolicyDocument `json:"iamPolicies" yaml:"iamPolicies"`
 }
 
+// Name returns the name of an IamRoleRule.
 func (r IamRoleRule) Name() string {
 	return r.IamRoleName
 }
 
+// IAMPolicies returns the IAM policies associated with an IamRoleRule.
 func (r IamRoleRule) IAMPolicies() []PolicyDocument {
 	return r.Policies
 }
 
-// IamUserRules compare the IAM permissions associated with an IAM user against an expected permission set.
+// IamUserRule compares the IAM permissions associated with an IAM user against an expected permission set.
 type IamUserRule struct {
 	IamUserName string           `json:"iamUserName" yaml:"iamUserName"`
 	Policies    []PolicyDocument `json:"iamPolicies" yaml:"iamPolicies"`
 }
 
+// Name returns the name of an IamUserRule.
 func (r IamUserRule) Name() string {
 	return r.IamUserName
 }
 
+// IAMPolicies returns the IAM policies associated with an IamUserRule.
 func (r IamUserRule) IAMPolicies() []PolicyDocument {
 	return r.Policies
 }
 
-// IamGroupRules compare the IAM permissions associated with an IAM group against an expected permission set.
+// IamGroupRule compares the IAM permissions associated with an IAM group against an expected permission set.
 type IamGroupRule struct {
 	IamGroupName string           `json:"iamGroupName" yaml:"iamGroupName"`
 	Policies     []PolicyDocument `json:"iamPolicies" yaml:"iamPolicies"`
 }
 
+// Name returns the name of an IamGroupRule.
 func (r IamGroupRule) Name() string {
 	return r.IamGroupName
 }
 
+// IAMPolicies returns the IAM policies associated with an IamGroupRule.
 func (r IamGroupRule) IAMPolicies() []PolicyDocument {
 	return r.Policies
 }
 
-// IamPolicyRules compare the IAM permissions associated with an IAM policy against an expected permission set.
+// IamPolicyRule compares the IAM permissions associated with an IAM policy against an expected permission set.
 type IamPolicyRule struct {
 	IamPolicyARN string           `json:"iamPolicyArn" yaml:"iamPolicyArn"`
 	Policies     []PolicyDocument `json:"iamPolicies" yaml:"iamPolicies"`
 }
 
+// Name returns the name of an IamPolicyRule.
 func (r IamPolicyRule) Name() string {
 	return r.IamPolicyARN
 }
 
+// IAMPolicies returns the IAM policies associated with an IamPolicyRule.
 func (r IamPolicyRule) IAMPolicies() []PolicyDocument {
 	return r.Policies
 }
 
+// PolicyDocument defines an IAM policy document.
 type PolicyDocument struct {
 	Name       string           `json:"name" yaml:"name"`
 	Version    string           `json:"version" yaml:"version"`
 	Statements []StatementEntry `json:"statements" yaml:"statements"`
 }
 
+// StatementEntry defines an IAM policy statement.
 type StatementEntry struct {
 	Condition Condition `json:"condition,omitempty" yaml:"condition,omitempty"`
 	Effect    string    `json:"effect" yaml:"effect"`
@@ -168,8 +182,10 @@ type StatementEntry struct {
 	Resources []string  `json:"resources" yaml:"resources"`
 }
 
+// Condition defines an IAM policy condition.
 type Condition map[string]map[string][]string
 
+// String returns a string representation of an IAM Condition.
 func (c Condition) String() string {
 	sb := strings.Builder{}
 	for k, v := range c {
@@ -182,7 +198,7 @@ func (c Condition) String() string {
 	return sb.String()
 }
 
-// ServiceQuotaRules ensure that AWS service quotas are within a particular threshold.
+// ServiceQuotaRule ensures that AWS service quotas are within a particular threshold.
 type ServiceQuotaRule struct {
 	Name          string         `json:"name" yaml:"name"`
 	Region        string         `json:"region" yaml:"region"`
@@ -190,12 +206,13 @@ type ServiceQuotaRule struct {
 	ServiceQuotas []ServiceQuota `json:"serviceQuotas" yaml:"serviceQuotas"`
 }
 
+// ServiceQuota defines an AWS service quota and an associated buffer.
 type ServiceQuota struct {
 	Name   string `json:"name" yaml:"name"`
 	Buffer int    `json:"buffer" yaml:"buffer"`
 }
 
-// TagRules ensure that the tags associated with a particular AWS resource match an expected tag set.
+// TagRule ensures that the tags associated with a particular AWS resource match an expected tag set.
 type TagRule struct {
 	Name          string   `json:"name" yaml:"name"`
 	Key           string   `json:"key" yaml:"key"`

@@ -1,3 +1,4 @@
+// Package servicequota handles ServiceQuota validation rule reconciliation.
 package servicequota
 
 import (
@@ -20,11 +21,10 @@ import (
 
 	"github.com/validator-labs/validator-plugin-aws/api/v1alpha1"
 	"github.com/validator-labs/validator-plugin-aws/internal/constants"
-	"github.com/validator-labs/validator-plugin-aws/internal/types"
 	stringutils "github.com/validator-labs/validator-plugin-aws/internal/utils/strings"
 )
 
-type ec2Api interface {
+type ec2API interface {
 	DescribeAddresses(ctx context.Context, params *ec2.DescribeAddressesInput, optFns ...func(*ec2.Options)) (*ec2.DescribeAddressesOutput, error)
 	DescribeImages(ctx context.Context, params *ec2.DescribeImagesInput, optFns ...func(*ec2.Options)) (*ec2.DescribeImagesOutput, error)
 	DescribeInternetGateways(ctx context.Context, params *ec2.DescribeInternetGatewaysInput, optFns ...func(*ec2.Options)) (*ec2.DescribeInternetGatewaysOutput, error)
@@ -34,33 +34,35 @@ type ec2Api interface {
 	DescribeVpcs(ctx context.Context, params *ec2.DescribeVpcsInput, optFns ...func(*ec2.Options)) (*ec2.DescribeVpcsOutput, error)
 }
 
-type efsApi interface {
+type efsAPI interface {
 	DescribeFileSystems(ctx context.Context, params *efs.DescribeFileSystemsInput, optFns ...func(*efs.Options)) (*efs.DescribeFileSystemsOutput, error)
 }
 
-type elbApi interface {
+type elbAPI interface {
 	DescribeLoadBalancers(context.Context, *elasticloadbalancing.DescribeLoadBalancersInput, ...func(*elasticloadbalancing.Options)) (*elasticloadbalancing.DescribeLoadBalancersOutput, error)
 }
 
-type elbv2Api interface {
+type elbv2API interface {
 	DescribeLoadBalancers(context.Context, *elasticloadbalancingv2.DescribeLoadBalancersInput, ...func(*elasticloadbalancingv2.Options)) (*elasticloadbalancingv2.DescribeLoadBalancersOutput, error)
 }
 
-type sqApi interface {
+type sqAPI interface {
 	ListServiceQuotas(context.Context, *servicequotas.ListServiceQuotasInput, ...func(*servicequotas.Options)) (*servicequotas.ListServiceQuotasOutput, error)
 }
 
-type ServiceQuotaRuleService struct {
+// RuleService reconciles ServiceQuota validation rules.
+type RuleService struct {
 	log      logr.Logger
-	ec2Svc   ec2Api
-	efsSvc   efsApi
-	elbSvc   elbApi
-	elbv2Svc elbv2Api
-	sqSvc    sqApi
+	ec2Svc   ec2API
+	efsSvc   efsAPI
+	elbSvc   elbAPI
+	elbv2Svc elbv2API
+	sqSvc    sqAPI
 }
 
-func NewServiceQuotaRuleService(log logr.Logger, ec2Svc ec2Api, efsSvc efsApi, elbSvc elbApi, elbv2Svc elbv2Api, sqSvc sqApi) *ServiceQuotaRuleService {
-	return &ServiceQuotaRuleService{
+// NewServiceQuotaRuleService creates a new RuleService.
+func NewServiceQuotaRuleService(log logr.Logger, ec2Svc ec2API, efsSvc efsAPI, elbSvc elbAPI, elbv2Svc elbv2API, sqSvc sqAPI) *RuleService {
+	return &RuleService{
 		log:      log,
 		ec2Svc:   ec2Svc,
 		efsSvc:   efsSvc,
@@ -71,7 +73,7 @@ func NewServiceQuotaRuleService(log logr.Logger, ec2Svc ec2Api, efsSvc efsApi, e
 }
 
 // execQuotaUsageFunc maps AWS service quota names to functions that compute the usage and/or maximum usage for each service (maximum if the quota is broken out by VPC, AZ, etc.)
-func (s *ServiceQuotaRuleService) execQuotaUsageFunc(quotaName string, rule v1alpha1.ServiceQuotaRule) (*types.UsageResult, error) {
+func (s *RuleService) execQuotaUsageFunc(quotaName string, rule v1alpha1.ServiceQuotaRule) (*usageResult, error) {
 	switch quotaName {
 	// EC2
 	case "EC2-VPC Elastic IPs":
@@ -105,7 +107,7 @@ func (s *ServiceQuotaRuleService) execQuotaUsageFunc(quotaName string, rule v1al
 }
 
 // ReconcileServiceQuotaRule reconciles an AWS service quota validation rule from the AWSValidator config
-func (s *ServiceQuotaRuleService) ReconcileServiceQuotaRule(rule v1alpha1.ServiceQuotaRule) (*vapitypes.ValidationRuleResult, error) {
+func (s *RuleService) ReconcileServiceQuotaRule(rule v1alpha1.ServiceQuotaRule) (*vapitypes.ValidationRuleResult, error) {
 
 	// Build the default latest condition for this tag rule
 	state := vapi.ValidationSucceeded
@@ -178,7 +180,7 @@ func (s *ServiceQuotaRuleService) ReconcileServiceQuotaRule(rule v1alpha1.Servic
 // EC2
 
 // elasticIPsPerRegion determines the number of elastic IPs in use in a region
-func (s *ServiceQuotaRuleService) elasticIPsPerRegion(rule v1alpha1.ServiceQuotaRule) (*types.UsageResult, error) {
+func (s *RuleService) elasticIPsPerRegion(rule v1alpha1.ServiceQuotaRule) (*usageResult, error) {
 	output, err := s.ec2Svc.DescribeAddresses(context.Background(), &ec2.DescribeAddressesInput{})
 	if err != nil {
 		s.log.V(0).Error(err, "failed to get elastic IPs", "region", rule.Region)
@@ -191,11 +193,11 @@ func (s *ServiceQuotaRuleService) elasticIPsPerRegion(rule v1alpha1.ServiceQuota
 			usage++
 		}
 	}
-	return &types.UsageResult{Description: rule.Region, MaxUsage: usage}, nil
+	return &usageResult{Description: rule.Region, MaxUsage: usage}, nil
 }
 
 // publicAMIsPerRegion determines the number of public AMIs in use in a region
-func (s *ServiceQuotaRuleService) publicAMIsPerRegion(rule v1alpha1.ServiceQuotaRule) (*types.UsageResult, error) {
+func (s *RuleService) publicAMIsPerRegion(rule v1alpha1.ServiceQuotaRule) (*usageResult, error) {
 	output, err := s.ec2Svc.DescribeImages(context.Background(), &ec2.DescribeImagesInput{
 		ExecutableUsers: []string{"self"},
 	})
@@ -203,25 +205,25 @@ func (s *ServiceQuotaRuleService) publicAMIsPerRegion(rule v1alpha1.ServiceQuota
 		s.log.V(0).Error(err, "failed to get public AMIs", "region", rule.Region)
 		return nil, err
 	}
-	return &types.UsageResult{Description: rule.Region, MaxUsage: float64(len(output.Images))}, nil
+	return &usageResult{Description: rule.Region, MaxUsage: float64(len(output.Images))}, nil
 }
 
 // EFS
 
 // filesystemsPerRegion determines the number of EFS filesystems in use in a region
-func (s *ServiceQuotaRuleService) filesystemsPerRegion(rule v1alpha1.ServiceQuotaRule) (*types.UsageResult, error) {
+func (s *RuleService) filesystemsPerRegion(rule v1alpha1.ServiceQuotaRule) (*usageResult, error) {
 	output, err := s.efsSvc.DescribeFileSystems(context.Background(), &efs.DescribeFileSystemsInput{})
 	if err != nil {
 		s.log.V(0).Error(err, "failed to get EFS filesystems", "region", rule.Region)
 		return nil, err
 	}
-	return &types.UsageResult{Description: rule.Region, MaxUsage: float64(len(output.FileSystems))}, nil
+	return &usageResult{Description: rule.Region, MaxUsage: float64(len(output.FileSystems))}, nil
 }
 
 // ELB
 
 // albsPerRegion determines the number of application load balancers in use in a region
-func (s *ServiceQuotaRuleService) albsPerRegion(rule v1alpha1.ServiceQuotaRule) (*types.UsageResult, error) {
+func (s *RuleService) albsPerRegion(rule v1alpha1.ServiceQuotaRule) (*usageResult, error) {
 	var usage float64
 	lbPager := elasticloadbalancingv2.NewDescribeLoadBalancersPaginator(s.elbv2Svc, &elasticloadbalancingv2.DescribeLoadBalancersInput{})
 	for lbPager.HasMorePages() {
@@ -236,11 +238,11 @@ func (s *ServiceQuotaRuleService) albsPerRegion(rule v1alpha1.ServiceQuotaRule) 
 			}
 		}
 	}
-	return &types.UsageResult{Description: rule.Region, MaxUsage: usage}, nil
+	return &usageResult{Description: rule.Region, MaxUsage: usage}, nil
 }
 
 // clbsPerRegion determines the number of classic load balancers in use in a region
-func (s *ServiceQuotaRuleService) clbsPerRegion(rule v1alpha1.ServiceQuotaRule) (*types.UsageResult, error) {
+func (s *RuleService) clbsPerRegion(rule v1alpha1.ServiceQuotaRule) (*usageResult, error) {
 	var usage float64
 	lbPager := elasticloadbalancing.NewDescribeLoadBalancersPaginator(s.elbSvc, &elasticloadbalancing.DescribeLoadBalancersInput{})
 	for lbPager.HasMorePages() {
@@ -251,11 +253,11 @@ func (s *ServiceQuotaRuleService) clbsPerRegion(rule v1alpha1.ServiceQuotaRule) 
 		}
 		usage += float64(len(page.LoadBalancerDescriptions))
 	}
-	return &types.UsageResult{Description: rule.Region, MaxUsage: usage}, nil
+	return &usageResult{Description: rule.Region, MaxUsage: usage}, nil
 }
 
 // nlbsPerRegion determines the number of network load balancers in use in a region
-func (s *ServiceQuotaRuleService) nlbsPerRegion(rule v1alpha1.ServiceQuotaRule) (*types.UsageResult, error) {
+func (s *RuleService) nlbsPerRegion(rule v1alpha1.ServiceQuotaRule) (*usageResult, error) {
 	var usage float64
 	lbPager := elasticloadbalancingv2.NewDescribeLoadBalancersPaginator(s.elbv2Svc, &elasticloadbalancingv2.DescribeLoadBalancersInput{})
 	for lbPager.HasMorePages() {
@@ -270,50 +272,50 @@ func (s *ServiceQuotaRuleService) nlbsPerRegion(rule v1alpha1.ServiceQuotaRule) 
 			}
 		}
 	}
-	return &types.UsageResult{Description: rule.Region, MaxUsage: usage}, nil
+	return &usageResult{Description: rule.Region, MaxUsage: usage}, nil
 }
 
 // VPC
 
 // igsPerRegion determines the number of internet gateways in use in a region
-func (s *ServiceQuotaRuleService) igsPerRegion(rule v1alpha1.ServiceQuotaRule) (*types.UsageResult, error) {
+func (s *RuleService) igsPerRegion(rule v1alpha1.ServiceQuotaRule) (*usageResult, error) {
 	output, err := s.ec2Svc.DescribeInternetGateways(context.Background(), &ec2.DescribeInternetGatewaysInput{})
 	if err != nil {
 		s.log.V(0).Error(err, "failed to get internet gateways", "region", rule.Region)
 		return nil, err
 	}
-	return &types.UsageResult{Description: rule.Region, MaxUsage: float64(len(output.InternetGateways))}, nil
+	return &usageResult{Description: rule.Region, MaxUsage: float64(len(output.InternetGateways))}, nil
 }
 
 // nicsPerRegion determines the number of network interfaces in use in a region
-func (s *ServiceQuotaRuleService) nicsPerRegion(rule v1alpha1.ServiceQuotaRule) (*types.UsageResult, error) {
+func (s *RuleService) nicsPerRegion(rule v1alpha1.ServiceQuotaRule) (*usageResult, error) {
 	output, err := s.ec2Svc.DescribeNetworkInterfaces(context.Background(), &ec2.DescribeNetworkInterfacesInput{})
 	if err != nil {
 		s.log.V(0).Error(err, "failed to get network interfaces", "region", rule.Region)
 		return nil, err
 	}
-	return &types.UsageResult{Description: rule.Region, MaxUsage: float64(len(output.NetworkInterfaces))}, nil
+	return &usageResult{Description: rule.Region, MaxUsage: float64(len(output.NetworkInterfaces))}, nil
 }
 
 // vpcsPerRegion determines the number of VPCs in a region
-func (s *ServiceQuotaRuleService) vpcsPerRegion(rule v1alpha1.ServiceQuotaRule) (*types.UsageResult, error) {
+func (s *RuleService) vpcsPerRegion(rule v1alpha1.ServiceQuotaRule) (*usageResult, error) {
 	output, err := s.ec2Svc.DescribeVpcs(context.Background(), &ec2.DescribeVpcsInput{})
 	if err != nil {
 		s.log.V(0).Error(err, "failed to get VPCs", "region", rule.Region)
 		return nil, err
 	}
-	return &types.UsageResult{Description: rule.Region, MaxUsage: float64(len(output.Vpcs))}, nil
+	return &usageResult{Description: rule.Region, MaxUsage: float64(len(output.Vpcs))}, nil
 }
 
 // subnetsPerVpc determines the maximum number of subnets in any VPC across all VPCs in a region
-func (s *ServiceQuotaRuleService) subnetsPerVpc(rule v1alpha1.ServiceQuotaRule) (*types.UsageResult, error) {
+func (s *RuleService) subnetsPerVpc(rule v1alpha1.ServiceQuotaRule) (*usageResult, error) {
 	output, err := s.ec2Svc.DescribeSubnets(context.Background(), &ec2.DescribeSubnetsInput{})
 	if err != nil {
 		s.log.V(0).Error(err, "failed to get subnets", "region", rule.Region)
 		return nil, err
 	}
 
-	usage := types.UsageMap{}
+	usage := usageMap{}
 	for _, v := range output.Subnets {
 		if v.VpcId != nil {
 			usage[*v.VpcId]++
@@ -323,14 +325,14 @@ func (s *ServiceQuotaRuleService) subnetsPerVpc(rule v1alpha1.ServiceQuotaRule) 
 }
 
 // natGatewaysPerAz determines the maximum number of NAT gateways in any availability zone across all availability zones in a region
-func (s *ServiceQuotaRuleService) natGatewaysPerAz(rule v1alpha1.ServiceQuotaRule) (*types.UsageResult, error) {
+func (s *RuleService) natGatewaysPerAz(rule v1alpha1.ServiceQuotaRule) (*usageResult, error) {
 	subnetOutput, err := s.ec2Svc.DescribeSubnets(context.Background(), &ec2.DescribeSubnetsInput{})
 	if err != nil {
 		s.log.V(0).Error(err, "failed to get subnets", "region", rule.Region)
 		return nil, err
 	}
 
-	usage := types.UsageMap{}
+	usage := usageMap{}
 	subnetToAzMap := make(map[string]string, 0)
 	for _, s := range subnetOutput.Subnets {
 		if s.SubnetId != nil && s.AvailabilityZone != nil {
