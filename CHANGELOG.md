@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.1.1](https://github.com/validator-labs/validator-plugin-aws/compare/v0.1.0...v0.1.1) (2024-07-08)
+
+
+### Features
+
+* AMI validation ([#419](https://github.com/validator-labs/validator-plugin-aws/issues/419)) ([8421081](https://github.com/validator-labs/validator-plugin-aws/commit/84210819b81e46d9fae22e22851662c4eaba9d37))
+
+
+### Bug Fixes
+
+* **deps:** update aws-sdk-go-v2 monorepo ([#414](https://github.com/validator-labs/validator-plugin-aws/issues/414)) ([07e7213](https://github.com/validator-labs/validator-plugin-aws/commit/07e7213c98d94ec2def46f9db21a6e5105e1e6e1))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/ec2 to v1.166.0 ([#413](https://github.com/validator-labs/validator-plugin-aws/issues/413)) ([6e7459f](https://github.com/validator-labs/validator-plugin-aws/commit/6e7459f5a49cd738e647a0e5f5bf4076185b6738))
+* **deps:** update module github.com/validator-labs/validator to v0.0.43 ([#411](https://github.com/validator-labs/validator-plugin-aws/issues/411)) ([dcbb29b](https://github.com/validator-labs/validator-plugin-aws/commit/dcbb29b6034c9ed1272cbb390d1c5bf411f700b6))
+
+
+### Dependency Updates
+
+* **deps:** update aws-sdk-go-v2 monorepo ([#417](https://github.com/validator-labs/validator-plugin-aws/issues/417)) ([63ecd21](https://github.com/validator-labs/validator-plugin-aws/commit/63ecd21311b742bd1913293d3adaa95cf0cecf56))
+* **deps:** update dependency go to v1.22.5 ([#418](https://github.com/validator-labs/validator-plugin-aws/issues/418)) ([ada9a66](https://github.com/validator-labs/validator-plugin-aws/commit/ada9a66fffdfea4bb6da08b509af6f79a620df02))
+* **deps:** update golang.org/x/exp digest to 46b0784 ([#421](https://github.com/validator-labs/validator-plugin-aws/issues/421)) ([b3f1ed3](https://github.com/validator-labs/validator-plugin-aws/commit/b3f1ed3e511f0ba52db8579d50d9729043b5502c))
+
+
+### Refactoring
+
+* enable revive & resolve all lints ([#420](https://github.com/validator-labs/validator-plugin-aws/issues/420)) ([841cb31](https://github.com/validator-labs/validator-plugin-aws/commit/841cb31542da49a31b51142108f39aef4d91d17a))
+
 ## [0.1.0](https://github.com/validator-labs/validator-plugin-aws/compare/v0.0.26...v0.1.0) (2024-06-21)
 
 
