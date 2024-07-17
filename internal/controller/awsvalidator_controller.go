@@ -122,6 +122,7 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		awsAPI, err := aws_utils.NewAwsAPI(validator.Spec.Auth, rule.Region)
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile AMI rule")
+			resp.AddResult(nil, err)
 			continue
 		}
 		amiRuleService := ami.NewAmiRuleService(r.Log, awsAPI.EC2)
@@ -174,6 +175,7 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		awsAPI, err := aws_utils.NewAwsAPI(validator.Spec.Auth, rule.Region)
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile Service Quota rule")
+			resp.AddResult(nil, err)
 			continue
 		}
 		svcQuotaService := servicequota.NewServiceQuotaRuleService(
@@ -196,6 +198,7 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		awsAPI, err := aws_utils.NewAwsAPI(validator.Spec.Auth, rule.Region)
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile Tag rule")
+			resp.AddResult(nil, err)
 			continue
 		}
 		tagRuleService := tag.NewTagRuleService(r.Log, awsAPI.EC2)
