@@ -21,7 +21,6 @@ import (
 
 	"github.com/validator-labs/validator-plugin-aws/api/v1alpha1"
 	"github.com/validator-labs/validator-plugin-aws/internal/constants"
-	stringutils "github.com/validator-labs/validator-plugin-aws/internal/utils/strings"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
 	vapiconstants "github.com/validator-labs/validator/pkg/constants"
 	"github.com/validator-labs/validator/pkg/types"
@@ -471,7 +470,7 @@ func buildValidationResult(rule iamRule, validationType string) *types.Validatio
 	state := vapi.ValidationSucceeded
 	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = fmt.Sprintf("All required %s permissions were found", validationType)
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, stringutils.Sanitize(rule.Name()))
+	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, util.Sanitize(rule.Name()))
 	latestCondition.ValidationType = validationType
 	return &types.ValidationRuleResult{Condition: &latestCondition, State: &state}
 }
@@ -640,7 +639,7 @@ func computeFailures(rule iamRule, permissions map[string][]*permission, vr *typ
 	for resource, resourcePermissions := range permissions {
 		for _, permission := range resourcePermissions {
 			if len(permission.Errors) > 0 {
-				failures = append(failures, stringutils.DeDupeStrSlice(permission.Errors)...)
+				failures = append(failures, util.DeDupeStrSlice(permission.Errors)...)
 				continue
 			}
 			if permission.Condition != nil && !permission.ConditionOk {

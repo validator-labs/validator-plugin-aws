@@ -20,11 +20,11 @@ require (
 	github.com/onsi/ginkgo/v2 v2.19.0
 	github.com/onsi/gomega v1.33.1
 	github.com/pkg/errors v0.9.1
-	github.com/validator-labs/validator v0.0.46
+	github.com/validator-labs/validator v0.0.47-0.20240719190103-81d7d46177c8
 	golang.org/x/exp v0.0.0-20240716175740-e3f259677ff7
-	k8s.io/api v0.30.2
-	k8s.io/apimachinery v0.30.2
-	k8s.io/client-go v0.30.2
+	k8s.io/api v0.30.3
+	k8s.io/apimachinery v0.30.3
+	k8s.io/client-go v0.30.3
 	sigs.k8s.io/cluster-api v1.7.4
 	sigs.k8s.io/controller-runtime v0.18.4
 )
