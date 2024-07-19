@@ -18,10 +18,10 @@ import (
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
 	vapiconstants "github.com/validator-labs/validator/pkg/constants"
 	vapitypes "github.com/validator-labs/validator/pkg/types"
+	"github.com/validator-labs/validator/pkg/util"
 
 	"github.com/validator-labs/validator-plugin-aws/api/v1alpha1"
 	"github.com/validator-labs/validator-plugin-aws/internal/constants"
-	stringutils "github.com/validator-labs/validator-plugin-aws/internal/utils/strings"
 )
 
 type ec2API interface {
@@ -113,7 +113,7 @@ func (s *RuleService) ReconcileServiceQuotaRule(rule v1alpha1.ServiceQuotaRule) 
 	state := vapi.ValidationSucceeded
 	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = "Usage for all service quotas is below specified buffer"
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, stringutils.Sanitize(rule.Name))
+	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, util.Sanitize(rule.Name))
 	latestCondition.ValidationType = constants.ValidationTypeServiceQuota
 	validationResult := &vapitypes.ValidationRuleResult{Condition: &latestCondition, State: &state}
 
