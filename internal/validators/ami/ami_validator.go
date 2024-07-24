@@ -18,7 +18,6 @@ import (
 
 	"github.com/validator-labs/validator-plugin-aws/api/v1alpha1"
 	"github.com/validator-labs/validator-plugin-aws/internal/constants"
-	stringutils "github.com/validator-labs/validator-plugin-aws/internal/utils/strings"
 )
 
 type amiAPI interface {
@@ -46,7 +45,7 @@ func (s *RuleService) ReconcileAmiRule(rule v1alpha1.AmiRule) (*vapitypes.Valida
 	state := vapi.ValidationSucceeded
 	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = "All required AMIs were found"
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, stringutils.Sanitize(rule.Name))
+	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, util.Sanitize(rule.Name))
 	latestCondition.ValidationType = constants.ValidationTypeAmi
 	validationResult := &vapitypes.ValidationRuleResult{Condition: &latestCondition, State: &state}
 

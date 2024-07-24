@@ -17,7 +17,6 @@ import (
 
 	"github.com/validator-labs/validator-plugin-aws/api/v1alpha1"
 	"github.com/validator-labs/validator-plugin-aws/internal/constants"
-	stringutils "github.com/validator-labs/validator-plugin-aws/internal/utils/strings"
 )
 
 type tagAPI interface {
@@ -45,7 +44,7 @@ func (s *RuleService) ReconcileTagRule(rule v1alpha1.TagRule) (*vapitypes.Valida
 	state := vapi.ValidationSucceeded
 	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = "All required subnet tags were found"
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, stringutils.Sanitize(rule.Name))
+	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, util.Sanitize(rule.Name))
 	latestCondition.ValidationType = constants.ValidationTypeTag
 	validationResult := &vapitypes.ValidationRuleResult{Condition: &latestCondition, State: &state}
 
