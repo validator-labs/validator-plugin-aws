@@ -29,8 +29,8 @@ type API struct {
 	SQ    *servicequotas.Client
 }
 
-// NewAwsAPI creates an API object that aggregates AWS service clients
-func NewAwsAPI(auth v1alpha1.AwsAuth, region string) (*API, error) {
+// NewAPI creates an API object that aggregates AWS service clients
+func NewAPI(auth v1alpha1.AwsAuth, region string) (*API, error) {
 	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithDefaultRegion(region))
 	if err != nil {
 		return nil, err

@@ -35,8 +35,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/validator-labs/validator-plugin-aws/api/v1alpha1"
+	"github.com/validator-labs/validator-plugin-aws/internal/aws"
 	"github.com/validator-labs/validator-plugin-aws/internal/constants"
-	aws_utils "github.com/validator-labs/validator-plugin-aws/internal/utils/aws"
 	"github.com/validator-labs/validator-plugin-aws/internal/validators/ami"
 	"github.com/validator-labs/validator-plugin-aws/internal/validators/iam"
 	"github.com/validator-labs/validator-plugin-aws/internal/validators/servicequota"
@@ -119,7 +119,7 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	// AMI rules
 	for _, rule := range validator.Spec.AmiRules {
-		awsAPI, err := aws_utils.NewAwsAPI(validator.Spec.Auth, rule.Region)
+		awsAPI, err := aws.NewAPI(validator.Spec.Auth, rule.Region)
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile AMI rule")
 			resp.AddResult(nil, err)
@@ -134,7 +134,7 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	}
 
 	// IAM rules
-	awsAPI, err := aws_utils.NewAwsAPI(validator.Spec.Auth, validator.Spec.DefaultRegion)
+	awsAPI, err := aws.NewAPI(validator.Spec.Auth, validator.Spec.DefaultRegion)
 	if err != nil {
 		r.Log.V(0).Error(err, "failed to get AWS client")
 	} else {
@@ -172,7 +172,7 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	// Service Quota rules
 	for _, rule := range validator.Spec.ServiceQuotaRules {
-		awsAPI, err := aws_utils.NewAwsAPI(validator.Spec.Auth, rule.Region)
+		awsAPI, err := aws.NewAPI(validator.Spec.Auth, rule.Region)
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile Service Quota rule")
 			resp.AddResult(nil, err)
@@ -195,7 +195,7 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	// Tag rules
 	for _, rule := range validator.Spec.TagRules {
-		awsAPI, err := aws_utils.NewAwsAPI(validator.Spec.Auth, rule.Region)
+		awsAPI, err := aws.NewAPI(validator.Spec.Auth, rule.Region)
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile Tag rule")
 			resp.AddResult(nil, err)
