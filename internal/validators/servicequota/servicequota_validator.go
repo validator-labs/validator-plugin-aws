@@ -16,12 +16,11 @@ import (
 	corev1 "k8s.io/api/core/v1"
 
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
-	vapiconstants "github.com/validator-labs/validator/pkg/constants"
 	vapitypes "github.com/validator-labs/validator/pkg/types"
-	"github.com/validator-labs/validator/pkg/util"
 
 	"github.com/validator-labs/validator-plugin-aws/api/v1alpha1"
 	"github.com/validator-labs/validator-plugin-aws/internal/constants"
+	"github.com/validator-labs/validator-plugin-aws/internal/validators"
 )
 
 type ec2API interface {
@@ -109,13 +108,10 @@ func (s *RuleService) execQuotaUsageFunc(quotaName string, rule v1alpha1.Service
 // ReconcileServiceQuotaRule reconciles an AWS service quota validation rule from the AWSValidator config
 func (s *RuleService) ReconcileServiceQuotaRule(rule v1alpha1.ServiceQuotaRule) (*vapitypes.ValidationRuleResult, error) {
 
-	// Build the default latest condition for this tag rule
-	state := vapi.ValidationSucceeded
-	latestCondition := vapi.DefaultValidationCondition()
-	latestCondition.Message = "Usage for all service quotas is below specified buffer"
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, util.Sanitize(rule.Name))
-	latestCondition.ValidationType = constants.ValidationTypeServiceQuota
-	validationResult := &vapitypes.ValidationRuleResult{Condition: &latestCondition, State: &state}
+	// Build the default latest condition for this service quota rule
+	vr := validators.BuildValidationResult(
+		rule.Name, "Usage for all service quotas is below specified buffer", constants.ValidationTypeServiceQuota,
+	)
 
 	// Fetch the quota by service code & name & compare against usage
 	failures := make([]string, 0)
@@ -129,7 +125,7 @@ func (s *RuleService) ReconcileServiceQuotaRule(rule v1alpha1.ServiceQuotaRule) 
 		page, err := sqPager.NextPage(context.Background())
 		if err != nil {
 			s.log.V(0).Error(err, "failed to get service quotas", "region", rule.Region, "serviceCode", rule.ServiceCode)
-			return validationResult, err
+			return vr, err
 		}
 		for _, q := range page.Quotas {
 			if q.QuotaName != nil {
@@ -142,7 +138,7 @@ func (s *RuleService) ReconcileServiceQuotaRule(rule v1alpha1.ServiceQuotaRule) 
 		usageResult, err := s.execQuotaUsageFunc(ruleQuota.Name, rule)
 		if err != nil {
 			s.log.V(0).Error(err, "failed to get usage for service quota", "region", rule.Region, "serviceCode", rule.ServiceCode, "quotaName", ruleQuota.Name)
-			return validationResult, err
+			return vr, err
 		}
 
 		quota, ok := quotaMap[ruleQuota.Name]
@@ -164,17 +160,18 @@ func (s *RuleService) ReconcileServiceQuotaRule(rule v1alpha1.ServiceQuotaRule) 
 			"%s: quota: %d, buffer: %d, max. usage: %d, max. usage entity: %s",
 			ruleQuota.Name, int(*quota.Value), ruleQuota.Buffer, int(usageResult.MaxUsage), usageResult.Description,
 		)
-		latestCondition.Details = append(latestCondition.Details, quotaDetail)
+		vr.Condition.Details = append(vr.Condition.Details, quotaDetail)
 	}
 
 	if len(failures) > 0 {
-		state = vapi.ValidationFailed
-		latestCondition.Failures = failures
-		latestCondition.Message = "Usage for one or more service quotas exceeded the specified buffer"
-		latestCondition.Status = corev1.ConditionFalse
+		state := vapi.ValidationFailed
+		vr.State = &state
+		vr.Condition.Failures = failures
+		vr.Condition.Message = "Usage for one or more service quotas exceeded the specified buffer"
+		vr.Condition.Status = corev1.ConditionFalse
 	}
 
-	return validationResult, nil
+	return vr, nil
 }
 
 // EC2

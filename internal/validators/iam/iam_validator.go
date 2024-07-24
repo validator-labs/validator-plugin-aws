@@ -21,8 +21,8 @@ import (
 
 	"github.com/validator-labs/validator-plugin-aws/api/v1alpha1"
 	"github.com/validator-labs/validator-plugin-aws/internal/constants"
+	"github.com/validator-labs/validator-plugin-aws/internal/validators"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
-	vapiconstants "github.com/validator-labs/validator/pkg/constants"
 	"github.com/validator-labs/validator/pkg/types"
 	"github.com/validator-labs/validator/pkg/util"
 )
@@ -97,7 +97,9 @@ func (s *RuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationRuleR
 	var ctxEntries []iamtypes.ContextEntry
 
 	// Build the default ValidationResult for this IAM rule
-	vr := buildValidationResult(rule, constants.ValidationTypeIAMRolePolicy)
+	vr := validators.BuildValidationResult(
+		rule.Name(), resultMessage(constants.ValidationTypeIAMRolePolicy), constants.ValidationTypeIAMRolePolicy,
+	)
 
 	role, err := s.iamSvc.GetRole(context.Background(), &iam.GetRoleInput{
 		RoleName: util.Ptr(rule.Name()),
@@ -160,7 +162,9 @@ func (s *RuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationRuleR
 	var ctxEntries []iamtypes.ContextEntry
 
 	// Build the default ValidationResult for this IAM rule
-	vr := buildValidationResult(rule, constants.ValidationTypeIAMUserPolicy)
+	vr := validators.BuildValidationResult(
+		rule.Name(), resultMessage(constants.ValidationTypeIAMUserPolicy), constants.ValidationTypeIAMUserPolicy,
+	)
 
 	user, err := s.iamSvc.GetUser(context.Background(), &iam.GetUserInput{
 		UserName: util.Ptr(rule.Name()),
@@ -291,8 +295,11 @@ func getContextEntries(log logr.Logger, entityName, entityID, entityARN string, 
 // ReconcileIAMGroupRule reconciles an IAM group validation rule from an AWSValidator config
 // nolint:dupl
 func (s *RuleService) ReconcileIAMGroupRule(rule iamRule) (*types.ValidationRuleResult, error) {
+
 	// Build the default ValidationResult for this IAM rule
-	vr := buildValidationResult(rule, constants.ValidationTypeIAMGroupPolicy)
+	vr := validators.BuildValidationResult(
+		rule.Name(), resultMessage(constants.ValidationTypeIAMGroupPolicy), constants.ValidationTypeIAMGroupPolicy,
+	)
 
 	group, err := s.iamSvc.GetGroup(context.Background(), &iam.GetGroupInput{
 		GroupName: util.Ptr(rule.Name()),
@@ -352,7 +359,9 @@ func getSCPFailedValidationResult(vr *types.ValidationRuleResult, failures []str
 func (s *RuleService) ReconcileIAMPolicyRule(rule iamRule) (*types.ValidationRuleResult, error) {
 
 	// Build the default ValidationResult for this IAM rule
-	vr := buildValidationResult(rule, constants.ValidationTypeIAMPolicy)
+	vr := validators.BuildValidationResult(
+		rule.Name(), resultMessage(constants.ValidationTypeIAMPolicy), constants.ValidationTypeIAMPolicy,
+	)
 
 	// Build map of required permissions
 	permissions := buildPermissions(rule)
@@ -463,16 +472,6 @@ func (s *RuleService) getPolicyDocument(policyArn *string, ctx []string) (*awspo
 		return nil, err
 	}
 	return policyDocument, nil
-}
-
-// buildValidationResult builds a default ValidationResult for a given validation type
-func buildValidationResult(rule iamRule, validationType string) *types.ValidationRuleResult {
-	state := vapi.ValidationSucceeded
-	latestCondition := vapi.DefaultValidationCondition()
-	latestCondition.Message = fmt.Sprintf("All required %s permissions were found", validationType)
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, util.Sanitize(rule.Name()))
-	latestCondition.ValidationType = validationType
-	return &types.ValidationRuleResult{Condition: &latestCondition, State: &state}
 }
 
 // buildPermissions builds an IAM permission map from an IAM rule
@@ -691,4 +690,8 @@ func computeFailures(rule iamRule, permissions map[string][]*permission, vr *typ
 		vr.Condition.Message = "One or more required IAM permissions was not found, or a condition was not met"
 		vr.Condition.Status = corev1.ConditionFalse
 	}
+}
+
+func resultMessage(validationType string) string {
+	return fmt.Sprintf("All required %s permissions were found", validationType)
 }
