@@ -11,12 +11,12 @@ import (
 	corev1 "k8s.io/api/core/v1"
 
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
-	vapiconstants "github.com/validator-labs/validator/pkg/constants"
 	vapitypes "github.com/validator-labs/validator/pkg/types"
 	"github.com/validator-labs/validator/pkg/util"
 
 	"github.com/validator-labs/validator-plugin-aws/api/v1alpha1"
 	"github.com/validator-labs/validator-plugin-aws/internal/constants"
+	"github.com/validator-labs/validator-plugin-aws/internal/validators"
 )
 
 type tagAPI interface {
@@ -40,13 +40,8 @@ func NewTagRuleService(log logr.Logger, tagSvc tagAPI) *RuleService {
 // ReconcileTagRule reconciles an EC2 tagging validation rule from the AWSValidator config
 func (s *RuleService) ReconcileTagRule(rule v1alpha1.TagRule) (*vapitypes.ValidationRuleResult, error) {
 
-	// Build the default latest condition for this tag rule
-	state := vapi.ValidationSucceeded
-	latestCondition := vapi.DefaultValidationCondition()
-	latestCondition.Message = "All required subnet tags were found"
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, util.Sanitize(rule.Name))
-	latestCondition.ValidationType = constants.ValidationTypeTag
-	validationResult := &vapitypes.ValidationRuleResult{Condition: &latestCondition, State: &state}
+	msg := fmt.Sprintf("All required %s tags were found", rule.ResourceType)
+	vr := validators.BuildValidationResult(rule.Name, msg, constants.ValidationTypeTag)
 
 	switch rule.ResourceType {
 	case "subnet":
@@ -63,7 +58,7 @@ func (s *RuleService) ReconcileTagRule(rule v1alpha1.TagRule) (*vapitypes.Valida
 		})
 		if err != nil {
 			s.log.V(0).Error(err, "failed to describe subnets", "region", rule.Region)
-			return validationResult, err
+			return vr, err
 		}
 		for _, s := range subnets.Subnets {
 			if s.SubnetArn != nil {
@@ -77,14 +72,15 @@ func (s *RuleService) ReconcileTagRule(rule v1alpha1.TagRule) (*vapitypes.Valida
 			}
 		}
 		if len(failures) > 0 {
-			state = vapi.ValidationFailed
-			latestCondition.Failures = failures
-			latestCondition.Message = "One or more required subnet tags was not found"
-			latestCondition.Status = corev1.ConditionFalse
+			state := vapi.ValidationFailed
+			vr.State = &state
+			vr.Condition.Failures = failures
+			vr.Condition.Message = "One or more required subnet tags was not found"
+			vr.Condition.Status = corev1.ConditionFalse
 		}
 	default:
 		return nil, fmt.Errorf("unsupported resourceType %s for TagRule", rule.ResourceType)
 	}
 
-	return validationResult, nil
+	return vr, nil
 }
