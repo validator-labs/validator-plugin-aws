@@ -39,7 +39,55 @@ spec:
           spec:
             description: AwsValidatorSpec defines the desired state of AwsValidator
             properties:
+              amiRules:
+                items:
+                  description: |-
+                    AmiRule ensures that an EC2 AMI exists in a particular region.
+                    AMIs can be matched by any combination of ID, owner, and filter(s).
+                    Each AmiRule is intended to match a single AMI, as an AmiRule is considered successful if at least one AMI is found.
+                    Refer to https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeImages.html for more information.
+                  properties:
+                    amiIds:
+                      items:
+                        type: string
+                      type: array
+                    filters:
+                      items:
+                        description: Filter defines a filter to apply to an AWS API
+                          query.
+                        properties:
+                          isTag:
+                            type: boolean
+                          key:
+                            type: string
+                          values:
+                            items:
+                              type: string
+                            type: array
+                        required:
+                        - key
+                        - values
+                        type: object
+                      type: array
+                    name:
+                      type: string
+                    owners:
+                      items:
+                        type: string
+                      type: array
+                    region:
+                      type: string
+                  required:
+                  - name
+                  - region
+                  type: object
+                maxItems: 5
+                type: array
+                x-kubernetes-validations:
+                - message: AmiRules must have unique names
+                  rule: self.all(e, size(self.filter(x, x.name == e.name)) == 1)
               auth:
+                description: AwsAuth defines authentication configuration for an AwsValidator.
                 properties:
                   implicit:
                     description: |-
@@ -84,16 +132,20 @@ spec:
                 type: string
               iamGroupRules:
                 items:
+                  description: IamGroupRule compares the IAM permissions associated
+                    with an IAM group against an expected permission set.
                   properties:
                     iamGroupName:
                       type: string
                     iamPolicies:
                       items:
+                        description: PolicyDocument defines an IAM policy document.
                         properties:
                           name:
                             type: string
                           statements:
                             items:
+                              description: StatementEntry defines an IAM policy statement.
                               properties:
                                 actions:
                                   items:
@@ -106,6 +158,7 @@ spec:
                                         type: string
                                       type: array
                                     type: object
+                                  description: Condition defines an IAM policy condition.
                                   type: object
                                 effect:
                                   type: string
@@ -139,14 +192,18 @@ spec:
                     == 1)
               iamPolicyRules:
                 items:
+                  description: IamPolicyRule compares the IAM permissions associated
+                    with an IAM policy against an expected permission set.
                   properties:
                     iamPolicies:
                       items:
+                        description: PolicyDocument defines an IAM policy document.
                         properties:
                           name:
                             type: string
                           statements:
                             items:
+                              description: StatementEntry defines an IAM policy statement.
                               properties:
                                 actions:
                                   items:
@@ -159,6 +216,7 @@ spec:
                                         type: string
                                       type: array
                                     type: object
+                                  description: Condition defines an IAM policy condition.
                                   type: object
                                 effect:
                                   type: string
@@ -194,14 +252,18 @@ spec:
                     == 1)
               iamRoleRules:
                 items:
+                  description: IamRoleRule compares the IAM permissions associated
+                    with an IAM role against an expected permission set.
                   properties:
                     iamPolicies:
                       items:
+                        description: PolicyDocument defines an IAM policy document.
                         properties:
                           name:
                             type: string
                           statements:
                             items:
+                              description: StatementEntry defines an IAM policy statement.
                               properties:
                                 actions:
                                   items:
@@ -214,6 +276,7 @@ spec:
                                         type: string
                                       type: array
                                     type: object
+                                  description: Condition defines an IAM policy condition.
                                   type: object
                                 effect:
                                   type: string
@@ -249,14 +312,18 @@ spec:
                     == 1)
               iamUserRules:
                 items:
+                  description: IamUserRule compares the IAM permissions associated
+                    with an IAM user against an expected permission set.
                   properties:
                     iamPolicies:
                       items:
+                        description: PolicyDocument defines an IAM policy document.
                         properties:
                           name:
                             type: string
                           statements:
                             items:
+                              description: StatementEntry defines an IAM policy statement.
                               properties:
                                 actions:
                                   items:
@@ -269,6 +336,7 @@ spec:
                                         type: string
                                       type: array
                                     type: object
+                                  description: Condition defines an IAM policy condition.
                                   type: object
                                 effect:
                                   type: string
@@ -304,6 +372,8 @@ spec:
                     == 1)
               serviceQuotaRules:
                 items:
+                  description: ServiceQuotaRule ensures that AWS service quotas are
+                    within a particular threshold.
                   properties:
                     name:
                       type: string
@@ -313,6 +383,8 @@ spec:
                       type: string
                     serviceQuotas:
                       items:
+                        description: ServiceQuota defines an AWS service quota and
+                          an associated buffer.
                         properties:
                           buffer:
                             type: integer
@@ -336,6 +408,8 @@ spec:
                   rule: self.all(e, size(self.filter(x, x.name == e.name)) == 1)
               tagRules:
                 items:
+                  description: TagRule ensures that the tags associated with a particular
+                    AWS resource match an expected tag set.
                   properties:
                     arns:
                       items:
