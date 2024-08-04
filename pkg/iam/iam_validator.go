@@ -20,8 +20,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/validator-labs/validator-plugin-aws/api/v1alpha1"
-	"github.com/validator-labs/validator-plugin-aws/internal/constants"
-	"github.com/validator-labs/validator-plugin-aws/internal/validators"
+	"github.com/validator-labs/validator-plugin-aws/pkg/constants"
+	"github.com/validator-labs/validator-plugin-aws/pkg/validate"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
 	"github.com/validator-labs/validator/pkg/types"
 	"github.com/validator-labs/validator/pkg/util"
@@ -97,7 +97,7 @@ func (s *RuleService) ReconcileIAMRoleRule(rule iamRule) (*types.ValidationRuleR
 	var ctxEntries []iamtypes.ContextEntry
 
 	// Build the default ValidationResult for this IAM rule
-	vr := validators.BuildValidationResult(
+	vr := validate.BuildValidationResult(
 		rule.Name(), resultMessage(constants.ValidationTypeIAMRolePolicy), constants.ValidationTypeIAMRolePolicy,
 	)
 
@@ -162,7 +162,7 @@ func (s *RuleService) ReconcileIAMUserRule(rule iamRule) (*types.ValidationRuleR
 	var ctxEntries []iamtypes.ContextEntry
 
 	// Build the default ValidationResult for this IAM rule
-	vr := validators.BuildValidationResult(
+	vr := validate.BuildValidationResult(
 		rule.Name(), resultMessage(constants.ValidationTypeIAMUserPolicy), constants.ValidationTypeIAMUserPolicy,
 	)
 
@@ -297,7 +297,7 @@ func getContextEntries(log logr.Logger, entityName, entityID, entityARN string, 
 func (s *RuleService) ReconcileIAMGroupRule(rule iamRule) (*types.ValidationRuleResult, error) {
 
 	// Build the default ValidationResult for this IAM rule
-	vr := validators.BuildValidationResult(
+	vr := validate.BuildValidationResult(
 		rule.Name(), resultMessage(constants.ValidationTypeIAMGroupPolicy), constants.ValidationTypeIAMGroupPolicy,
 	)
 
@@ -359,7 +359,7 @@ func getSCPFailedValidationResult(vr *types.ValidationRuleResult, failures []str
 func (s *RuleService) ReconcileIAMPolicyRule(rule iamRule) (*types.ValidationRuleResult, error) {
 
 	// Build the default ValidationResult for this IAM rule
-	vr := validators.BuildValidationResult(
+	vr := validate.BuildValidationResult(
 		rule.Name(), resultMessage(constants.ValidationTypeIAMPolicy), constants.ValidationTypeIAMPolicy,
 	)
 

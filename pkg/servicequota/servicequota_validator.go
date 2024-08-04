@@ -19,8 +19,8 @@ import (
 	vapitypes "github.com/validator-labs/validator/pkg/types"
 
 	"github.com/validator-labs/validator-plugin-aws/api/v1alpha1"
-	"github.com/validator-labs/validator-plugin-aws/internal/constants"
-	"github.com/validator-labs/validator-plugin-aws/internal/validators"
+	"github.com/validator-labs/validator-plugin-aws/pkg/constants"
+	"github.com/validator-labs/validator-plugin-aws/pkg/validate"
 )
 
 type ec2API interface {
@@ -109,7 +109,7 @@ func (s *RuleService) execQuotaUsageFunc(quotaName string, rule v1alpha1.Service
 func (s *RuleService) ReconcileServiceQuotaRule(rule v1alpha1.ServiceQuotaRule) (*vapitypes.ValidationRuleResult, error) {
 
 	// Build the default latest condition for this service quota rule
-	vr := validators.BuildValidationResult(
+	vr := validate.BuildValidationResult(
 		rule.Name, "Usage for all service quotas is below specified buffer", constants.ValidationTypeServiceQuota,
 	)
 

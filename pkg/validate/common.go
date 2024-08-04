@@ -1,5 +1,5 @@
-// Package validators defines functions that are common across all validation areas.
-package validators
+// Package validate defines functions that are common across all validation areas.
+package validate
 
 import (
 	"fmt"
