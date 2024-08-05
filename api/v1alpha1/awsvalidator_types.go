@@ -21,6 +21,8 @@ import (
 	"strings"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/validator-labs/validator-plugin-aws/pkg/constants"
 )
 
 // AwsValidatorSpec defines the desired state of AwsValidator
@@ -48,6 +50,11 @@ type AwsValidatorSpec struct {
 	// +kubebuilder:validation:MaxItems=5
 	// +kubebuilder:validation:XValidation:message="TagRules must have unique names",rule="self.all(e, size(self.filter(x, x.name == e.name)) == 1)"
 	TagRules []TagRule `json:"tagRules,omitempty" yaml:"tagRules,omitempty"`
+}
+
+// PluginCode returns the network validator's plugin code.
+func (s AwsValidatorSpec) PluginCode() string {
+	return constants.PluginCode
 }
 
 // ResultCount returns the number of validation results expected for an AwsValidatorSpec.
@@ -235,6 +242,16 @@ type AwsValidator struct {
 
 	Spec   AwsValidatorSpec   `json:"spec,omitempty"`
 	Status AwsValidatorStatus `json:"status,omitempty"`
+}
+
+// PluginCode returns the AWS validator's plugin code.
+func (v AwsValidator) PluginCode() string {
+	return v.Spec.PluginCode()
+}
+
+// ResultCount returns the number of validation results expected for an AwsValidator.
+func (v AwsValidator) ResultCount() int {
+	return v.Spec.ResultCount()
 }
 
 //+kubebuilder:object:root=true
