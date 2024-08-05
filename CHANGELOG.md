@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.1.3](https://github.com/validator-labs/validator-plugin-aws/compare/v0.1.2...v0.1.3) (2024-08-05)
+
+
+### Other
+
+* remove unused helm value ([#451](https://github.com/validator-labs/validator-plugin-aws/issues/451)) ([7e2c17c](https://github.com/validator-labs/validator-plugin-aws/commit/7e2c17ce6addf8ac3c9aea96d72210bcb31c7d80))
+
+
+### Dependency Updates
+
+* **deps:** update module github.com/onsi/gomega to v1.34.1 ([#446](https://github.com/validator-labs/validator-plugin-aws/issues/446)) ([3052978](https://github.com/validator-labs/validator-plugin-aws/commit/3052978da1562dc5ddf4b2bd4ff060a960856de5))
+* **deps:** update module github.com/validator-labs/validator to v0.0.51 ([#448](https://github.com/validator-labs/validator-plugin-aws/issues/448)) ([af1cbb8](https://github.com/validator-labs/validator-plugin-aws/commit/af1cbb8f2e8499eddfe30cc6a38f5b5cd317bd00))
+* **deps:** update module github.com/validator-labs/validator to v0.1.0 ([#449](https://github.com/validator-labs/validator-plugin-aws/issues/449)) ([7931d59](https://github.com/validator-labs/validator-plugin-aws/commit/7931d597c7d1a52a36d073318c760c5ea655f05c))
+
+
+### Refactoring
+
+* support direct rule evaluation ([#450](https://github.com/validator-labs/validator-plugin-aws/issues/450)) ([df5453e](https://github.com/validator-labs/validator-plugin-aws/commit/df5453e142ef8b1b603eea0a6d5f761dfe668cb5))
+
 ## [0.1.2](https://github.com/validator-labs/validator-plugin-aws/compare/v0.1.1...v0.1.2) (2024-07-26)
 
 
