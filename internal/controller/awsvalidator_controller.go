@@ -35,15 +35,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/validator-labs/validator-plugin-aws/api/v1alpha1"
-	"github.com/validator-labs/validator-plugin-aws/pkg/ami"
-	"github.com/validator-labs/validator-plugin-aws/pkg/aws"
 	"github.com/validator-labs/validator-plugin-aws/pkg/constants"
-	"github.com/validator-labs/validator-plugin-aws/pkg/iam"
-	"github.com/validator-labs/validator-plugin-aws/pkg/servicequota"
-	"github.com/validator-labs/validator-plugin-aws/pkg/tag"
-	validators "github.com/validator-labs/validator-plugin-aws/pkg/validate"
+	"github.com/validator-labs/validator-plugin-aws/pkg/validate"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
-	"github.com/validator-labs/validator/pkg/types"
 	"github.com/validator-labs/validator/pkg/util"
 	vres "github.com/validator-labs/validator/pkg/validationresult"
 )
@@ -113,108 +107,8 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	// Always update the expected result count in case the validator's rules have changed
 	vr.Spec.ExpectedResults = validator.Spec.ResultCount()
 
-	resp := types.ValidationResponse{
-		ValidationRuleResults: make([]*types.ValidationRuleResult, 0, vr.Spec.ExpectedResults),
-		ValidationRuleErrors:  make([]error, 0, vr.Spec.ExpectedResults),
-	}
-
-	// AMI rules
-	for _, rule := range validator.Spec.AmiRules {
-		awsAPI, err := aws.NewAPI(validator.Spec.Auth, rule.Region)
-		if err != nil {
-			errMsg := "Failed to reconcile AMI rule"
-			r.Log.V(0).Error(err, errMsg)
-			vrr := validators.BuildValidationResult(rule.Name, errMsg, constants.ValidationTypeAmi)
-			resp.AddResult(vrr, err)
-			continue
-		}
-		amiRuleService := ami.NewAmiRuleService(r.Log, awsAPI.EC2)
-		vrr, err := amiRuleService.ReconcileAmiRule(rule)
-		if err != nil {
-			r.Log.V(0).Error(err, "failed to reconcile AMI rule")
-		}
-		resp.AddResult(vrr, err)
-	}
-
-	// IAM rules
-	awsAPI, err := aws.NewAPI(validator.Spec.Auth, validator.Spec.DefaultRegion)
-	if err != nil {
-		r.Log.V(0).Error(err, "failed to get AWS client")
-	} else {
-		iamRuleService := iam.NewIAMRuleService(r.Log, awsAPI.IAM)
-
-		for _, rule := range validator.Spec.IamRoleRules {
-			vrr, err := iamRuleService.ReconcileIAMRoleRule(rule)
-			if err != nil {
-				r.Log.V(0).Error(err, "failed to reconcile IAM role rule")
-			}
-			resp.AddResult(vrr, err)
-		}
-		for _, rule := range validator.Spec.IamUserRules {
-			vrr, err := iamRuleService.ReconcileIAMUserRule(rule)
-			if err != nil {
-				r.Log.V(0).Error(err, "failed to reconcile IAM user rule")
-			}
-			resp.AddResult(vrr, err)
-		}
-		for _, rule := range validator.Spec.IamGroupRules {
-			vrr, err := iamRuleService.ReconcileIAMGroupRule(rule)
-			if err != nil {
-				r.Log.V(0).Error(err, "failed to reconcile IAM group rule")
-			}
-			resp.AddResult(vrr, err)
-		}
-		for _, rule := range validator.Spec.IamPolicyRules {
-			vrr, err := iamRuleService.ReconcileIAMPolicyRule(rule)
-			if err != nil {
-				r.Log.V(0).Error(err, "failed to reconcile IAM policy rule")
-			}
-			resp.AddResult(vrr, err)
-		}
-	}
-
-	// Service Quota rules
-	for _, rule := range validator.Spec.ServiceQuotaRules {
-		awsAPI, err := aws.NewAPI(validator.Spec.Auth, rule.Region)
-		if err != nil {
-			errMsg := "Failed to reconcile Service Quota rule"
-			r.Log.V(0).Error(err, errMsg)
-			vrr := validators.BuildValidationResult(rule.Name, errMsg, constants.ValidationTypeServiceQuota)
-			resp.AddResult(vrr, err)
-			continue
-		}
-		svcQuotaService := servicequota.NewServiceQuotaRuleService(
-			r.Log,
-			awsAPI.EC2,
-			awsAPI.EFS,
-			awsAPI.ELB,
-			awsAPI.ELBV2,
-			awsAPI.SQ,
-		)
-		vrr, err := svcQuotaService.ReconcileServiceQuotaRule(rule)
-		if err != nil {
-			r.Log.V(0).Error(err, "failed to reconcile Service Quota rule")
-		}
-		resp.AddResult(vrr, err)
-	}
-
-	// Tag rules
-	for _, rule := range validator.Spec.TagRules {
-		awsAPI, err := aws.NewAPI(validator.Spec.Auth, rule.Region)
-		if err != nil {
-			errMsg := "Failed to reconcile Tag rule"
-			r.Log.V(0).Error(err, errMsg)
-			vrr := validators.BuildValidationResult(rule.Name, errMsg, constants.ValidationTypeTag)
-			resp.AddResult(vrr, err)
-			continue
-		}
-		tagRuleService := tag.NewTagRuleService(r.Log, awsAPI.EC2)
-		vrr, err := tagRuleService.ReconcileTagRule(rule)
-		if err != nil {
-			r.Log.V(0).Error(err, "failed to reconcile Tag rule")
-		}
-		resp.AddResult(vrr, err)
-	}
+	// Validate the rules
+	resp := validate.Validate(validator.Spec, r.Log)
 
 	// Patch the ValidationResult with the latest ValidationRuleResults
 	if err := vres.SafeUpdateValidationResult(ctx, p, vr, resp, r.Log); err != nil {

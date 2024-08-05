@@ -17,7 +17,7 @@ import (
 
 	"github.com/validator-labs/validator-plugin-aws/api/v1alpha1"
 	"github.com/validator-labs/validator-plugin-aws/pkg/constants"
-	"github.com/validator-labs/validator-plugin-aws/pkg/validate"
+	"github.com/validator-labs/validator-plugin-aws/pkg/validators"
 )
 
 type amiAPI interface {
@@ -42,7 +42,7 @@ func NewAmiRuleService(log logr.Logger, amiSvc amiAPI) *RuleService {
 func (s *RuleService) ReconcileAmiRule(rule v1alpha1.AmiRule) (*vapitypes.ValidationRuleResult, error) {
 
 	// Build the default latest condition for this AMI rule
-	vr := validate.BuildValidationResult(rule.Name, "All required AMIs were found", constants.ValidationTypeAmi)
+	vr := validators.BuildValidationResult(rule.Name, "All required AMIs were found", constants.ValidationTypeAmi)
 
 	// Describe AMIs matching the rule. There should be at least one.
 	input := &ec2.DescribeImagesInput{
