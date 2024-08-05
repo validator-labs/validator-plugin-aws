@@ -190,8 +190,8 @@ github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO
 github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
 github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsTg=
 github.com/stretchr/testify v1.9.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
-github.com/validator-labs/validator v0.1.1-0.20240805132302-06c7fc819ed2 h1:CNBkpGX5FayHPHbupvTXm3CEIsOOAKOsrOarX5WZ2o0=
-github.com/validator-labs/validator v0.1.1-0.20240805132302-06c7fc819ed2/go.mod h1:OeJMHGKW3pWGkvKxHLN7HzjelSILJg2k8w3Z9SdML1g=
+github.com/validator-labs/validator v0.1.1-0.20240805155030-056ee62b788e h1:ZZaBhdMz/2TEfdqMPA/vMX5+5uVr08ByY+RPNUuGwkU=
+github.com/validator-labs/validator v0.1.1-0.20240805155030-056ee62b788e/go.mod h1:OeJMHGKW3pWGkvKxHLN7HzjelSILJg2k8w3Z9SdML1g=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 go.uber.org/goleak v1.3.0 h1:2K3zAYmnTNqV73imy9J1T3WC+gmCePx2hEGkimedGto=
