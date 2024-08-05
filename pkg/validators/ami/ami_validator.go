@@ -16,8 +16,8 @@ import (
 	"github.com/validator-labs/validator/pkg/util"
 
 	"github.com/validator-labs/validator-plugin-aws/api/v1alpha1"
-	"github.com/validator-labs/validator-plugin-aws/internal/constants"
-	"github.com/validator-labs/validator-plugin-aws/internal/validators"
+	"github.com/validator-labs/validator-plugin-aws/pkg/constants"
+	"github.com/validator-labs/validator-plugin-aws/pkg/validators"
 )
 
 type amiAPI interface {

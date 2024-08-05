@@ -19,7 +19,6 @@ package controller
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"time"
 
@@ -27,7 +26,6 @@ import (
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ktypes "k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/cluster-api/util/patch"
@@ -35,16 +33,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/validator-labs/validator-plugin-aws/api/v1alpha1"
-	"github.com/validator-labs/validator-plugin-aws/internal/aws"
-	"github.com/validator-labs/validator-plugin-aws/internal/constants"
-	"github.com/validator-labs/validator-plugin-aws/internal/validators"
-	"github.com/validator-labs/validator-plugin-aws/internal/validators/ami"
-	"github.com/validator-labs/validator-plugin-aws/internal/validators/iam"
-	"github.com/validator-labs/validator-plugin-aws/internal/validators/servicequota"
-	"github.com/validator-labs/validator-plugin-aws/internal/validators/tag"
+	"github.com/validator-labs/validator-plugin-aws/pkg/validate"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
-	"github.com/validator-labs/validator/pkg/types"
-	"github.com/validator-labs/validator/pkg/util"
 	vres "github.com/validator-labs/validator/pkg/validationresult"
 )
 
@@ -95,16 +85,16 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		return ctrl.Result{}, err
 	}
 	nn := ktypes.NamespacedName{
-		Name:      validationResultName(validator),
+		Name:      vres.Name(validator),
 		Namespace: req.Namespace,
 	}
 	if err := r.Get(ctx, nn, vr); err == nil {
-		vres.HandleExistingValidationResult(vr, r.Log)
+		vres.HandleExisting(vr, r.Log)
 	} else {
 		if !apierrs.IsNotFound(err) {
 			l.Error(err, "unexpected error getting ValidationResult")
 		}
-		if err := vres.HandleNewValidationResult(ctx, r.Client, p, buildValidationResult(validator), r.Log); err != nil {
+		if err := vres.HandleNew(ctx, r.Client, p, vres.Build(validator), r.Log); err != nil {
 			return ctrl.Result{}, err
 		}
 		return ctrl.Result{RequeueAfter: time.Millisecond}, nil
@@ -113,111 +103,11 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	// Always update the expected result count in case the validator's rules have changed
 	vr.Spec.ExpectedResults = validator.Spec.ResultCount()
 
-	resp := types.ValidationResponse{
-		ValidationRuleResults: make([]*types.ValidationRuleResult, 0, vr.Spec.ExpectedResults),
-		ValidationRuleErrors:  make([]error, 0, vr.Spec.ExpectedResults),
-	}
-
-	// AMI rules
-	for _, rule := range validator.Spec.AmiRules {
-		awsAPI, err := aws.NewAPI(validator.Spec.Auth, rule.Region)
-		if err != nil {
-			errMsg := "Failed to reconcile AMI rule"
-			r.Log.V(0).Error(err, errMsg)
-			vrr := validators.BuildValidationResult(rule.Name, errMsg, constants.ValidationTypeAmi)
-			resp.AddResult(vrr, err)
-			continue
-		}
-		amiRuleService := ami.NewAmiRuleService(r.Log, awsAPI.EC2)
-		vrr, err := amiRuleService.ReconcileAmiRule(rule)
-		if err != nil {
-			r.Log.V(0).Error(err, "failed to reconcile AMI rule")
-		}
-		resp.AddResult(vrr, err)
-	}
-
-	// IAM rules
-	awsAPI, err := aws.NewAPI(validator.Spec.Auth, validator.Spec.DefaultRegion)
-	if err != nil {
-		r.Log.V(0).Error(err, "failed to get AWS client")
-	} else {
-		iamRuleService := iam.NewIAMRuleService(r.Log, awsAPI.IAM)
-
-		for _, rule := range validator.Spec.IamRoleRules {
-			vrr, err := iamRuleService.ReconcileIAMRoleRule(rule)
-			if err != nil {
-				r.Log.V(0).Error(err, "failed to reconcile IAM role rule")
-			}
-			resp.AddResult(vrr, err)
-		}
-		for _, rule := range validator.Spec.IamUserRules {
-			vrr, err := iamRuleService.ReconcileIAMUserRule(rule)
-			if err != nil {
-				r.Log.V(0).Error(err, "failed to reconcile IAM user rule")
-			}
-			resp.AddResult(vrr, err)
-		}
-		for _, rule := range validator.Spec.IamGroupRules {
-			vrr, err := iamRuleService.ReconcileIAMGroupRule(rule)
-			if err != nil {
-				r.Log.V(0).Error(err, "failed to reconcile IAM group rule")
-			}
-			resp.AddResult(vrr, err)
-		}
-		for _, rule := range validator.Spec.IamPolicyRules {
-			vrr, err := iamRuleService.ReconcileIAMPolicyRule(rule)
-			if err != nil {
-				r.Log.V(0).Error(err, "failed to reconcile IAM policy rule")
-			}
-			resp.AddResult(vrr, err)
-		}
-	}
-
-	// Service Quota rules
-	for _, rule := range validator.Spec.ServiceQuotaRules {
-		awsAPI, err := aws.NewAPI(validator.Spec.Auth, rule.Region)
-		if err != nil {
-			errMsg := "Failed to reconcile Service Quota rule"
-			r.Log.V(0).Error(err, errMsg)
-			vrr := validators.BuildValidationResult(rule.Name, errMsg, constants.ValidationTypeServiceQuota)
-			resp.AddResult(vrr, err)
-			continue
-		}
-		svcQuotaService := servicequota.NewServiceQuotaRuleService(
-			r.Log,
-			awsAPI.EC2,
-			awsAPI.EFS,
-			awsAPI.ELB,
-			awsAPI.ELBV2,
-			awsAPI.SQ,
-		)
-		vrr, err := svcQuotaService.ReconcileServiceQuotaRule(rule)
-		if err != nil {
-			r.Log.V(0).Error(err, "failed to reconcile Service Quota rule")
-		}
-		resp.AddResult(vrr, err)
-	}
-
-	// Tag rules
-	for _, rule := range validator.Spec.TagRules {
-		awsAPI, err := aws.NewAPI(validator.Spec.Auth, rule.Region)
-		if err != nil {
-			errMsg := "Failed to reconcile Tag rule"
-			r.Log.V(0).Error(err, errMsg)
-			vrr := validators.BuildValidationResult(rule.Name, errMsg, constants.ValidationTypeTag)
-			resp.AddResult(vrr, err)
-			continue
-		}
-		tagRuleService := tag.NewTagRuleService(r.Log, awsAPI.EC2)
-		vrr, err := tagRuleService.ReconcileTagRule(rule)
-		if err != nil {
-			r.Log.V(0).Error(err, "failed to reconcile Tag rule")
-		}
-		resp.AddResult(vrr, err)
-	}
+	// Validate the rules
+	resp := validate.Validate(validator.Spec, r.Log)
 
 	// Patch the ValidationResult with the latest ValidationRuleResults
-	if err := vres.SafeUpdateValidationResult(ctx, p, vr, resp, r.Log); err != nil {
+	if err := vres.SafeUpdate(ctx, p, vr, resp, r.Log); err != nil {
 		return ctrl.Result{}, err
 	}
 
@@ -249,30 +139,4 @@ func (r *AwsValidatorReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&v1alpha1.AwsValidator{}).
 		Complete(r)
-}
-
-func buildValidationResult(validator *v1alpha1.AwsValidator) *vapi.ValidationResult {
-	return &vapi.ValidationResult{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      validationResultName(validator),
-			Namespace: validator.Namespace,
-			OwnerReferences: []metav1.OwnerReference{
-				{
-					APIVersion: validator.APIVersion,
-					Kind:       validator.Kind,
-					Name:       validator.Name,
-					UID:        validator.UID,
-					Controller: util.Ptr(true),
-				},
-			},
-		},
-		Spec: vapi.ValidationResultSpec{
-			Plugin:          constants.PluginCode,
-			ExpectedResults: validator.Spec.ResultCount(),
-		},
-	}
-}
-
-func validationResultName(validator *v1alpha1.AwsValidator) string {
-	return fmt.Sprintf("validator-plugin-aws-%s", validator.Name)
 }

@@ -20,8 +20,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/validator-labs/validator-plugin-aws/api/v1alpha1"
-	"github.com/validator-labs/validator-plugin-aws/internal/constants"
-	"github.com/validator-labs/validator-plugin-aws/internal/validators"
+	"github.com/validator-labs/validator-plugin-aws/pkg/constants"
+	"github.com/validator-labs/validator-plugin-aws/pkg/validators"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
 	"github.com/validator-labs/validator/pkg/types"
 	"github.com/validator-labs/validator/pkg/util"
