@@ -18,6 +18,7 @@ package v1alpha1
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -242,6 +243,11 @@ type AwsValidator struct {
 
 	Spec   AwsValidatorSpec   `json:"spec,omitempty"`
 	Status AwsValidatorStatus `json:"status,omitempty"`
+}
+
+// GetKind returns the AWS validator's kind.
+func (v AwsValidator) GetKind() string {
+	return reflect.TypeOf(v).Name()
 }
 
 // PluginCode returns the AWS validator's plugin code.
