@@ -15,7 +15,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/servicequotas v1.23.3
 	github.com/aws/aws-sdk-go-v2/service/sts v1.30.3
 	github.com/go-logr/logr v1.4.2
-	github.com/onsi/ginkgo/v2 v2.20.0
+	github.com/onsi/ginkgo/v2 v2.20.1
 	github.com/onsi/gomega v1.34.1
 	github.com/pkg/errors v0.9.1
 	github.com/validator-labs/validator v0.1.6
