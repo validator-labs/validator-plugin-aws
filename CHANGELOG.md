@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.5](https://github.com/validator-labs/validator-plugin-aws/compare/v0.1.4...v0.1.5) (2024-08-22)
+
+
+### Dependency Updates
+
+* **deps:** update golang.org/x/exp digest to 778ce7b ([#471](https://github.com/validator-labs/validator-plugin-aws/issues/471)) ([51785e8](https://github.com/validator-labs/validator-plugin-aws/commit/51785e88ee06ebd4b5634623a41629e72f32b1cc))
+* **deps:** update module github.com/onsi/ginkgo/v2 to v2.20.1 ([#470](https://github.com/validator-labs/validator-plugin-aws/issues/470)) ([5121485](https://github.com/validator-labs/validator-plugin-aws/commit/512148561fd00a04792e8e740a9f964899f950f5))
+* **deps:** update module github.com/validator-labs/validator to v0.1.6 ([#463](https://github.com/validator-labs/validator-plugin-aws/issues/463)) ([643dc27](https://github.com/validator-labs/validator-plugin-aws/commit/643dc27e3806d98cd517813989b1e9ba0bd2643d))
+* **deps:** update module sigs.k8s.io/cluster-api to v1.8.1 ([#467](https://github.com/validator-labs/validator-plugin-aws/issues/467)) ([a24caf3](https://github.com/validator-labs/validator-plugin-aws/commit/a24caf3c2a7113bb85b0ff531904c0b277afe7be))
+* **deps:** update module sigs.k8s.io/controller-runtime to v0.19.0 ([#469](https://github.com/validator-labs/validator-plugin-aws/issues/469)) ([0db7b9d](https://github.com/validator-labs/validator-plugin-aws/commit/0db7b9defbb3057aafb4a45335add7db72943611))
+
 ## [0.1.4](https://github.com/validator-labs/validator-plugin-aws/compare/v0.1.3...v0.1.4) (2024-08-13)
 
 
