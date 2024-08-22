@@ -50,9 +50,9 @@ var _ = Describe("AWSValidator controller", Ordered, func() {
 			DefaultRegion: "us-west-1",
 			AmiRules: []v1alpha1.AmiRule{
 				{
-					Name:   "AMIRule",
-					AmiIDs: []string{"ami-12345678"},
-					Region: "us-west-2",
+					RuleName: "AMIRule",
+					AmiIDs:   []string{"ami-12345678"},
+					Region:   "us-west-2",
 				},
 			},
 			IamRoleRules: []v1alpha1.IamRoleRule{
@@ -81,7 +81,7 @@ var _ = Describe("AWSValidator controller", Ordered, func() {
 			},
 			ServiceQuotaRules: []v1alpha1.ServiceQuotaRule{
 				{
-					Name:        "ServiceQuotaRule",
+					RuleName:    "ServiceQuotaRule",
 					Region:      "us-west-1",
 					ServiceCode: "ec2",
 					ServiceQuotas: []v1alpha1.ServiceQuota{

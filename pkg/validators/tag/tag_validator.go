@@ -41,7 +41,7 @@ func NewTagRuleService(log logr.Logger, tagSvc tagAPI) *RuleService {
 func (s *RuleService) ReconcileTagRule(rule v1alpha1.TagRule) (*vapitypes.ValidationRuleResult, error) {
 
 	msg := fmt.Sprintf("All required %s tags were found", rule.ResourceType)
-	vr := validators.BuildValidationResult(rule.Name, msg, constants.ValidationTypeTag)
+	vr := validators.BuildValidationResult(rule.Name(), msg, constants.ValidationTypeTag)
 
 	switch rule.ResourceType {
 	case "subnet":

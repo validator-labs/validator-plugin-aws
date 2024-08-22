@@ -29,7 +29,7 @@ func Validate(spec v1alpha1.AwsValidatorSpec, log logr.Logger) types.ValidationR
 		if err != nil {
 			errMsg := "Failed to reconcile AMI rule"
 			log.V(0).Error(err, errMsg)
-			vrr := validators.BuildValidationResult(rule.Name, errMsg, constants.ValidationTypeAmi)
+			vrr := validators.BuildValidationResult(rule.Name(), errMsg, constants.ValidationTypeAmi)
 			resp.AddResult(vrr, err)
 			continue
 		}
@@ -84,7 +84,7 @@ func Validate(spec v1alpha1.AwsValidatorSpec, log logr.Logger) types.ValidationR
 		if err != nil {
 			errMsg := "Failed to reconcile Service Quota rule"
 			log.V(0).Error(err, errMsg)
-			vrr := validators.BuildValidationResult(rule.Name, errMsg, constants.ValidationTypeServiceQuota)
+			vrr := validators.BuildValidationResult(rule.Name(), errMsg, constants.ValidationTypeServiceQuota)
 			resp.AddResult(vrr, err)
 			continue
 		}
@@ -109,7 +109,7 @@ func Validate(spec v1alpha1.AwsValidatorSpec, log logr.Logger) types.ValidationR
 		if err != nil {
 			errMsg := "Failed to reconcile Tag rule"
 			log.V(0).Error(err, errMsg)
-			vrr := validators.BuildValidationResult(rule.Name, errMsg, constants.ValidationTypeTag)
+			vrr := validators.BuildValidationResult(rule.Name(), errMsg, constants.ValidationTypeTag)
 			resp.AddResult(vrr, err)
 			continue
 		}
