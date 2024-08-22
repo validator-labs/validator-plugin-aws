@@ -23,6 +23,8 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/validator-labs/validator/pkg/validationrule"
+
 	"github.com/validator-labs/validator-plugin-aws/pkg/constants"
 )
 
@@ -97,11 +99,25 @@ type AwsSTSAuth struct {
 // Each AmiRule is intended to match a single AMI, as an AmiRule is considered successful if at least one AMI is found.
 // Refer to https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeImages.html for more information.
 type AmiRule struct {
-	Name    string   `json:"name" yaml:"name"`
-	AmiIDs  []string `json:"amiIds,omitempty" yaml:"amiIds,omitempty"`
-	Filters []Filter `json:"filters,omitempty" yaml:"filters,omitempty"`
-	Owners  []string `json:"owners,omitempty" yaml:"owners,omitempty"`
-	Region  string   `json:"region" yaml:"region"`
+	validationrule.ManuallyNamed `json:"-"`
+
+	RuleName string   `json:"name" yaml:"name"`
+	AmiIDs   []string `json:"amiIds,omitempty" yaml:"amiIds,omitempty"`
+	Filters  []Filter `json:"filters,omitempty" yaml:"filters,omitempty"`
+	Owners   []string `json:"owners,omitempty" yaml:"owners,omitempty"`
+	Region   string   `json:"region" yaml:"region"`
+}
+
+var _ validationrule.Interface = (*AmiRule)(nil)
+
+// Name returns the name of the AmiRule.
+func (r AmiRule) Name() string {
+	return r.RuleName
+}
+
+// SetName sets the name of the AmiRule.
+func (r *AmiRule) SetName(name string) {
+	r.RuleName = name
 }
 
 // Filter defines a filter to apply to an AWS API query.
@@ -113,9 +129,13 @@ type Filter struct {
 
 // IamRoleRule compares the IAM permissions associated with an IAM role against an expected permission set.
 type IamRoleRule struct {
+	validationrule.AutomaticallyNamed `json:"-"`
+
 	IamRoleName string           `json:"iamRoleName" yaml:"iamRoleName"`
 	Policies    []PolicyDocument `json:"iamPolicies" yaml:"iamPolicies"`
 }
+
+var _ validationrule.Interface = (*IamRoleRule)(nil)
 
 // Name returns the name of an IamRoleRule.
 func (r IamRoleRule) Name() string {
@@ -129,9 +149,13 @@ func (r IamRoleRule) IAMPolicies() []PolicyDocument {
 
 // IamUserRule compares the IAM permissions associated with an IAM user against an expected permission set.
 type IamUserRule struct {
+	validationrule.AutomaticallyNamed `json:"-"`
+
 	IamUserName string           `json:"iamUserName" yaml:"iamUserName"`
 	Policies    []PolicyDocument `json:"iamPolicies" yaml:"iamPolicies"`
 }
+
+var _ validationrule.Interface = (*IamUserRule)(nil)
 
 // Name returns the name of an IamUserRule.
 func (r IamUserRule) Name() string {
@@ -145,9 +169,13 @@ func (r IamUserRule) IAMPolicies() []PolicyDocument {
 
 // IamGroupRule compares the IAM permissions associated with an IAM group against an expected permission set.
 type IamGroupRule struct {
+	validationrule.AutomaticallyNamed `json:"-"`
+
 	IamGroupName string           `json:"iamGroupName" yaml:"iamGroupName"`
 	Policies     []PolicyDocument `json:"iamPolicies" yaml:"iamPolicies"`
 }
+
+var _ validationrule.Interface = (*IamGroupRule)(nil)
 
 // Name returns the name of an IamGroupRule.
 func (r IamGroupRule) Name() string {
@@ -161,9 +189,13 @@ func (r IamGroupRule) IAMPolicies() []PolicyDocument {
 
 // IamPolicyRule compares the IAM permissions associated with an IAM policy against an expected permission set.
 type IamPolicyRule struct {
+	validationrule.AutomaticallyNamed `json:"-"`
+
 	IamPolicyARN string           `json:"iamPolicyArn" yaml:"iamPolicyArn"`
 	Policies     []PolicyDocument `json:"iamPolicies" yaml:"iamPolicies"`
 }
+
+var _ validationrule.Interface = (*IamPolicyRule)(nil)
 
 // Name returns the name of an IamPolicyRule.
 func (r IamPolicyRule) Name() string {
@@ -208,10 +240,24 @@ func (c Condition) String() string {
 
 // ServiceQuotaRule ensures that AWS service quotas are within a particular threshold.
 type ServiceQuotaRule struct {
-	Name          string         `json:"name" yaml:"name"`
+	validationrule.ManuallyNamed `json:"-"`
+
+	RuleName      string         `json:"name" yaml:"name"`
 	Region        string         `json:"region" yaml:"region"`
 	ServiceCode   string         `json:"serviceCode" yaml:"serviceCode"`
 	ServiceQuotas []ServiceQuota `json:"serviceQuotas" yaml:"serviceQuotas"`
+}
+
+var _ validationrule.Interface = (*ServiceQuotaRule)(nil)
+
+// Name returns the name of the ServiceQuotaRule.
+func (r ServiceQuotaRule) Name() string {
+	return r.RuleName
+}
+
+// SetName sets the name of the ServiceQuotaRule.
+func (r *ServiceQuotaRule) SetName(name string) {
+	r.RuleName = name
 }
 
 // ServiceQuota defines an AWS service quota and an associated buffer.
@@ -222,12 +268,26 @@ type ServiceQuota struct {
 
 // TagRule ensures that the tags associated with a particular AWS resource match an expected tag set.
 type TagRule struct {
-	Name          string   `json:"name" yaml:"name"`
+	validationrule.ManuallyNamed `json:"-"`
+
+	RuleName      string   `json:"name" yaml:"name"`
 	Key           string   `json:"key" yaml:"key"`
 	ExpectedValue string   `json:"expectedValue" yaml:"expectedValue"`
 	Region        string   `json:"region" yaml:"region"`
 	ResourceType  string   `json:"resourceType" yaml:"resourceType"`
 	ARNs          []string `json:"arns" yaml:"arns"`
+}
+
+var _ validationrule.Interface = (*TagRule)(nil)
+
+// Name returns the name of the ServiceQuotaRule.
+func (r TagRule) Name() string {
+	return r.RuleName
+}
+
+// SetName sets the name of the ServiceQuotaRule.
+func (r *TagRule) SetName(name string) {
+	r.RuleName = name
 }
 
 // AwsValidatorStatus defines the observed state of AwsValidator

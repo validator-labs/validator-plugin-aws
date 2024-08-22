@@ -49,7 +49,7 @@ func TestTagValidation(t *testing.T) {
 		{
 			name: "Fail (missing tag)",
 			rule: v1alpha1.TagRule{
-				Name:          "ELBSubnetTag",
+				RuleName:      "ELBSubnetTag",
 				Key:           "kubernetes.io/role/elb",
 				ExpectedValue: "1",
 				Region:        "us-west-1",
@@ -71,7 +71,7 @@ func TestTagValidation(t *testing.T) {
 		{
 			name: "Pass",
 			rule: v1alpha1.TagRule{
-				Name:          "ELBSubnetTag",
+				RuleName:      "ELBSubnetTag",
 				Key:           "kubernetes.io/role/elb",
 				ExpectedValue: "1",
 				Region:        "us-west-1",

@@ -110,7 +110,7 @@ func (s *RuleService) ReconcileServiceQuotaRule(rule v1alpha1.ServiceQuotaRule) 
 
 	// Build the default latest condition for this service quota rule
 	vr := validators.BuildValidationResult(
-		rule.Name, "Usage for all service quotas is below specified buffer", constants.ValidationTypeServiceQuota,
+		rule.Name(), "Usage for all service quotas is below specified buffer", constants.ValidationTypeServiceQuota,
 	)
 
 	// Fetch the quota by service code & name & compare against usage
