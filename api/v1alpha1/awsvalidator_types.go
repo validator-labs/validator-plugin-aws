@@ -99,7 +99,7 @@ type AwsSTSAuth struct {
 // Each AmiRule is intended to match a single AMI, as an AmiRule is considered successful if at least one AMI is found.
 // Refer to https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeImages.html for more information.
 type AmiRule struct {
-	validationrule.ManuallyNamed `json:"-"`
+	validationrule.ManuallyNamed `json:",inline"`
 
 	RuleName string   `json:"name" yaml:"name"`
 	AmiIDs   []string `json:"amiIds,omitempty" yaml:"amiIds,omitempty"`
@@ -129,7 +129,7 @@ type Filter struct {
 
 // IamRoleRule compares the IAM permissions associated with an IAM role against an expected permission set.
 type IamRoleRule struct {
-	validationrule.AutomaticallyNamed `json:"-"`
+	validationrule.AutomaticallyNamed `json:",inline"`
 
 	IamRoleName string           `json:"iamRoleName" yaml:"iamRoleName"`
 	Policies    []PolicyDocument `json:"iamPolicies" yaml:"iamPolicies"`
@@ -149,7 +149,7 @@ func (r IamRoleRule) IAMPolicies() []PolicyDocument {
 
 // IamUserRule compares the IAM permissions associated with an IAM user against an expected permission set.
 type IamUserRule struct {
-	validationrule.AutomaticallyNamed `json:"-"`
+	validationrule.AutomaticallyNamed `json:",inline"`
 
 	IamUserName string           `json:"iamUserName" yaml:"iamUserName"`
 	Policies    []PolicyDocument `json:"iamPolicies" yaml:"iamPolicies"`
@@ -169,7 +169,7 @@ func (r IamUserRule) IAMPolicies() []PolicyDocument {
 
 // IamGroupRule compares the IAM permissions associated with an IAM group against an expected permission set.
 type IamGroupRule struct {
-	validationrule.AutomaticallyNamed `json:"-"`
+	validationrule.AutomaticallyNamed `json:",inline"`
 
 	IamGroupName string           `json:"iamGroupName" yaml:"iamGroupName"`
 	Policies     []PolicyDocument `json:"iamPolicies" yaml:"iamPolicies"`
@@ -189,7 +189,7 @@ func (r IamGroupRule) IAMPolicies() []PolicyDocument {
 
 // IamPolicyRule compares the IAM permissions associated with an IAM policy against an expected permission set.
 type IamPolicyRule struct {
-	validationrule.AutomaticallyNamed `json:"-"`
+	validationrule.AutomaticallyNamed `json:",inline"`
 
 	IamPolicyARN string           `json:"iamPolicyArn" yaml:"iamPolicyArn"`
 	Policies     []PolicyDocument `json:"iamPolicies" yaml:"iamPolicies"`
@@ -240,7 +240,7 @@ func (c Condition) String() string {
 
 // ServiceQuotaRule ensures that AWS service quotas are within a particular threshold.
 type ServiceQuotaRule struct {
-	validationrule.ManuallyNamed `json:"-"`
+	validationrule.ManuallyNamed `json:",inline"`
 
 	RuleName      string         `json:"name" yaml:"name"`
 	Region        string         `json:"region" yaml:"region"`
@@ -268,7 +268,7 @@ type ServiceQuota struct {
 
 // TagRule ensures that the tags associated with a particular AWS resource match an expected tag set.
 type TagRule struct {
-	validationrule.ManuallyNamed `json:"-"`
+	validationrule.ManuallyNamed `json:",inline"`
 
 	RuleName      string   `json:"name" yaml:"name"`
 	Key           string   `json:"key" yaml:"key"`
