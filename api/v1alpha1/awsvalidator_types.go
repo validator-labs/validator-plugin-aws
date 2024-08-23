@@ -23,6 +23,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/validator-labs/validator/pkg/plugins"
 	"github.com/validator-labs/validator/pkg/validationrule"
 
 	"github.com/validator-labs/validator-plugin-aws/pkg/constants"
@@ -54,6 +55,8 @@ type AwsValidatorSpec struct {
 	// +kubebuilder:validation:XValidation:message="TagRules must have unique names",rule="self.all(e, size(self.filter(x, x.name == e.name)) == 1)"
 	TagRules []TagRule `json:"tagRules,omitempty" yaml:"tagRules,omitempty"`
 }
+
+var _ plugins.PluginSpec = (*AwsValidatorSpec)(nil)
 
 // PluginCode returns the network validator's plugin code.
 func (s AwsValidatorSpec) PluginCode() string {
