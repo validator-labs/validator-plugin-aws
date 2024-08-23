@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.6](https://github.com/validator-labs/validator-plugin-aws/compare/v0.1.5...v0.1.6) (2024-08-23)
+
+
+### Bug Fixes
+
+* embedding structs related to `validationrule.Interface` ([#476](https://github.com/validator-labs/validator-plugin-aws/issues/476)) ([549bc33](https://github.com/validator-labs/validator-plugin-aws/commit/549bc333a2c0b4b1ed87815e68f31588651ef8c9))
+
+
+### Other
+
+* assert that PluginSpec is implemented ([#474](https://github.com/validator-labs/validator-plugin-aws/issues/474)) ([cae368b](https://github.com/validator-labs/validator-plugin-aws/commit/cae368b57613f7514a91f29d2bfd6d71f5fd05bb))
+
 ## [0.1.5](https://github.com/validator-labs/validator-plugin-aws/compare/v0.1.4...v0.1.5) (2024-08-22)
 
 
