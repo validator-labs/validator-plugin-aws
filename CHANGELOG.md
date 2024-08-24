@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.7](https://github.com/validator-labs/validator-plugin-aws/compare/v0.1.6...v0.1.7) (2024-08-24)
+
+
+### Bug Fixes
+
+* YAML rendering of structs embedded in rules ([#481](https://github.com/validator-labs/validator-plugin-aws/issues/481)) ([c82abf3](https://github.com/validator-labs/validator-plugin-aws/commit/c82abf386669c1a2202870317a3c1f93f13af07a))
+
+
+### Dependency Updates
+
+* **deps:** update golang.org/x/exp digest to 9b4947d ([#475](https://github.com/validator-labs/validator-plugin-aws/issues/475)) ([b8b0dc2](https://github.com/validator-labs/validator-plugin-aws/commit/b8b0dc220974310686937cc3dca83ad50f24ec91))
+
 ## [0.1.6](https://github.com/validator-labs/validator-plugin-aws/compare/v0.1.5...v0.1.6) (2024-08-23)
 
 
