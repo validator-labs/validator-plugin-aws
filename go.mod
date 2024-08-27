@@ -18,7 +18,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.20.1
 	github.com/onsi/gomega v1.34.1
 	github.com/pkg/errors v0.9.1
-	github.com/validator-labs/validator v0.1.8
+	github.com/validator-labs/validator v0.1.9
 	golang.org/x/exp v0.0.0-20240823005443-9b4947da3948
 	k8s.io/api v0.31.0
 	k8s.io/apimachinery v0.31.0
