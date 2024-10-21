@@ -20,6 +20,7 @@ import (
 
 	"github.com/validator-labs/validator-plugin-aws/api/v1alpha1"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
+	"github.com/validator-labs/validator/pkg/test"
 	"github.com/validator-labs/validator/pkg/types"
 	"github.com/validator-labs/validator/pkg/util"
 )
@@ -899,6 +900,6 @@ func TestQuotaValidation(t *testing.T) {
 		fmt.Printf("Executing test: %s\n", c.name)
 		mockQuotas.Quotas = c.mockQuotas
 		result, err := svcQuotaService.ReconcileServiceQuotaRule(c.rule)
-		util.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
+		test.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
 	}
 }
