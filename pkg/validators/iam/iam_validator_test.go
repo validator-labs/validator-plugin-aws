@@ -14,6 +14,7 @@ import (
 
 	"github.com/validator-labs/validator-plugin-aws/api/v1alpha1"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
+	"github.com/validator-labs/validator/pkg/test"
 	"github.com/validator-labs/validator/pkg/types"
 	"github.com/validator-labs/validator/pkg/util"
 )
@@ -586,7 +587,7 @@ func TestIAMGroupValidation(t *testing.T) {
 	}
 	for _, c := range cs {
 		result, err := iamService.ReconcileIAMGroupRule(c.rule)
-		util.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
+		test.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
 	}
 }
 
@@ -868,7 +869,7 @@ func TestIAMRoleValidation(t *testing.T) {
 	}
 	for _, c := range cs {
 		result, err := iamService.ReconcileIAMRoleRule(c.rule)
-		util.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
+		test.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
 	}
 }
 
@@ -969,7 +970,7 @@ func TestIAMUserValidation(t *testing.T) {
 	}
 	for _, c := range cs {
 		result, err := iamService.ReconcileIAMUserRule(c.rule)
-		util.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
+		test.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
 	}
 }
 
@@ -1252,7 +1253,7 @@ func TestIAMPolicyValidation(t *testing.T) {
 	}
 	for _, c := range cs {
 		result, err := iamService.ReconcileIAMPolicyRule(c.rule)
-		util.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
+		test.CheckTestCase(t, result, c.expectedResult, err, c.expectedError)
 	}
 }
 
