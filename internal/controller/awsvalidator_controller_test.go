@@ -266,7 +266,7 @@ func Test_AwsValidatorReconciler_configureAwsAuth(t *testing.T) {
 
 			r := &AwsValidatorReconciler{}
 			if err := r.configureAwsAuth(tt.args.auth, tt.args.reqNamespace, tt.args.l); (err != nil) != tt.wantErr {
-				t.Errorf("myStruct.myFunc() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("AwsValidatorReconciler.configureAwsAuth() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if err := checkEnvVars(tt.wantEnvVars); err != nil {
 				t.Error(err)
