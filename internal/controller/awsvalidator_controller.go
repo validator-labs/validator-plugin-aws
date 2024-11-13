@@ -29,6 +29,7 @@ import (
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ktypes "k8s.io/apimachinery/pkg/types"
+	"k8s.io/utils/ptr"
 	"sigs.k8s.io/cluster-api/util/patch"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -140,6 +141,10 @@ func (r *AwsValidatorReconciler) configureAwsAuth(auth v1alpha1.AwsAuth, reqName
 		if secretAccessKey, ok := secret.Data["AWS_SECRET_ACCESS_KEY"]; ok {
 			l.Info("Using secret access key from Secret.")
 			auth.Credentials.SecretAccessKey = string(secretAccessKey)
+		}
+		if sessionToken, ok := secret.Data["AWS_SESSION_TOKEN"]; ok {
+			l.Info("Using session token from Secret.")
+			auth.Credentials.SessionToken = ptr.To(string(sessionToken))
 		}
 	}
 
