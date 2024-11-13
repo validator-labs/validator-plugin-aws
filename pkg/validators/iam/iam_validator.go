@@ -412,6 +412,10 @@ func checkSCP(iamSvc iamAPI, policyDocs []v1alpha1.PolicyDocument, policySourceA
 			}
 
 			for _, result := range simResults {
+				// Not all simulation results will have this field (ie. when service control policies are not used).
+				if result.OrganizationsDecisionDetail == nil {
+					continue
+				}
 				if !result.OrganizationsDecisionDetail.AllowedByOrganizations && result.EvalDecision != "allowed" {
 					// append SCP failure
 					scpFailures = append(scpFailures, fmt.Sprintf("Action: %s is denied due to an Organization level SCP policy for %s: %s", *result.EvalActionName, policySourceType, policySourceName))
