@@ -99,9 +99,13 @@ spec:
                       secretAccessKey:
                         description: The secret access key of an access key pair.
                         type: string
+                      sessionToken:
+                        description: The session token if one is being used.
+                        type: string
                     required:
                     - accessKeyId
                     - secretAccessKey
+                    - sessionToken
                     type: object
                   implicit:
                     description: |-

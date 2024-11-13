@@ -79,17 +79,19 @@ type AwsAuth struct {
 	// per the options defined in https://aws.github.io/aws-sdk-go-v2/docs/configuring-sdk/#environment-variables.
 	SecretName string `json:"secretName,omitempty" yaml:"secretName,omitempty"`
 	// The credentials to use when running in direct mode. If provided, fields Implicit and SecretName are ignored.
-	AccessKeyPair *AccessKeyPair `json:"accessKeyPair,omitempty" yaml:"accessKeyPair,omitempty"`
+	Credentials *Credentials `json:"accessKeyPair,omitempty" yaml:"accessKeyPair,omitempty"`
 	// STS authentication properties (optional)
 	StsAuth *AwsSTSAuth `json:"stsAuth,omitempty" yaml:"stsAuth,omitempty"`
 }
 
-// AccessKeyPair is the credentials to use when running in direct mode.
-type AccessKeyPair struct {
+// Credentials is the credentials to use when running in direct mode.
+type Credentials struct {
 	// The access key ID of an access key pair.
 	AccessKeyID string `json:"accessKeyId" yaml:"accessKeyId"`
 	// The secret access key of an access key pair.
 	SecretAccessKey string `json:"secretAccessKey" yaml:"secretAccessKey"`
+	// The session token if one is being used.
+	SessionToken *string `json:"sessionToken" yaml:"sessionToken"`
 }
 
 // AwsSTSAuth defines AWS STS authentication configuration for an AwsValidator.

@@ -41,6 +41,7 @@ import (
 
 var errInvalidAccessKeyID = errors.New("access key ID is invalid, must be a non-empty string")
 var errInvalidSecretAccessKey = errors.New("secret access key is invalid, must be a non-empty string")
+var errInvalidSessionToken = errors.New("session token is invalid, must be a non-empty string")
 
 // AwsValidatorReconciler reconciles a AwsValidator object
 type AwsValidatorReconciler struct {
@@ -120,8 +121,8 @@ func (r *AwsValidatorReconciler) configureAwsAuth(auth v1alpha1.AwsAuth, reqName
 		return nil
 	}
 
-	if auth.AccessKeyPair == nil {
-		auth.AccessKeyPair = &v1alpha1.AccessKeyPair{}
+	if auth.Credentials == nil {
+		auth.Credentials = &v1alpha1.Credentials{}
 	}
 
 	// If Secret name provided, override any env var values with values from its data.
@@ -134,34 +135,40 @@ func (r *AwsValidatorReconciler) configureAwsAuth(auth v1alpha1.AwsAuth, reqName
 		}
 		if accessKeyID, ok := secret.Data["AWS_ACCESS_KEY_ID"]; ok {
 			l.Info("Using access key ID from Secret.")
-			auth.AccessKeyPair.AccessKeyID = string(accessKeyID)
+			auth.Credentials.AccessKeyID = string(accessKeyID)
 		}
 		if secretAccessKey, ok := secret.Data["AWS_SECRET_ACCESS_KEY"]; ok {
 			l.Info("Using secret access key from Secret.")
-			auth.AccessKeyPair.SecretAccessKey = string(secretAccessKey)
+			auth.Credentials.SecretAccessKey = string(secretAccessKey)
 		}
 	}
 
 	// Validate values collected from inline config and/or Secret. We can't rely on CRD validation
 	// for this because some of the values may have come from a Secret, and there is no way for the
 	// Kube API to validate content in its data.
-	if auth.AccessKeyPair.AccessKeyID == "" {
+	if auth.Credentials.AccessKeyID == "" {
 		return errInvalidAccessKeyID
 	}
-	if auth.AccessKeyPair.SecretAccessKey == "" {
+	if auth.Credentials.SecretAccessKey == "" {
 		return errInvalidSecretAccessKey
+	}
+	if auth.Credentials.SessionToken != nil && *auth.Credentials.SessionToken == "" {
+		return errInvalidSessionToken
 	}
 
 	// Log non-secret data for help with debugging. Don't log the secret access key.
 	nonSecretData := map[string]string{
-		"accesskeyId": auth.AccessKeyPair.AccessKeyID,
+		"accesskeyId": auth.Credentials.AccessKeyID,
 	}
 	l.Info("Determined AWS auth data.", "nonSecretData", nonSecretData)
 
 	// Use collected and validated values to set env vars.
 	data := map[string]string{
-		"AWS_ACCESS_KEY_ID":     auth.AccessKeyPair.AccessKeyID,
-		"AWS_SECRET_ACCESS_KEY": auth.AccessKeyPair.SecretAccessKey,
+		"AWS_ACCESS_KEY_ID":     auth.Credentials.AccessKeyID,
+		"AWS_SECRET_ACCESS_KEY": auth.Credentials.SecretAccessKey,
+	}
+	if auth.Credentials.SessionToken != nil {
+		data["AWS_SESSION_TOKEN"] = *auth.Credentials.SessionToken
 	}
 	for k, v := range data {
 		if err := os.Setenv(k, v); err != nil {

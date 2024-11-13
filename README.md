@@ -22,13 +22,18 @@ Each `AwsValidator` CR is (re)-processed every two minutes to continuously ensur
 See the [samples](https://github.com/validator-labs/validator-plugin-aws/tree/main/config/samples) directory for example `AwsValidator` configurations.
 
 ## Authn & Authz
+
 Authentication details for the AWS validator controller are provided within each `AwsValidator` custom resource. AWS authentication can be configured either implicitly or explicitly. All supported options are detailed below:
+
 * Implicit (`AwsValidator.auth.implicit == true`)
   * [IAM roles for Amazon EC2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html)
   * [IAM roles for Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/create-node-role.html)
   * [IAM roles for Service Accounts](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html) (OIDC)
     * In this scenario, a valid Service Account must be specified during plugin installation.
-* Explicit (`AwsValidator.auth.implicit == false && AwsValidator.auth.secretName != ""`)
+* Explicit - Kubernetes Secret (`AwsValidator.auth.implicit == false && AwsValidator.auth.secretName != ""`)
+  * [Environment variables](https://aws.github.io/aws-sdk-go-v2/docs/configuring-sdk/#environment-variables)
+  * Environment variables + [role assumption via AWS STS](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/credentials/stscreds#AssumeRoleOptions)
+* Explicit - Inline (`AwsValidator.auth.implicit == false && AwsValidator.auth.credentials != {}`)
   * [Environment variables](https://aws.github.io/aws-sdk-go-v2/docs/configuring-sdk/#environment-variables)
   * Environment variables + [role assumption via AWS STS](https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/credentials/stscreds#AssumeRoleOptions)
 
