@@ -89,6 +89,20 @@ spec:
               auth:
                 description: AwsAuth defines authentication configuration for an AwsValidator.
                 properties:
+                  credentials:
+                    description: The credentials to use when running in direct mode.
+                      If provided, fields Implicit and SecretName are ignored.
+                    properties:
+                      accessKeyId:
+                        description: The access key ID of an access key pair.
+                        type: string
+                      secretAccessKey:
+                        description: The secret access key of an access key pair.
+                        type: string
+                    required:
+                    - accessKeyId
+                    - secretAccessKey
+                    type: object
                   implicit:
                     description: |-
                       If true, the AwsValidator will use the AWS SDK's default credential chain to authenticate.
