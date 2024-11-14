@@ -1,0 +1,25 @@
+apiVersion: validation.spectrocloud.labs/v1alpha1
+kind: AwsValidator
+metadata:
+  name: awsvalidator-sample-iam-user
+  namespace: validator
+spec:
+  auth:
+    implicit: false
+    credentials:
+      accessKeyId: <access_key_id>
+      secretAccessKey: <secret_access_key>
+      # optional
+      sessionToken: <session_token>
+  defaultRegion: us-west-1
+  iamUserRules:
+  - iamPolicies:
+    - name: User Policy
+      statements:
+      - actions:
+        - "s3:CreateBucket"
+        effect: Allow
+        resources:
+        - "*"
+      version: "2012-10-17"
+    iamUserName: <username>
