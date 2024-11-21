@@ -20,9 +20,9 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/validator-labs/validator v0.1.12
 	golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f
-	k8s.io/api v0.31.2
-	k8s.io/apimachinery v0.31.2
-	k8s.io/client-go v0.31.2
+	k8s.io/api v0.31.3
+	k8s.io/apimachinery v0.31.3
+	k8s.io/client-go v0.31.3
 	k8s.io/utils v0.0.0-20241104163129-6fe5fd82f078
 	sigs.k8s.io/cluster-api v1.8.5
 	sigs.k8s.io/controller-runtime v0.19.1
