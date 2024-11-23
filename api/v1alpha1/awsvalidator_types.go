@@ -78,7 +78,7 @@ type AwsAuth struct {
 	// The secret data's keys and values are expected to align with valid AWS environment variable credentials,
 	// per the options defined in https://aws.github.io/aws-sdk-go-v2/docs/configuring-sdk/#environment-variables.
 	SecretName string `json:"secretName,omitempty" yaml:"secretName,omitempty"`
-	// The credentials to use when running in direct mode. If provided, fields Implicit and SecretName are ignored.
+	// The credentials to use when running in direct mode.
 	Credentials *Credentials `json:"credentials,omitempty" yaml:"credentials,omitempty"`
 	// STS authentication properties (optional)
 	StsAuth *AwsSTSAuth `json:"stsAuth,omitempty" yaml:"stsAuth,omitempty"`
