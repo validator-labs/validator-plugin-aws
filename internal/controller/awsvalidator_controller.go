@@ -38,8 +38,8 @@ import (
 )
 
 const (
-	secretKeyAccessKeyID     = "AWS_ACCESS_KEY_ID"
-	secretKeySecretAccessKey = "AWS_SECRET_ACCESS_KEY"
+	secretKeyAccessKeyID     = "AWS_ACCESS_KEY_ID"     // #nosec G101
+	secretKeySecretAccessKey = "AWS_SECRET_ACCESS_KEY" // #nosec G101
 )
 
 // AwsValidatorReconciler reconciles a AwsValidator object
