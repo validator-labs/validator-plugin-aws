@@ -91,7 +91,6 @@ spec:
                 properties:
                   credentials:
                     description: The credentials to use when running in direct mode.
-                      If provided, fields Implicit and SecretName are ignored.
                     properties:
                       accessKeyId:
                         description: The access key ID of an access key pair.
