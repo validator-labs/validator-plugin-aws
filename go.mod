@@ -10,15 +10,15 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.193.0
 	github.com/aws/aws-sdk-go-v2/service/efs v1.34.0
 	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing v1.28.5
-	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.42.1
+	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.43.0
 	github.com/aws/aws-sdk-go-v2/service/iam v1.38.1
 	github.com/aws/aws-sdk-go-v2/service/servicequotas v1.25.6
 	github.com/aws/aws-sdk-go-v2/service/sts v1.33.1
 	github.com/go-logr/logr v1.4.2
 	github.com/onsi/ginkgo/v2 v2.22.0
 	github.com/onsi/gomega v1.35.1
-	github.com/stretchr/testify v1.9.0
-	github.com/validator-labs/validator v0.1.12
+	github.com/pkg/errors v0.9.1
+	github.com/validator-labs/validator v0.1.13
 	golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f
 	k8s.io/api v0.31.3
 	k8s.io/apimachinery v0.31.3
@@ -91,6 +91,7 @@ require (
 	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect
 	google.golang.org/protobuf v1.35.1 // indirect
 	gopkg.in/evanphx/json-patch.v4 v4.12.0 // indirect
+	google.golang.org/protobuf v1.35.2 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
