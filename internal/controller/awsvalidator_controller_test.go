@@ -125,15 +125,27 @@ var _ = Describe("AWSValidator controller", Ordered, func() {
 
 		Expect(k8sClient.Create(ctx, val)).Should(Succeed())
 
-		// Wait for the ValidationResult's Status to be updated
-		Eventually(func() bool {
+		// Wait for the ValidationResult to be created
+		Eventually(func() error {
+			return k8sClient.Get(ctx, vrKey, vr)
+		}, timeout, interval).Should(Succeed(), "ValidationResult was never created")
+
+		// Wait for ValidationResult to eventually have expected status
+		Eventually(func() error {
 			if err := k8sClient.Get(ctx, vrKey, vr); err != nil {
-				return false
+				return fmt.Errorf("failed to get ValidationResult")
 			}
 			stateOk := vr.Status.State == vapi.ValidationFailed
-			allFailed := len(vr.Status.ValidationConditions) == val.Spec.ResultCount()
-			return stateOk && allFailed
-		}, timeout, interval).Should(BeTrue(), "failed to create a ValidationResult")
+			// for this kind of failure, we expect one "dummy rule" condition that communicates the failure to the user reading the ValidationResult
+			expectedNumConditions := len(vr.Status.ValidationConditions) == 1
+			if !stateOk {
+				return fmt.Errorf("state not OK")
+			}
+			if !expectedNumConditions {
+				return fmt.Errorf("unexpected number of conditions in ValidationResult")
+			}
+			return nil
+		}, timeout, interval).Should(Succeed(), "ValidationResult never reached expected state")
 	})
 })
 
