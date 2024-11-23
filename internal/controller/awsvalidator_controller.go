@@ -20,16 +20,13 @@ package controller
 import (
 	"context"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/go-logr/logr"
-	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ktypes "k8s.io/apimachinery/pkg/types"
-	"k8s.io/utils/ptr"
 	"sigs.k8s.io/cluster-api/util/patch"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -40,9 +37,10 @@ import (
 	vres "github.com/validator-labs/validator/pkg/validationresult"
 )
 
-var errInvalidAccessKeyID = errors.New("access key ID is invalid, must be a non-empty string")
-var errInvalidSecretAccessKey = errors.New("secret access key is invalid, must be a non-empty string")
-var errInvalidSessionToken = errors.New("session token is invalid, must be a non-empty string")
+const (
+	secretKeyAccessKeyID     = "AWS_ACCESS_KEY_ID"
+	secretKeySecretAccessKey = "AWS_SECRET_ACCESS_KEY"
+)
 
 // AwsValidatorReconciler reconciles a AwsValidator object
 type AwsValidatorReconciler struct {
@@ -57,6 +55,7 @@ type AwsValidatorReconciler struct {
 
 // Reconcile reconciles each rule found in each AWSValidator in the cluster and creates ValidationResults accordingly
 func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	var err error
 	l := r.Log.V(0).WithValues("name", req.Name, "namespace", req.Namespace)
 	l.Info("Reconciling AwsValidator")
 
@@ -68,9 +67,9 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	// Ensure both AWS env vars are set.
-	if err := r.configureAwsAuth(validator.Spec.Auth, req.Namespace, l); err != nil {
-		return ctrl.Result{}, fmt.Errorf("failed to set AWS auth env vars: %w", err)
+	// Override auth data in spec with auth data from Secret if applicable.
+	if validator.Spec.Auth, err = r.authFromSecret(validator.Spec.Auth, req.Namespace, l); err != nil {
+		return ctrl.Result{}, fmt.Errorf("failed to get auth data from Secret: %w", err)
 	}
 
 	// Get the active validator's validation result
@@ -111,78 +110,46 @@ func (r *AwsValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	return ctrl.Result{RequeueAfter: time.Second * 120}, nil
 }
 
-// configureAwsAuth sets environment variables to control AWS authentication. Order of precedence
-// for source:
-// 1 - Kubernetes secret
-// 2 - Specified inline in spec
-// Returns an error if env vars couldn't be set for any reason.
-func (r *AwsValidatorReconciler) configureAwsAuth(auth v1alpha1.AwsAuth, reqNamespace string, l logr.Logger) error {
+// Checks whether the spec indicates that auth data should come from a k8s Secret instead of inline
+// auth. If so, all data must come from the Secret. If any is missing, returns an error. If all data
+// is present, overrides the data in the auth object.
+func (r *AwsValidatorReconciler) authFromSecret(auth v1alpha1.AwsAuth, reqNamespace string, l logr.Logger) (v1alpha1.AwsAuth, error) {
+	// If using implicit auth, there is no need to check for k8s Secrets.
 	if auth.Implicit {
-		l.Info("auth.implicit set to true. Skipping setting AWS env vars.")
-		return nil
+		l.Info("auth.implicit set to true. Skipping setting AWS_ env vars.")
+		return auth, nil
+	}
+
+	// Same if no secret name provided.
+	if auth.SecretName == "" {
+		l.Info("No Secret name provided. Skipping looking for Secret to override auth data.")
+		return auth, nil
 	}
 
 	if auth.Credentials == nil {
 		auth.Credentials = &v1alpha1.Credentials{}
 	}
 
-	// If Secret name provided, override any env var values with values from its data.
-	if auth.SecretName != "" {
-		l.Info("auth.secretName provided. Using Secret as source for any AWS env vars defined in its data.", "secretName", auth.SecretName, "secretNamespace", reqNamespace)
-		nn := ktypes.NamespacedName{Name: auth.SecretName, Namespace: reqNamespace}
-		secret := &corev1.Secret{}
-		if err := r.Get(context.Background(), nn, secret); err != nil {
-			return fmt.Errorf("failed to get Secret: %w", err)
-		}
-		if accessKeyID, ok := secret.Data["AWS_ACCESS_KEY_ID"]; ok {
-			l.Info("Using access key ID from Secret.")
-			auth.Credentials.AccessKeyID = string(accessKeyID)
-		}
-		if secretAccessKey, ok := secret.Data["AWS_SECRET_ACCESS_KEY"]; ok {
-			l.Info("Using secret access key from Secret.")
-			auth.Credentials.SecretAccessKey = string(secretAccessKey)
-		}
-		if sessionToken, ok := secret.Data["AWS_SESSION_TOKEN"]; ok {
-			l.Info("Using session token from Secret.")
-			auth.Credentials.SessionToken = ptr.To(string(sessionToken))
-		}
+	l.Info("auth.secretName provided. Using Secret as source for any AWS_ env vars defined in its data.", "secretName", auth.SecretName, "secretNamespace", reqNamespace)
+	nn := ktypes.NamespacedName{Name: auth.SecretName, Namespace: reqNamespace}
+	secret := &corev1.Secret{}
+	if err := r.Get(context.Background(), nn, secret); err != nil {
+		return auth, fmt.Errorf("failed to get Secret: %w", err)
 	}
 
-	// Validate values collected from inline config and/or Secret. We can't rely on CRD validation
-	// for this because some of the values may have come from a Secret, and there is no way for the
-	// Kube API to validate content in its data.
-	if auth.Credentials.AccessKeyID == "" {
-		return errInvalidAccessKeyID
+	accessKeyID, ok := secret.Data[secretKeyAccessKeyID]
+	if !ok {
+		return v1alpha1.AwsAuth{}, fmt.Errorf("Key %s missing from Secret", secretKeyAccessKeyID)
 	}
-	if auth.Credentials.SecretAccessKey == "" {
-		return errInvalidSecretAccessKey
-	}
-	if auth.Credentials.SessionToken != nil && *auth.Credentials.SessionToken == "" {
-		return errInvalidSessionToken
-	}
+	auth.Credentials.AccessKeyID = string(accessKeyID)
 
-	// Log non-secret data for help with debugging. Don't log the secret access key.
-	nonSecretData := map[string]string{
-		"accesskeyId": auth.Credentials.AccessKeyID,
+	secretAccessKey, ok := secret.Data[secretKeySecretAccessKey]
+	if !ok {
+		return v1alpha1.AwsAuth{}, fmt.Errorf("Key %s missing from Secret", secretKeySecretAccessKey)
 	}
-	l.Info("Determined AWS auth data.", "nonSecretData", nonSecretData)
+	auth.Credentials.SecretAccessKey = string(secretAccessKey)
 
-	// Use collected and validated values to set env vars.
-	data := map[string]string{
-		"AWS_ACCESS_KEY_ID":     auth.Credentials.AccessKeyID,
-		"AWS_SECRET_ACCESS_KEY": auth.Credentials.SecretAccessKey,
-	}
-	if auth.Credentials.SessionToken != nil {
-		data["AWS_SESSION_TOKEN"] = *auth.Credentials.SessionToken
-	}
-	for k, v := range data {
-		if err := os.Setenv(k, v); err != nil {
-			return err
-		}
-		r.Log.Info("Set environment variable", "envVar", k)
-	}
-
-	return nil
+	return auth, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
