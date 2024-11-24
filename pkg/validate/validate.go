@@ -2,7 +2,13 @@
 package validate
 
 import (
+	"errors"
+	"fmt"
+	"os"
+
 	"github.com/go-logr/logr"
+	vapi "github.com/validator-labs/validator/api/v1alpha1"
+	vconstants "github.com/validator-labs/validator/pkg/constants"
 
 	"github.com/validator-labs/validator/pkg/types"
 
@@ -16,11 +22,26 @@ import (
 	"github.com/validator-labs/validator-plugin-aws/pkg/validators/tag"
 )
 
+var errInvalidAccessKeyID = errors.New("access key ID is invalid, must be a non-empty string")
+var errInvalidSecretAccessKey = errors.New("secret access key is invalid, must be a non-empty string")
+
 // Validate validates the AwsValidatorSpec and returns a ValidationResponse.
 func Validate(spec v1alpha1.AwsValidatorSpec, log logr.Logger) types.ValidationResponse {
 	resp := types.ValidationResponse{
 		ValidationRuleResults: make([]*types.ValidationRuleResult, 0, spec.ResultCount()),
 		ValidationRuleErrors:  make([]error, 0, spec.ResultCount()),
+	}
+
+	vrr := buildValidationResult()
+
+	if err := validateAuth(spec.Auth); err != nil {
+		resp.AddResult(vrr, fmt.Errorf("AWS SDK auth data invalid: %w", err))
+		return resp
+	}
+
+	if err := configureAuth(spec.Auth, log); err != nil {
+		resp.AddResult(vrr, fmt.Errorf("failed to configure auth for AWS SDK: %w", err))
+		return resp
 	}
 
 	// AMI rules
@@ -122,4 +143,70 @@ func Validate(spec v1alpha1.AwsValidatorSpec, log logr.Logger) types.ValidationR
 	}
 
 	return resp
+}
+
+// Validates the inline auth. The data here could have not passed through kube-apiserver, so we need
+// to validate here instead of relying on CRD validation.
+func validateAuth(auth v1alpha1.AwsAuth) error {
+	if auth.Credentials == nil {
+		auth.Credentials = &v1alpha1.Credentials{}
+	}
+
+	var validationErrors []error
+
+	if auth.Credentials.AccessKeyID == "" {
+		validationErrors = append(validationErrors, errInvalidAccessKeyID)
+	}
+	if auth.Credentials.SecretAccessKey == "" {
+		validationErrors = append(validationErrors, errInvalidSecretAccessKey)
+	}
+
+	if len(validationErrors) > 0 {
+		return errors.Join(validationErrors...)
+	}
+	return nil
+}
+
+// Sets environment variables needed by the AWS SDK from the inline auth. The inline auth is
+// assumed to have already been validated.
+func configureAuth(auth v1alpha1.AwsAuth, log logr.Logger) error {
+	if auth.Implicit {
+		log.Info("auth.implicit set to true. Skipping setting AWS_ env vars.")
+		return nil
+	}
+
+	// Log non-secret data for help with debugging. Don't log the client secret.
+	nonSecretData := map[string]string{
+		"accessKeyId": auth.Credentials.AccessKeyID,
+	}
+	log.Info("Determined AWS auth data.", "nonSecretData", nonSecretData)
+
+	// Use collected and validated values to set env vars.
+	data := map[string]string{
+		"AWS_ACCESS_KEY_ID":     auth.Credentials.AccessKeyID,
+		"AWS_SECRET_ACCESS_KEY": auth.Credentials.SecretAccessKey,
+	}
+	for k, v := range data {
+		if err := os.Setenv(k, v); err != nil {
+			return err
+		}
+		log.Info("Set environment variable", "envVar", k)
+	}
+
+	return nil
+}
+
+// buildValidationResult is used to build a validation result to use before rules have been
+// evaluated (e.g. when we need to report a failure experienced while preparing to evaluate rules).
+func buildValidationResult() *types.ValidationRuleResult {
+	state := vapi.ValidationSucceeded
+	latestCondition := vapi.DefaultValidationCondition()
+	latestCondition.Message = "Initialization succeeded"
+	latestCondition.ValidationRule = fmt.Sprintf(
+		"%s-%s",
+		vconstants.ValidationRulePrefix, constants.PluginCode,
+	)
+	latestCondition.ValidationType = constants.PluginCode
+
+	return &types.ValidationRuleResult{Condition: &latestCondition, State: &state}
 }

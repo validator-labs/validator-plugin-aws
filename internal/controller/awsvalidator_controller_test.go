@@ -3,17 +3,18 @@ package controller
 import (
 	"context"
 	"fmt"
-	"maps"
-	"os"
 	"testing"
 
 	"github.com/go-logr/logr"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/stretchr/testify/assert"
+	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/utils/ptr"
 
 	"github.com/validator-labs/validator-plugin-aws/api/v1alpha1"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
@@ -124,162 +125,137 @@ var _ = Describe("AWSValidator controller", Ordered, func() {
 
 		Expect(k8sClient.Create(ctx, val)).Should(Succeed())
 
-		// Wait for the ValidationResult's Status to be updated
-		Eventually(func() bool {
+		// Wait for the ValidationResult to be created
+		Eventually(func() error {
+			return k8sClient.Get(ctx, vrKey, vr)
+		}, timeout, interval).Should(Succeed(), "ValidationResult was never created")
+
+		// Wait for ValidationResult to eventually have expected status
+		Eventually(func() error {
 			if err := k8sClient.Get(ctx, vrKey, vr); err != nil {
-				return false
+				return fmt.Errorf("failed to get ValidationResult")
 			}
 			stateOk := vr.Status.State == vapi.ValidationFailed
-			allFailed := len(vr.Status.ValidationConditions) == val.Spec.ResultCount()
-			return stateOk && allFailed
-		}, timeout, interval).Should(BeTrue(), "failed to create a ValidationResult")
+			// for this kind of failure, we expect one "dummy rule" condition that communicates the failure to the user reading the ValidationResult
+			expectedNumConditions := len(vr.Status.ValidationConditions) == 1
+			if !stateOk {
+				return fmt.Errorf("state not OK")
+			}
+			if !expectedNumConditions {
+				return fmt.Errorf("unexpected number of conditions in ValidationResult")
+			}
+			return nil
+		}, timeout, interval).Should(Succeed(), "ValidationResult never reached expected state")
 	})
 })
 
-func Test_AwsValidatorReconciler_configureAwsAuth(t *testing.T) {
-	type args struct {
-		auth         v1alpha1.AwsAuth
-		reqNamespace string
-		l            logr.Logger
-	}
+func Test_AwsValidatorReconciler_authFromSecret(t *testing.T) {
+	logger := logr.Logger{}
+	scheme := runtime.NewScheme()
+	_ = corev1.AddToScheme(scheme) // Add corev1 scheme for fake client
+
 	tests := []struct {
-		name        string
-		m           *AwsValidatorReconciler
-		args        args
-		wantErr     bool
-		wantEnvVars map[string]string
+		name           string
+		auth           v1alpha1.AwsAuth
+		secret         *corev1.Secret
+		expectedAuth   v1alpha1.AwsAuth
+		expectedError  error
+		expectOverride bool
 	}{
 		{
-			name: "Sets env vars given inline auth config",
-			m:    &AwsValidatorReconciler{},
-			args: args{
-				auth: v1alpha1.AwsAuth{
-					Credentials: &v1alpha1.Credentials{
-						AccessKeyID:     "a",
-						SecretAccessKey: "b",
-						SessionToken:    ptr.To("c"),
-					},
-				},
-			},
-			wantErr: false,
-			wantEnvVars: map[string]string{
-				"AWS_ACCESS_KEY_ID":     "a",
-				"AWS_SECRET_ACCESS_KEY": "b",
-				"AWS_SESSION_TOKEN":     "c",
+			name: "Skips looking for Secret and overriding inline config when implicit auth is enabled",
+			auth: v1alpha1.AwsAuth{Implicit: true},
+			expectedAuth: v1alpha1.AwsAuth{
+				Implicit: true,
 			},
 		},
 		{
-			name: "Error for invalid access key ID",
-			m:    &AwsValidatorReconciler{},
-			args: args{
-				auth: v1alpha1.AwsAuth{
-					Credentials: &v1alpha1.Credentials{
-						AccessKeyID:     "",
-						SecretAccessKey: "b",
-						SessionToken:    ptr.To("c"),
-					},
-				},
-			},
-			wantErr: true,
-			wantEnvVars: map[string]string{
-				"AWS_ACCESS_KEY_ID":     "",
-				"AWS_SECRET_ACCESS_KEY": "",
-				"AWS_SESSION_TOKEN":     "",
-			},
+			name:         "Skips looking for Secret and overriding inline config when no secret name is specified",
+			auth:         v1alpha1.AwsAuth{},
+			expectedAuth: v1alpha1.AwsAuth{},
 		},
 		{
-			name: "Error for invalid secret access key",
-			m:    &AwsValidatorReconciler{},
-			args: args{
-				auth: v1alpha1.AwsAuth{
-					Credentials: &v1alpha1.Credentials{
-						AccessKeyID:     "a",
-						SecretAccessKey: "",
-						SessionToken:    ptr.To("c"),
-					},
-				},
+			name: "Returns an error when Secret is not found",
+			auth: v1alpha1.AwsAuth{
+				SecretName: "nonexistent-secret",
 			},
-			wantErr: true,
-			wantEnvVars: map[string]string{
-				"AWS_ACCESS_KEY_ID":     "",
-				"AWS_SECRET_ACCESS_KEY": "",
-				"AWS_SESSION_TOKEN":     "",
+			expectedAuth: v1alpha1.AwsAuth{
+				SecretName: "nonexistent-secret",
 			},
+			expectedError: fmt.Errorf("failed to get Secret: secrets \"nonexistent-secret\" not found"),
 		},
 		{
-			name: "No error for missing session token",
-			m:    &AwsValidatorReconciler{},
-			args: args{
-				auth: v1alpha1.AwsAuth{
-					Credentials: &v1alpha1.Credentials{
-						AccessKeyID:     "a",
-						SecretAccessKey: "b",
-						SessionToken:    nil,
-					},
-				},
+			name: "Returns an error when Secret is missing key for access key ID",
+			auth: v1alpha1.AwsAuth{
+				SecretName: "aws-secret",
 			},
-			wantErr: false,
-			wantEnvVars: map[string]string{
-				"AWS_ACCESS_KEY_ID":     "a",
-				"AWS_SECRET_ACCESS_KEY": "b",
-				"AWS_SESSION_TOKEN":     "",
+			secret: &corev1.Secret{
+				Data: map[string][]byte{},
 			},
+			expectedAuth: v1alpha1.AwsAuth{
+				SecretName: "aws-secret",
+			},
+			expectedError: fmt.Errorf("Key AWS_ACCESS_KEY_ID missing from Secret"),
 		},
 		{
-			name: "Error for invalid session token",
-			m:    &AwsValidatorReconciler{},
-			args: args{
-				auth: v1alpha1.AwsAuth{
-					Credentials: &v1alpha1.Credentials{
-						AccessKeyID:     "a",
-						SecretAccessKey: "b",
-						SessionToken:    ptr.To(""),
-					},
+			name: "Returns an error when Secret is missing key for secret access key",
+			auth: v1alpha1.AwsAuth{
+				SecretName: "aws-secret",
+			},
+			secret: &corev1.Secret{
+				Data: map[string][]byte{
+					"AWS_ACCESS_KEY_ID": []byte("access-key-id"),
 				},
 			},
-			wantErr: true,
-			wantEnvVars: map[string]string{
-				"AWS_ACCESS_KEY_ID":     "",
-				"AWS_SECRET_ACCESS_KEY": "",
-				"AWS_SESSION_TOKEN":     "",
+			expectedAuth: v1alpha1.AwsAuth{
+				SecretName: "aws-secret",
+				Credentials: &v1alpha1.Credentials{
+					AccessKeyID: "access-key-id",
+				},
+			},
+			expectedError: fmt.Errorf("Key AWS_SECRET_ACCESS_KEY missing from Secret"),
+		},
+		{
+			name: "Overrides inline config when implicit auth is not enabled, a secret name is specified, the Secret is found, and the Secret contains all required auth data",
+			auth: v1alpha1.AwsAuth{SecretName: "aws-secret"},
+			secret: &corev1.Secret{
+				Data: map[string][]byte{
+					"AWS_ACCESS_KEY_ID":     []byte("access-key-id"),
+					"AWS_SECRET_ACCESS_KEY": []byte("secret-access-key"),
+				},
+			},
+			expectedAuth: v1alpha1.AwsAuth{
+				SecretName: "aws-secret",
+				Credentials: &v1alpha1.Credentials{
+					AccessKeyID:     "access-key-id",
+					SecretAccessKey: "secret-access-key",
+				},
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Save the current environment variables to restore them later
-			originalEnv := make(map[string]string)
-			for k := range tt.wantEnvVars {
-				originalEnv[k] = os.Getenv(k)
+			// Set up fake client and reconciler
+			objects := []runtime.Object{}
+			if tt.secret != nil {
+				tt.secret.ObjectMeta.Name = tt.auth.SecretName
+				tt.secret.ObjectMeta.Namespace = "default"
+				objects = append(objects, tt.secret)
+			}
+			client := fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objects...).Build()
+			reconciler := AwsValidatorReconciler{
+				Client: client,
 			}
 
-			// Clean up and reset environment variables after the test
-			defer func() {
-				for k, v := range originalEnv {
-					if v == "" {
-						os.Unsetenv(k)
-					} else {
-						os.Setenv(k, v)
-					}
-				}
-			}()
-
-			r := &AwsValidatorReconciler{}
-			if err := r.configureAwsAuth(tt.args.auth, tt.args.reqNamespace, tt.args.l); (err != nil) != tt.wantErr {
-				t.Errorf("AwsValidatorReconciler.configureAwsAuth() error = %v, wantErr %v", err, tt.wantErr)
-			}
-			if err := checkEnvVars(tt.wantEnvVars); err != nil {
-				t.Error(err)
+			// Assert auth data augmented by secret or not.
+			result, err := reconciler.authFromSecret(tt.auth, "default", logger)
+			if tt.expectedError != nil {
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), tt.expectedError.Error())
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tt.expectedAuth, result)
 			}
 		})
 	}
-}
-
-func checkEnvVars(expected map[string]string) error {
-	for k := range maps.Keys(expected) {
-		if v := os.Getenv(k); v != expected[k] {
-			return fmt.Errorf("env var %s = %s; expected %s", k, v, expected[k])
-		}
-	}
-	return nil
 }
