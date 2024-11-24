@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.1.9](https://github.com/validator-labs/validator-plugin-aws/compare/v0.1.8...v0.1.9) (2024-11-24)
+
+
+### Bug Fixes
+
+* make inline auth work in direct mode too ([#520](https://github.com/validator-labs/validator-plugin-aws/issues/520)) ([c3f1eee](https://github.com/validator-labs/validator-plugin-aws/commit/c3f1eee84607a94d7998aafaa18e433313c87dd8))
+
+
+### Dependency Updates
+
+* **deps:** update all non-major dependencies ([#512](https://github.com/validator-labs/validator-plugin-aws/issues/512)) ([983bfd2](https://github.com/validator-labs/validator-plugin-aws/commit/983bfd2b7f2561a955b42fcfe7cf31ad145c7710))
+* **deps:** update all non-major dependencies ([#518](https://github.com/validator-labs/validator-plugin-aws/issues/518)) ([f92f78f](https://github.com/validator-labs/validator-plugin-aws/commit/f92f78f3d17a691a9207d29d27edc54b6d6f3bc3))
+* **deps:** update all non-major dependencies ([#522](https://github.com/validator-labs/validator-plugin-aws/issues/522)) ([abd327f](https://github.com/validator-labs/validator-plugin-aws/commit/abd327f7c30f8ca02f89625ef37ab1ac6a5c53f9))
+* **deps:** update all non-major dependencies to v0.31.3 ([#516](https://github.com/validator-labs/validator-plugin-aws/issues/516)) ([091c754](https://github.com/validator-labs/validator-plugin-aws/commit/091c75401ff797412f650596b57d3fe4d756f014))
+* **deps:** update build digest to 5ffe724 ([#515](https://github.com/validator-labs/validator-plugin-aws/issues/515)) ([1419d51](https://github.com/validator-labs/validator-plugin-aws/commit/1419d517537decabd5a8d8a80a3bdec779e33f1d))
+* **deps:** update build digest to 713df39 ([#511](https://github.com/validator-labs/validator-plugin-aws/issues/511)) ([5da4b08](https://github.com/validator-labs/validator-plugin-aws/commit/5da4b08832da3eb641c54943f8a44a44457d0063))
+* **deps:** update build digest to a46a554 ([#521](https://github.com/validator-labs/validator-plugin-aws/issues/521)) ([d2ed373](https://github.com/validator-labs/validator-plugin-aws/commit/d2ed373ddce68df74e4b50d8426614150e9a0eab))
+* **deps:** update build digest to dd09b58 ([#519](https://github.com/validator-labs/validator-plugin-aws/issues/519)) ([ebee491](https://github.com/validator-labs/validator-plugin-aws/commit/ebee491eb3121f6a7ce8cc35aeaf07483a03ae44))
+* **deps:** update module github.com/onsi/ginkgo/v2 to v2.22.0 ([#514](https://github.com/validator-labs/validator-plugin-aws/issues/514)) ([99ea99f](https://github.com/validator-labs/validator-plugin-aws/commit/99ea99fb0b22c64fc66c628d690c7cf4bd78e3fe))
+
 ## [0.1.8](https://github.com/validator-labs/validator-plugin-aws/compare/v0.1.7...v0.1.8) (2024-11-20)
 
 
