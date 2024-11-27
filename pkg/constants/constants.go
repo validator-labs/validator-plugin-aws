@@ -28,4 +28,8 @@ const (
 
 	// IAMWildcard is the wildcard used in IAM policies.
 	IAMWildcard string = "*"
+
+	// RetryMaxAttemptsDefault is the default we use for the max retries setting of the AWS SDK.
+	// It's greater than the SDK's default.
+	RetryMaxAttemptsDefault int = 25
 )

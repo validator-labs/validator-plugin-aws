@@ -69,7 +69,7 @@ func (s AwsValidatorSpec) ResultCount() int {
 		len(s.IamUserRules) + len(s.ServiceQuotaRules) + len(s.TagRules)
 }
 
-// AwsAuth defines authentication configuration for an AwsValidator.
+// AwsAuth defines authentication and AWS SDK configuration for an AwsValidator.
 type AwsAuth struct {
 	// If true, the AwsValidator will use the AWS SDK's default credential chain to authenticate.
 	// Set to true if using node instance IAM role or IAM roles for Service Accounts.
@@ -82,6 +82,11 @@ type AwsAuth struct {
 	Credentials *Credentials `json:"credentials,omitempty" yaml:"credentials,omitempty"`
 	// STS authentication properties (optional)
 	StsAuth *AwsSTSAuth `json:"stsAuth,omitempty" yaml:"stsAuth,omitempty"`
+	// MaxAttempts is the number of times the AWS SDK should retry retryable operations. If
+	// specified, overrides the setting the plugin uses by default for this AwsValidator. Set to 0
+	// to disable retrying.
+	// +kubebuilder:validation:Minimum=0
+	MaxAttempts *int `json:"maxAttempts,omitempty" yaml:"maxAttempts,omitempty"`
 }
 
 // Credentials is the credentials to use when running in direct mode.

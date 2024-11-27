@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/validator-labs/validator-plugin-aws/api/v1alpha1"
+	"github.com/validator-labs/validator/pkg/util"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -20,7 +21,27 @@ func Test_validateAuth(t *testing.T) {
 		wantErr bool
 	}{
 		{
+			name: "No panic for nil auth.Credentials",
+			args: args{
+				auth: v1alpha1.AwsAuth{},
+			},
+			wantErr: true,
+		},
+		{
 			name: "No error for valid inline auth data",
+			args: args{
+				auth: v1alpha1.AwsAuth{
+					Credentials: &v1alpha1.Credentials{
+						AccessKeyID:     "a",
+						SecretAccessKey: "b",
+					},
+					MaxAttempts: util.Ptr(0),
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "No error for omitted max attempts",
 			args: args{
 				auth: v1alpha1.AwsAuth{
 					Credentials: &v1alpha1.Credentials{
@@ -32,13 +53,6 @@ func Test_validateAuth(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "No panic for nil auth.Credentials",
-			args: args{
-				auth: v1alpha1.AwsAuth{},
-			},
-			wantErr: true,
-		},
-		{
 			name: "Error for invalid access key ID",
 			args: args{
 				auth: v1alpha1.AwsAuth{
@@ -46,6 +60,7 @@ func Test_validateAuth(t *testing.T) {
 						AccessKeyID:     "",
 						SecretAccessKey: "b",
 					},
+					MaxAttempts: util.Ptr(0),
 				},
 			},
 			wantErr: true,
@@ -58,6 +73,19 @@ func Test_validateAuth(t *testing.T) {
 						AccessKeyID:     "a",
 						SecretAccessKey: "",
 					},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "Error for invalid max attempts",
+			args: args{
+				auth: v1alpha1.AwsAuth{
+					Credentials: &v1alpha1.Credentials{
+						AccessKeyID:     "a",
+						SecretAccessKey: "b",
+					},
+					MaxAttempts: util.Ptr(-1),
 				},
 			},
 			wantErr: true,
@@ -91,12 +119,14 @@ func Test_configureAuth(t *testing.T) {
 						AccessKeyID:     "a",
 						SecretAccessKey: "b",
 					},
+					MaxAttempts: util.Ptr(0),
 				},
 			},
 			wantErr: false,
 			wantEnvVars: map[string]string{
 				"AWS_ACCESS_KEY_ID":     "a",
 				"AWS_SECRET_ACCESS_KEY": "b",
+				"AWS_MAX_ATTEMPTS":      "0",
 			},
 		},
 		{

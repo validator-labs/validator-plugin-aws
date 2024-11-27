@@ -22,9 +22,6 @@ import (
 	"github.com/validator-labs/validator-plugin-aws/pkg/validators/tag"
 )
 
-var errInvalidAccessKeyID = errors.New("access key ID is invalid, must be a non-empty string")
-var errInvalidSecretAccessKey = errors.New("secret access key is invalid, must be a non-empty string")
-
 // Validate validates the AwsValidatorSpec and returns a ValidationResponse.
 func Validate(spec v1alpha1.AwsValidatorSpec, log logr.Logger) types.ValidationResponse {
 	resp := types.ValidationResponse{
@@ -155,10 +152,14 @@ func validateAuth(auth v1alpha1.AwsAuth) error {
 	var validationErrors []error
 
 	if auth.Credentials.AccessKeyID == "" {
-		validationErrors = append(validationErrors, errInvalidAccessKeyID)
+		validationErrors = append(validationErrors, errors.New("access key ID is invalid, must be a non-empty string"))
 	}
 	if auth.Credentials.SecretAccessKey == "" {
-		validationErrors = append(validationErrors, errInvalidSecretAccessKey)
+		validationErrors = append(validationErrors, errors.New("secret access key is invalid, must be a non-empty string"))
+	}
+
+	if auth.MaxAttempts != nil && *auth.MaxAttempts < 0 {
+		validationErrors = append(validationErrors, fmt.Errorf("invalid max retries setting (%d), must be gte 0", *auth.MaxAttempts))
 	}
 
 	if len(validationErrors) > 0 {
@@ -179,12 +180,19 @@ func configureAuth(auth v1alpha1.AwsAuth, log logr.Logger) error {
 	nonSecretData := map[string]string{
 		"accessKeyId": auth.Credentials.AccessKeyID,
 	}
-	log.Info("Determined AWS auth data.", "nonSecretData", nonSecretData)
+	if auth.MaxAttempts != nil {
+		nonSecretData["maxAttempts"] = fmt.Sprintf("%d", *auth.MaxAttempts)
+	}
+	log.Info("Determined AWS auth and SDK config data.", "nonSecretData", nonSecretData)
 
 	// Use collected and validated values to set env vars.
 	data := map[string]string{
 		"AWS_ACCESS_KEY_ID":     auth.Credentials.AccessKeyID,
 		"AWS_SECRET_ACCESS_KEY": auth.Credentials.SecretAccessKey,
+	}
+	data["AWS_MAX_ATTEMPTS"] = fmt.Sprintf("%d", constants.RetryMaxAttemptsDefault)
+	if auth.MaxAttempts != nil {
+		data["AWS_MAX_ATTEMPTS"] = fmt.Sprintf("%d", *auth.MaxAttempts)
 	}
 	for k, v := range data {
 		if err := os.Setenv(k, v); err != nil {
