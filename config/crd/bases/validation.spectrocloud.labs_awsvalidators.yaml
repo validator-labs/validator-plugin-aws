@@ -87,7 +87,8 @@ spec:
                 - message: AmiRules must have unique names
                   rule: self.all(e, size(self.filter(x, x.name == e.name)) == 1)
               auth:
-                description: AwsAuth defines authentication configuration for an AwsValidator.
+                description: AwsAuth defines authentication and AWS SDK configuration
+                  for an AwsValidator.
                 properties:
                   credentials:
                     description: The credentials to use when running in direct mode.
@@ -107,6 +108,13 @@ spec:
                       If true, the AwsValidator will use the AWS SDK's default credential chain to authenticate.
                       Set to true if using node instance IAM role or IAM roles for Service Accounts.
                     type: boolean
+                  maxAttempts:
+                    description: |-
+                      MaxAttempts is the number of times the AWS SDK should retry retryable operations. If
+                      specified, overrides the setting the plugin uses by default for this AwsValidator. Set to 0
+                      to disable retrying.
+                    minimum: 0
+                    type: integer
                   secretName:
                     description: |-
                       Name of a Secret in the same namespace as the AwsValidator that contains AWS credentials.

@@ -40,6 +40,10 @@ Authentication details for the AWS validator controller are provided within each
 > [!NOTE]
 > See [values.yaml](https://github.com/validator-labs/validator-plugin-aws/tree/main/chart/validator-plugin-aws/values.yaml) for additional configuration details for each authentication option.
 
+# Configuring AWS SDK
+
+* The max attempts setting for retries is set to 25. Use `auth.MaxAttempts` to increase this further or set any other desired value. Valid values are those gte 0.
+
 ### Minimal AWS managed IAM permission policies by validation type
 For validation to succeed, certain AWS managed permission policies must be attached to the principal used and/or assumed by the AWS validator controller. The minimal required IAM policies, broken out by validation category, are as follows:
 * IAM
