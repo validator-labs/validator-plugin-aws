@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.1.10](https://github.com/validator-labs/validator-plugin-aws/compare/v0.1.9...v0.1.10) (2024-11-27)
+
+
+### Features
+
+* AWS max retry attempts (configurable and higher default) ([#531](https://github.com/validator-labs/validator-plugin-aws/issues/531)) ([816076b](https://github.com/validator-labs/validator-plugin-aws/commit/816076b2b5f89a98781a72a4c814cccb71318bea))
+
+
+### Dependency Updates
+
+* **deps:** update build digest to d0ef938 ([#526](https://github.com/validator-labs/validator-plugin-aws/issues/526)) ([1b7f547](https://github.com/validator-labs/validator-plugin-aws/commit/1b7f547f2226b0aa4ed0e65742a43253e935895a))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/ec2 to v1.194.0 ([#528](https://github.com/validator-labs/validator-plugin-aws/issues/528)) ([5f14989](https://github.com/validator-labs/validator-plugin-aws/commit/5f1498967ac28abddb08f9779d3ab828c6150d54))
+* **deps:** update module github.com/onsi/gomega to v1.36.0 ([#525](https://github.com/validator-labs/validator-plugin-aws/issues/525)) ([585e14b](https://github.com/validator-labs/validator-plugin-aws/commit/585e14bde00c062db71b603b09168d257a36a0df))
+* **deps:** update module github.com/stretchr/testify to v1.10.0 ([#523](https://github.com/validator-labs/validator-plugin-aws/issues/523)) ([6ca4a99](https://github.com/validator-labs/validator-plugin-aws/commit/6ca4a9972a53639b0fed3c8aacfc4c005463f616))
+
 ## [0.1.9](https://github.com/validator-labs/validator-plugin-aws/compare/v0.1.8...v0.1.9) (2024-11-24)
 
 
