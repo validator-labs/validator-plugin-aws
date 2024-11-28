@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.11](https://github.com/validator-labs/validator-plugin-aws/compare/v0.1.10...v0.1.11) (2024-11-28)
+
+
+### Dependency Updates
+
+* **deps:** update module github.com/validator-labs/validator to v0.1.14 ([#532](https://github.com/validator-labs/validator-plugin-aws/issues/532)) ([96b6a48](https://github.com/validator-labs/validator-plugin-aws/commit/96b6a480f5e0134a150a8834cd1e8b750dcbe6a5))
+
 ## [0.1.10](https://github.com/validator-labs/validator-plugin-aws/compare/v0.1.9...v0.1.10) (2024-11-27)
 
 
