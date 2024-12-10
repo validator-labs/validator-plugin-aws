@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.1.11](https://github.com/validator-labs/validator-plugin-aws/compare/v0.1.10...v0.1.11) (2024-12-10)
+
+
+### Other
+
+* re-scaffold project ([#539](https://github.com/validator-labs/validator-plugin-aws/issues/539)) ([a309fdb](https://github.com/validator-labs/validator-plugin-aws/commit/a309fdb86bf079dc9ba5c812a2e6ce7879309b92))
+
+
+### Dependency Updates
+
+* **deps:** update all non-major dependencies ([#534](https://github.com/validator-labs/validator-plugin-aws/issues/534)) ([c13ebf3](https://github.com/validator-labs/validator-plugin-aws/commit/c13ebf3d51a42c4136c5c974c9914697f76a2670))
+* **deps:** update build digest to c847351 ([#538](https://github.com/validator-labs/validator-plugin-aws/issues/538)) ([c00790d](https://github.com/validator-labs/validator-plugin-aws/commit/c00790daea44b6d534fedbe525142e4c73514aa6))
+* **deps:** update build digest to de3e944 ([#537](https://github.com/validator-labs/validator-plugin-aws/issues/537)) ([4af93aa](https://github.com/validator-labs/validator-plugin-aws/commit/4af93aab3e762779a941d4cc5bd967c4069df4fa))
+* **deps:** update golang.org/x/exp digest to 43b7b7c ([#535](https://github.com/validator-labs/validator-plugin-aws/issues/535)) ([9d7140e](https://github.com/validator-labs/validator-plugin-aws/commit/9d7140e7de13cd94a5b01c9ac1a7698da755e682))
+* **deps:** update module github.com/validator-labs/validator to v0.1.14 ([#532](https://github.com/validator-labs/validator-plugin-aws/issues/532)) ([96b6a48](https://github.com/validator-labs/validator-plugin-aws/commit/96b6a480f5e0134a150a8834cd1e8b750dcbe6a5))
+* **deps:** update module sigs.k8s.io/cluster-api to v1.8.6 ([#540](https://github.com/validator-labs/validator-plugin-aws/issues/540)) ([6706ae8](https://github.com/validator-labs/validator-plugin-aws/commit/6706ae824ebf76df4f135197bb680264aaea10e5))
+* **deps:** update module sigs.k8s.io/cluster-api to v1.9.0 ([#541](https://github.com/validator-labs/validator-plugin-aws/issues/541)) ([41e8b90](https://github.com/validator-labs/validator-plugin-aws/commit/41e8b90eaab282a693d8eee91a05f1ee5c35eccd))
+
 ## [0.1.10](https://github.com/validator-labs/validator-plugin-aws/compare/v0.1.9...v0.1.10) (2024-11-27)
 
 
