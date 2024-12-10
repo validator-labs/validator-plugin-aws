@@ -15,7 +15,7 @@ The following table lists the configurable parameters of the Validator-plugin-aw
 | `controllerManager.manager.containerSecurityContext.allowPrivilegeEscalation` |  | `false` |
 | `controllerManager.manager.containerSecurityContext.capabilities.drop` |  | `["ALL"]` |
 | `controllerManager.manager.image.repository` |  | `"quay.io/validator-labs/validator-plugin-aws"` |
-| `controllerManager.manager.image.tag` | x-release-please-version | `"v0.1.10"` |
+| `controllerManager.manager.image.tag` | x-release-please-version | `"v0.1.11"` |
 | `controllerManager.manager.resources.limits.cpu` |  | `"500m"` |
 | `controllerManager.manager.resources.limits.memory` |  | `"128Mi"` |
 | `controllerManager.manager.resources.requests.cpu` |  | `"10m"` |
