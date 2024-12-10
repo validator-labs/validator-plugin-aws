@@ -228,7 +228,7 @@ func getAccountIDFromARN(arn string) (string, error) {
 		return "", errors.New("error getting org ID from Account ARN")
 	}
 
-	//return first captured group - Account ID
+	// return first captured group - Account ID
 	return matches[1], nil
 }
 
