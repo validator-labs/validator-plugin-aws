@@ -8,7 +8,7 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/validator-labs/validator-plugin-aws/api/v1alpha1"
 	"github.com/validator-labs/validator/pkg/util"
-	//+kubebuilder:scaffold:imports
+	// +kubebuilder:scaffold:imports
 )
 
 func Test_validateAuth(t *testing.T) {
