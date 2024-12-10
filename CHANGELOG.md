@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.11](https://github.com/validator-labs/validator-plugin-aws/compare/v0.1.10...v0.1.11) (2024-12-10)
+
+
+### Dependency Updates
+
+* **deps:** update build digest to c847351 ([#538](https://github.com/validator-labs/validator-plugin-aws/issues/538)) ([c00790d](https://github.com/validator-labs/validator-plugin-aws/commit/c00790daea44b6d534fedbe525142e4c73514aa6))
+* **deps:** update build digest to de3e944 ([#537](https://github.com/validator-labs/validator-plugin-aws/issues/537)) ([4af93aa](https://github.com/validator-labs/validator-plugin-aws/commit/4af93aab3e762779a941d4cc5bd967c4069df4fa))
+* **deps:** update golang.org/x/exp digest to 43b7b7c ([#535](https://github.com/validator-labs/validator-plugin-aws/issues/535)) ([9d7140e](https://github.com/validator-labs/validator-plugin-aws/commit/9d7140e7de13cd94a5b01c9ac1a7698da755e682))
+* **deps:** update module github.com/validator-labs/validator to v0.1.14 ([#532](https://github.com/validator-labs/validator-plugin-aws/issues/532)) ([96b6a48](https://github.com/validator-labs/validator-plugin-aws/commit/96b6a480f5e0134a150a8834cd1e8b750dcbe6a5))
+
 ## [0.1.10](https://github.com/validator-labs/validator-plugin-aws/compare/v0.1.9...v0.1.10) (2024-11-27)
 
 
