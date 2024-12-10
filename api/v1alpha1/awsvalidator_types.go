@@ -311,8 +311,8 @@ func (r *TagRule) SetName(name string) {
 // AwsValidatorStatus defines the observed state of AwsValidator
 type AwsValidatorStatus struct{}
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
 
 // AwsValidator is the Schema for the awsvalidators API
 type AwsValidator struct {
@@ -338,7 +338,7 @@ func (v AwsValidator) ResultCount() int {
 	return v.Spec.ResultCount()
 }
 
-//+kubebuilder:object:root=true
+// +kubebuilder:object:root=true
 
 // AwsValidatorList contains a list of AwsValidator
 type AwsValidatorList struct {
