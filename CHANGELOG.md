@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.12](https://github.com/validator-labs/validator-plugin-aws/compare/v0.1.11...v0.1.12) (2024-12-11)
+
+
+### Dependency Updates
+
+* **deps:** update all non-major dependencies to v0.31.4 ([#543](https://github.com/validator-labs/validator-plugin-aws/issues/543)) ([dcd8dac](https://github.com/validator-labs/validator-plugin-aws/commit/dcd8dacf0715879eccf73d6ff328d5ced645b3eb))
+* **deps:** update golang.org/x/exp digest to 1829a12 ([#542](https://github.com/validator-labs/validator-plugin-aws/issues/542)) ([d86bfb9](https://github.com/validator-labs/validator-plugin-aws/commit/d86bfb9cbcbd3f8efb3161de1789d6f5172b52b3))
+
 ## [0.1.11](https://github.com/validator-labs/validator-plugin-aws/compare/v0.1.10...v0.1.11) (2024-12-10)
 
 
