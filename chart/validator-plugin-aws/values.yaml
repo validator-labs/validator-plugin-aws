@@ -28,7 +28,7 @@ metricsService:
   - name: https
     port: 8443
     protocol: TCP
-    targetPort: https
+    targetPort: 8443
   type: ClusterIP
 auth:
   # Override the service account used by AWS validator (optional, could be used for IAM roles for Service Accounts)
