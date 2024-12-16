@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.1.12](https://github.com/validator-labs/validator-plugin-aws/compare/v0.1.11...v0.1.12) (2024-12-16)
+
+
+### Bug Fixes
+
+* metrics targetPort https -&gt; 8443 ([#548](https://github.com/validator-labs/validator-plugin-aws/issues/548)) ([40c98a0](https://github.com/validator-labs/validator-plugin-aws/commit/40c98a0d8934d9643d6c54f66fcb6bb2db2b10e1))
+
+
+### Dependency Updates
+
+* **deps:** update all non-major dependencies ([#546](https://github.com/validator-labs/validator-plugin-aws/issues/546)) ([768fec5](https://github.com/validator-labs/validator-plugin-aws/commit/768fec57c8db7c0be1d8fd02900a46d597c49c61))
+* **deps:** update all non-major dependencies to v0.31.4 ([#543](https://github.com/validator-labs/validator-plugin-aws/issues/543)) ([dcd8dac](https://github.com/validator-labs/validator-plugin-aws/commit/dcd8dacf0715879eccf73d6ff328d5ced645b3eb))
+* **deps:** update build digest to 5e4aaa9 ([#545](https://github.com/validator-labs/validator-plugin-aws/issues/545)) ([bd3d90f](https://github.com/validator-labs/validator-plugin-aws/commit/bd3d90ff07784fa7ecc31133f6fae9776e7ca8d3))
+* **deps:** update golang.org/x/exp digest to 1829a12 ([#542](https://github.com/validator-labs/validator-plugin-aws/issues/542)) ([d86bfb9](https://github.com/validator-labs/validator-plugin-aws/commit/d86bfb9cbcbd3f8efb3161de1789d6f5172b52b3))
+* **deps:** update golang.org/x/exp digest to 4a55095 ([#549](https://github.com/validator-labs/validator-plugin-aws/issues/549)) ([7e623b7](https://github.com/validator-labs/validator-plugin-aws/commit/7e623b7794e183784856a9bad29f439744ee9bd3))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/ec2 to v1.197.0 ([#547](https://github.com/validator-labs/validator-plugin-aws/issues/547)) ([c0c616a](https://github.com/validator-labs/validator-plugin-aws/commit/c0c616a619e7484b0064d10e9164fb95df23bba5))
+
 ## [0.1.11](https://github.com/validator-labs/validator-plugin-aws/compare/v0.1.10...v0.1.11) (2024-12-10)
 
 
