@@ -19,7 +19,7 @@ require (
 	github.com/onsi/gomega v1.36.1
 	github.com/stretchr/testify v1.10.0
 	github.com/validator-labs/validator v0.1.15
-	golang.org/x/exp v0.0.0-20241215155358-4a5509556b9e
+	golang.org/x/exp v0.0.0-20241217172543-b2144cdd0a67
 	k8s.io/api v0.32.0
 	k8s.io/apimachinery v0.32.0
 	k8s.io/client-go v0.32.0
