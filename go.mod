@@ -5,15 +5,15 @@ go 1.23.3
 require (
 	github.com/L30Bola/aws-policy v0.0.0-20230126045340-5e6118545ac1
 	github.com/aws/aws-sdk-go-v2 v1.32.7
-	github.com/aws/aws-sdk-go-v2/config v1.28.7
-	github.com/aws/aws-sdk-go-v2/credentials v1.17.48
-	github.com/aws/aws-sdk-go-v2/service/ec2 v1.198.1
+	github.com/aws/aws-sdk-go-v2/config v1.28.8
+	github.com/aws/aws-sdk-go-v2/credentials v1.17.49
+	github.com/aws/aws-sdk-go-v2/service/ec2 v1.198.2
 	github.com/aws/aws-sdk-go-v2/service/efs v1.34.2
-	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing v1.28.7
-	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.43.2
+	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing v1.28.8
+	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.43.3
 	github.com/aws/aws-sdk-go-v2/service/iam v1.38.3
-	github.com/aws/aws-sdk-go-v2/service/servicequotas v1.25.8
-	github.com/aws/aws-sdk-go-v2/service/sts v1.33.3
+	github.com/aws/aws-sdk-go-v2/service/servicequotas v1.25.9
+	github.com/aws/aws-sdk-go-v2/service/sts v1.33.4
 	github.com/go-logr/logr v1.4.2
 	github.com/onsi/ginkgo/v2 v2.22.2
 	github.com/onsi/gomega v1.36.2
@@ -24,7 +24,7 @@ require (
 	k8s.io/apimachinery v0.32.0
 	k8s.io/client-go v0.32.0
 	sigs.k8s.io/cluster-api v1.9.3
-	sigs.k8s.io/controller-runtime v0.19.3
+	sigs.k8s.io/controller-runtime v0.19.4
 )
 
 require (
