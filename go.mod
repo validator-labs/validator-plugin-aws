@@ -5,15 +5,15 @@ go 1.23.3
 require (
 	github.com/L30Bola/aws-policy v0.0.0-20230126045340-5e6118545ac1
 	github.com/aws/aws-sdk-go-v2 v1.32.8
-	github.com/aws/aws-sdk-go-v2/config v1.28.9
-	github.com/aws/aws-sdk-go-v2/credentials v1.17.50
+	github.com/aws/aws-sdk-go-v2/config v1.28.10
+	github.com/aws/aws-sdk-go-v2/credentials v1.17.51
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.198.3
 	github.com/aws/aws-sdk-go-v2/service/efs v1.34.3
 	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing v1.28.9
 	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.43.4
 	github.com/aws/aws-sdk-go-v2/service/iam v1.38.4
 	github.com/aws/aws-sdk-go-v2/service/servicequotas v1.25.10
-	github.com/aws/aws-sdk-go-v2/service/sts v1.33.5
+	github.com/aws/aws-sdk-go-v2/service/sts v1.33.6
 	github.com/go-logr/logr v1.4.2
 	github.com/onsi/ginkgo/v2 v2.22.2
 	github.com/onsi/gomega v1.36.2
