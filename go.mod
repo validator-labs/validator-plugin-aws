@@ -1,6 +1,6 @@
 module github.com/validator-labs/validator-plugin-aws
 
-go 1.23.3
+go 1.23.6
 
 require (
 	github.com/L30Bola/aws-policy v0.0.0-20230126045340-5e6118545ac1
