@@ -4,16 +4,16 @@ go 1.23.6
 
 require (
 	github.com/L30Bola/aws-policy v0.0.0-20230126045340-5e6118545ac1
-	github.com/aws/aws-sdk-go-v2 v1.34.0
-	github.com/aws/aws-sdk-go-v2/config v1.29.2
-	github.com/aws/aws-sdk-go-v2/credentials v1.17.55
-	github.com/aws/aws-sdk-go-v2/service/ec2 v1.201.1
-	github.com/aws/aws-sdk-go-v2/service/efs v1.34.7
-	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing v1.28.13
-	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.43.8
-	github.com/aws/aws-sdk-go-v2/service/iam v1.38.8
-	github.com/aws/aws-sdk-go-v2/service/servicequotas v1.25.14
-	github.com/aws/aws-sdk-go-v2/service/sts v1.33.10
+	github.com/aws/aws-sdk-go-v2 v1.36.1
+	github.com/aws/aws-sdk-go-v2/config v1.29.6
+	github.com/aws/aws-sdk-go-v2/credentials v1.17.59
+	github.com/aws/aws-sdk-go-v2/service/ec2 v1.202.4
+	github.com/aws/aws-sdk-go-v2/service/efs v1.34.11
+	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing v1.28.17
+	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.43.12
+	github.com/aws/aws-sdk-go-v2/service/iam v1.39.1
+	github.com/aws/aws-sdk-go-v2/service/servicequotas v1.25.18
+	github.com/aws/aws-sdk-go-v2/service/sts v1.33.14
 	github.com/go-logr/logr v1.4.2
 	github.com/onsi/ginkgo/v2 v2.22.2
 	github.com/onsi/gomega v1.36.2
@@ -31,14 +31,14 @@ require (
 	cel.dev/expr v0.18.0 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.0 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
-	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.25 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/configsources v1.3.29 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.6.29 // indirect
+	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.28 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.3.32 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.6.32 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/ini v1.8.2 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.12.2 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.12.10 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sso v1.24.12 // indirect
-	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.28.11 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.12.13 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sso v1.24.15 // indirect
+	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.28.14 // indirect
 	github.com/aws/smithy-go v1.22.2 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
@@ -68,7 +68,6 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.20.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
-	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
