@@ -22,7 +22,7 @@ require (
 	golang.org/x/exp v0.0.0-20250228200357-dead58393ab7
 	k8s.io/api v0.32.2
 	k8s.io/apimachinery v0.32.2
-	k8s.io/client-go v0.32.2
+	k8s.io/client-go v1.5.2
 	sigs.k8s.io/cluster-api v1.9.5
 	sigs.k8s.io/controller-runtime v0.20.2
 )
